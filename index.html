@@ -18,7 +18,7 @@
   --red:#c85a5a;--red-dim:rgba(200,90,90,0.12);
   --blue:#4a90c8;--blue-dim:rgba(74,144,200,0.12);
 }
-html{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.6;}
+html{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:17px;line-height:1.6;}
 body{min-height:100vh;display:flex;flex-direction:column;}
 
 nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:10;background:rgba(13,13,13,0.92);backdrop-filter:blur(12px);}
@@ -34,8 +34,8 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2
 
 /* AUDIT PAGE */
 .audit-wrap{max-width:640px;margin:0 auto;padding:3rem 2rem 5rem;width:100%;}
-.page-title{font-family:'DM Serif Display',serif;font-size:28px;color:var(--text);margin-bottom:6px;letter-spacing:-0.02em;}
-.page-sub{font-size:14px;color:var(--muted);margin-bottom:2rem;font-weight:300;}
+.page-title{font-family:'DM Serif Display',serif;font-size:34px;color:var(--text);margin-bottom:8px;letter-spacing:-0.02em;}
+.page-sub{font-size:15px;color:var(--muted);margin-bottom:2rem;font-weight:300;}
 .search-card{background:var(--surface);border:0.5px solid var(--border2);border-radius:16px;padding:1.25rem;}
 .input-row{display:flex;gap:8px;}
 .search-input{flex:1;background:var(--surface2);border:0.5px solid var(--border2);border-radius:10px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color 0.2s;}
@@ -59,18 +59,18 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2
 
 .biz-row{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;}
 .biz-info{}
-.biz-name{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text);letter-spacing:-0.02em;}
-.biz-address{font-size:13px;color:var(--muted);margin-top:2px;font-weight:300;}
+.biz-name{font-family:'DM Serif Display',serif;font-size:26px;color:var(--text);letter-spacing:-0.02em;}
+.biz-address{font-size:14px;color:var(--muted);margin-top:3px;font-weight:300;}
 .biz-actions{display:flex;gap:8px;flex-shrink:0;}
 
 .score-hero{display:grid;grid-template-columns:auto 1fr;gap:1.25rem;align-items:center;background:var(--surface);border:0.5px solid var(--border2);border-radius:16px;padding:1.5rem;margin-bottom:1.25rem;}
 .score-ring-wrap{position:relative;width:80px;height:80px;flex-shrink:0;}
 .score-ring-wrap svg{position:absolute;top:0;left:0;transform:rotate(-90deg);}
 .score-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.score-num{font-family:'DM Serif Display',serif;font-size:26px;line-height:1;}
+.score-num{font-family:'DM Serif Display',serif;font-size:30px;line-height:1;}
 .score-denom{font-size:11px;color:var(--muted);font-weight:300;}
-.score-info h2{font-family:'DM Serif Display',serif;font-size:18px;color:var(--text);margin-bottom:4px;}
-.score-info p{font-size:13px;font-weight:300;color:var(--muted);line-height:1.5;}
+.score-info h2{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text);margin-bottom:6px;}
+.score-info p{font-size:15px;font-weight:300;color:var(--muted);line-height:1.5;}
 
 .pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.25rem;}
 .pill{font-size:11px;padding:4px 10px;border-radius:20px;border:0.5px solid;}
@@ -78,17 +78,17 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2
 .pill-warn{color:var(--amber);background:var(--amber-dim);border-color:rgba(200,134,58,0.2);}
 .pill-good{color:var(--green);background:var(--green-dim);border-color:rgba(90,158,111,0.2);}
 
-.checks{display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem;}
-.check-card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem;}
+.checks{display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem;}
+.check-card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1.2rem 1.4rem;}
 .check-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
 .check-left{display:flex;align-items:center;gap:8px;}
 .sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.check-name{font-size:13px;font-weight:500;color:var(--text);}
-.check-pts{font-size:12px;font-weight:300;}
-.check-val{font-size:13px;font-weight:300;color:var(--muted);margin-bottom:4px;}
-.check-rec{font-size:12px;font-weight:300;line-height:1.5;}
-.bar-track{height:3px;background:var(--border2);border-radius:2px;margin-top:8px;}
-.bar-fill{height:3px;border-radius:2px;transition:width 0.8s cubic-bezier(0.16,1,0.3,1);}
+.check-name{font-size:15px;font-weight:500;color:var(--text);}
+.check-pts{font-size:14px;font-weight:400;}
+.check-val{font-size:14px;font-weight:300;color:var(--muted);margin-bottom:6px;}
+.check-rec{font-size:14px;font-weight:300;line-height:1.6;}
+.bar-track{height:5px;background:var(--border2);border-radius:3px;margin-top:10px;}
+.bar-fill{height:5px;border-radius:3px;transition:width 0.8s cubic-bezier(0.16,1,0.3,1);}
 
 /* OUTREACH MODAL */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;align-items:center;justify-content:center;padding:1.5rem;}
@@ -122,6 +122,8 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2
 .empty-state{text-align:center;padding:4rem 2rem;color:var(--muted);}
 .empty-state p{font-size:14px;font-weight:300;}
 
+.btn-pdf{color:var(--accent);border-color:rgba(200,169,110,0.3);background:var(--accent-dim);}
+.btn-pdf:hover{background:rgba(200,169,110,0.2);}
 footer{margin-top:auto;padding:1.25rem 2rem;border-top:0.5px solid var(--border);text-align:center;font-size:12px;font-weight:300;color:var(--hint);}
 
 @media(max-width:600px){
@@ -133,6 +135,7 @@ footer{margin-top:auto;padding:1.25rem 2rem;border-top:0.5px solid var(--border)
   .audit-wrap,.prospects-wrap{padding:2rem 1.25rem 4rem;}
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -164,6 +167,7 @@ footer{margin-top:auto;padding:1.25rem 2rem;border-top:0.5px solid var(--border)
         </div>
         <div class="biz-actions">
           <button class="btn btn-sm" onclick="openOutreach()">Outreach ↗</button>
+          <button class="btn btn-sm btn-pdf" id="pdfBtn" onclick="downloadPDF()">↓ PDF</button>
           <button class="btn btn-sm btn-green" id="saveBtn" onclick="saveProspect()">+ Save</button>
         </div>
       </div>
@@ -544,6 +548,300 @@ function animateNum(id, from, to, dur) {
 
 document.getElementById('bizInput').addEventListener('keydown', e => { if (e.key === 'Enter') runAudit(); });
 updateProspectCount();
+
+function downloadPDF() {
+  if (!auditData) return;
+  if (!window.jspdf) { alert('PDF library not loaded yet — please try again in a moment.'); return; }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+  const checks = buildChecks(auditData);
+  const total = checks.reduce((a, c) => a + c.score, 0);
+  const badChecks = checks.filter(c => c.status === 'bad');
+  const warnChecks = checks.filter(c => c.status === 'warn');
+  const goodChecks = checks.filter(c => c.status === 'good');
+
+  const bizName = auditData.name;
+  const bizAddress = auditData.formatted_address || '';
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  const W = 210, ml = 18, mr = 18, cw = W - ml - mr;
+
+  // Light-theme colour palette (prints cleanly)
+  const C = {
+    bg:        [248, 247, 244],
+    white:     [255, 255, 255],
+    text:      [26, 26, 26],
+    muted:     [100, 98, 95],
+    border:    [220, 218, 213],
+    headerBg:  [26, 26, 26],
+    accent:    [180, 140, 70],
+    accentBg:  [250, 245, 235],
+    green:     [45, 122, 71],
+    greenBg:   [235, 248, 240],
+    amber:     [181, 98, 26],
+    amberBg:   [254, 244, 230],
+    red:       [181, 48, 48],
+    redBg:     [254, 235, 235],
+  };
+
+  let y = 0;
+
+  const addPage = () => {
+    doc.addPage();
+    doc.setFillColor(...C.bg);
+    doc.rect(0, 0, W, 297, 'F');
+    y = 18;
+  };
+  const checkPage = (needed = 20) => { if (y + needed > 272) { addPage(); return true; } return false; };
+
+  const sectionTitle = (title) => {
+    checkPage(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...C.accent);
+    doc.text(title, ml, y);
+    doc.setDrawColor(...C.accent);
+    doc.setLineWidth(0.4);
+    doc.line(ml, y + 2, ml + cw, y + 2);
+    y += 9;
+  };
+
+  const drawPASBox = (label, text, bgColor, borderColor) => {
+    const lines = doc.splitTextToSize(text, cw - 12);
+    const boxH = 9 + lines.length * 5.2 + 5;
+    checkPage(boxH + 4);
+    doc.setFillColor(...bgColor);
+    doc.setDrawColor(...borderColor);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(ml, y, cw, boxH, 2, 2, 'FD');
+    // Left accent bar
+    doc.setFillColor(...borderColor);
+    doc.roundedRect(ml, y, 3.5, boxH, 1, 1, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...borderColor);
+    doc.text(label, ml + 7, y + 7);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(...C.text);
+    doc.text(lines, ml + 7, y + 13);
+    y += boxH + 4;
+  };
+
+  // ── PAGE BACKGROUND ──
+  doc.setFillColor(...C.bg);
+  doc.rect(0, 0, W, 297, 'F');
+
+  // ── HEADER ──
+  doc.setFillColor(...C.headerBg);
+  doc.rect(0, 0, W, 26, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.setTextColor(200, 169, 110);
+  doc.text('Grow', ml, 16);
+  doc.setTextColor(240, 237, 232);
+  doc.text('Stars', ml + doc.getTextWidth('Grow') + 0.5, 16);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(120, 115, 108);
+  doc.text('Google Reputation Audit', W - mr, 16, { align: 'right' });
+
+  // ── BUSINESS INFO ──
+  y = 36;
+  const nameLines = doc.splitTextToSize(bizName, cw - 40);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(20);
+  doc.setTextColor(...C.text);
+  doc.text(nameLines, ml, y);
+  y += nameLines.length * 8.5;
+  if (bizAddress) {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(...C.muted);
+    doc.text(bizAddress, ml, y);
+    y += 5.5;
+  }
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(...C.muted);
+  doc.text(`Audit date: ${dateStr}`, ml, y);
+  y += 10;
+
+  // ── SCORE CARD ──
+  const scoreColor = total >= 80 ? C.green : total >= 60 ? C.amber : C.red;
+  const scoreBg    = total >= 80 ? C.greenBg : total >= 60 ? C.amberBg : C.redBg;
+  const cardH = 36;
+  doc.setFillColor(...C.white);
+  doc.setDrawColor(...C.border);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(ml, y, cw, cardH, 3, 3, 'FD');
+  // Score box
+  doc.setFillColor(...scoreBg);
+  doc.roundedRect(ml + 4, y + 4, 28, 28, 2, 2, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(22);
+  doc.setTextColor(...scoreColor);
+  doc.text(String(total), ml + 18, y + 18, { align: 'center' });
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  doc.setTextColor(...C.muted);
+  doc.text('/100', ml + 18, y + 25, { align: 'center' });
+  // Grade
+  let grade, gradeDesc;
+  if (total >= 80)      { grade = 'Strong profile';      gradeDesc = 'Small tweaks can push you to the top.'; }
+  else if (total >= 60) { grade = 'Needs improvement';   gradeDesc = 'Key gaps are costing you leads.'; }
+  else if (total >= 40) { grade = 'Significant gaps';    gradeDesc = 'Several issues are hurting visibility and trust.'; }
+  else                  { grade = 'Critical issues';     gradeDesc = 'Immediate action needed to compete locally.'; }
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(13);
+  doc.setTextColor(...C.text);
+  doc.text(grade, ml + 38, y + 13);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(...C.muted);
+  doc.text(gradeDesc, ml + 38, y + 20);
+  // Stats row
+  const stats = [
+    { label: `${badChecks.length} issue${badChecks.length !== 1 ? 's' : ''}`,    color: C.red   },
+    { label: `${warnChecks.length} warning${warnChecks.length !== 1 ? 's' : ''}`, color: C.amber },
+    { label: `${goodChecks.length} passed`,                                        color: C.green },
+  ];
+  let sx = ml + 38;
+  stats.forEach((s, i) => {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...s.color);
+    doc.text(s.label, sx, y + 30);
+    sx += doc.getTextWidth(s.label) + 2;
+    if (i < stats.length - 1) {
+      doc.setTextColor(...C.muted);
+      doc.text(' · ', sx, y + 30);
+      sx += doc.getTextWidth(' · ');
+    }
+  });
+  y += cardH + 10;
+
+  // ── PAS FRAMEWORK ──
+  sectionTitle('WHY THIS MATTERS — PAS FRAMEWORK');
+
+  const problemParts = [];
+  if (badChecks.length)  problemParts.push(`${badChecks.length} critical issue${badChecks.length > 1 ? 's' : ''} (${badChecks.map(c => c.name.toLowerCase()).join(', ')})`);
+  if (warnChecks.length) problemParts.push(`${warnChecks.length} area${warnChecks.length > 1 ? 's' : ''} needing improvement (${warnChecks.map(c => c.name.toLowerCase()).join(', ')})`);
+  const problemText = problemParts.length
+    ? `${bizName}'s Google Business Profile scored ${total}/100 and has ${problemParts.join(' and ')}.`
+    : `${bizName}'s Google Business Profile scored ${total}/100 and is well optimised, with minor room for improvement.`;
+
+  const agitateMap = {
+    'Rating & reviews':    'Low ratings deter up to 94% of new customers — they choose competitors with stronger social proof instead of risking a bad experience.',
+    'Owner response rate': 'Unanswered reviews signal poor customer service. 89% of consumers read owner responses before making a purchase decision.',
+    'Photo count':         'Listings with more photos receive up to 520% more phone calls. Without enough photos, customers choose businesses they can visualise.',
+    'Business hours':      'Missing hours cause direct customer loss — when someone can\'t confirm you\'re open, they go to the next result, and Google may rank you lower.',
+    'Website & phone':     'Incomplete contact details reduce your Google ranking and leave customers with no easy way to reach or research you before buying.',
+  };
+  const issueChecks = [...badChecks, ...warnChecks];
+  const agitateLines = issueChecks.slice(0, 2).map(c => agitateMap[c.name]).filter(Boolean);
+  const agitateText = agitateLines.length
+    ? agitateLines.join(' ')
+    : 'Even a well-performing profile can slip as competitors improve. Staying proactive is the difference between dominating local search and being overtaken.';
+
+  const solutionActions = [];
+  if (issueChecks.some(c => c.name === 'Rating & reviews'))    solutionActions.push('automated review generation campaigns');
+  if (issueChecks.some(c => c.name === 'Owner response rate')) solutionActions.push('AI-powered review response management');
+  if (issueChecks.some(c => c.name === 'Photo count'))         solutionActions.push('photo optimisation guidance');
+  if (issueChecks.some(c => c.name === 'Business hours') || issueChecks.some(c => c.name === 'Website & phone'))
+    solutionActions.push('profile completion and optimisation');
+  if (!solutionActions.length) solutionActions.push('ongoing profile monitoring and reputation management');
+  const solutionText = `Grow Stars resolves these gaps with ${solutionActions.join(', ')}. Our clients typically see measurable improvement in calls, direction requests, and rankings within 30 days — without any manual effort on your part.`;
+
+  drawPASBox('PROBLEM — Current Situation',    problemText,  C.redBg,   C.red);
+  drawPASBox('AGITATE — What It\'s Costing You', agitateText, C.amberBg, C.amber);
+  drawPASBox('SOLUTION — How We Fix It',        solutionText, C.greenBg, C.green);
+  y += 4;
+
+  // ── AUDIT BREAKDOWN ──
+  sectionTitle('AUDIT BREAKDOWN');
+  checks.forEach(c => {
+    checkPage(22);
+    const color  = c.status === 'good' ? C.green : c.status === 'warn' ? C.amber : C.red;
+    const pct    = c.score / c.max;
+    doc.setFillColor(...C.white);
+    doc.setDrawColor(...C.border);
+    doc.setLineWidth(0.2);
+    doc.roundedRect(ml, y, cw, 19, 1.5, 1.5, 'FD');
+    doc.setFillColor(...color);
+    doc.roundedRect(ml, y, 3.5, 19, 1.5, 0, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(...C.text);
+    doc.text(c.name, ml + 8, y + 7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...C.muted);
+    doc.text(c.val, ml + 8, y + 14);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(...color);
+    doc.text(`${c.score}/${c.max}`, W - mr - 2, y + 9, { align: 'right' });
+    const barW = 34, barX = W - mr - barW - 14;
+    doc.setFillColor(220, 218, 213);
+    doc.roundedRect(barX, y + 13, barW, 2.5, 1, 1, 'F');
+    if (pct > 0) { doc.setFillColor(...color); doc.roundedRect(barX, y + 13, barW * pct, 2.5, 1, 1, 'F'); }
+    y += 22;
+  });
+  y += 4;
+
+  // ── PRIORITY ACTIONS ──
+  sectionTitle('PRIORITY RECOMMENDATIONS');
+  [...badChecks, ...warnChecks].slice(0, 5).forEach((c, i) => {
+    const recLines = doc.splitTextToSize(c.rec, cw - 16);
+    const rowH = 9 + recLines.length * 5.2 + 6;
+    checkPage(rowH + 4);
+    const color = c.status === 'bad' ? C.red : C.amber;
+    const bg    = c.status === 'bad' ? C.redBg : C.amberBg;
+    doc.setFillColor(...C.white);
+    doc.setDrawColor(...C.border);
+    doc.setLineWidth(0.2);
+    doc.roundedRect(ml, y, cw, rowH, 1.5, 1.5, 'FD');
+    // Number badge
+    const badgeY = y + (rowH - 8) / 2;
+    doc.setFillColor(...bg);
+    doc.roundedRect(ml + 4, badgeY, 8, 8, 1, 1, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...color);
+    doc.text(String(i + 1), ml + 8, badgeY + 5.8, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(...C.text);
+    doc.text(c.name, ml + 16, y + 8);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(...C.muted);
+    doc.text(recLines, ml + 16, y + 14);
+    y += rowH + 4;
+  });
+
+  // ── FOOTER on every page ──
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setDrawColor(...C.border);
+    doc.setLineWidth(0.3);
+    doc.line(ml, 283, W - mr, 283);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...C.muted);
+    doc.text('Grow Stars · Google Reputation Audit', ml, 290);
+    doc.text(`Page ${i} of ${pageCount}`, W - mr, 290, { align: 'right' });
+  }
+
+  const safeName = bizName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+  const datePart = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+  doc.save(`growstars_audit_${safeName}_${datePart}.pdf`);
+}
 </script>
 </body>
 </html>
