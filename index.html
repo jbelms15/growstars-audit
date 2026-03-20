@@ -4,127 +4,124 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Grow Stars — Prospecting Tool</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#0d0d0d;--surface:#161616;--surface2:#1e1e1e;--surface3:#252525;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
-  --text:#f0ede8;--muted:#7a7672;--hint:#4a4845;
-  --accent:#c8a96e;--accent-dim:rgba(200,169,110,0.12);
-  --green:#5a9e6f;--green-dim:rgba(90,158,111,0.12);
-  --amber:#c8863a;--amber-dim:rgba(200,134,58,0.12);
-  --red:#c85a5a;--red-dim:rgba(200,90,90,0.12);
-  --blue:#4a90c8;--blue-dim:rgba(74,144,200,0.12);
+  --bg:#faf9f6;--surface:#ffffff;--surface2:#f4f2ed;--surface3:#ede9e3;
+  --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.16);
+  --text:#1a1a1a;--muted:#6b6560;--hint:#a09890;
+  --accent:#c8a96e;--accent-dim:rgba(200,169,110,0.13);
+  --green:#2d7a47;--green-dim:rgba(45,122,71,0.10);
+  --amber:#b56520;--amber-dim:rgba(181,101,32,0.10);
+  --red:#b53030;--red-dim:rgba(181,48,48,0.10);
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.07),0 2px 8px rgba(0,0,0,0.04);
+  --shadow:0 2px 8px rgba(0,0,0,0.09),0 6px 24px rgba(0,0,0,0.05);
 }
-html{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:17px;line-height:1.6;}
+html{background:var(--bg);color:var(--text);font-family:Arial,'Helvetica Neue',sans-serif;font-size:17px;line-height:1.6;}
 body{min-height:100vh;display:flex;flex-direction:column;}
 
-nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:10;background:rgba(13,13,13,0.92);backdrop-filter:blur(12px);}
-.logo{font-family:'DM Serif Display',serif;font-size:18px;color:var(--accent);}
-.logo span{color:var(--text);}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border2);position:sticky;top:0;z-index:10;background:rgba(250,249,246,0.96);backdrop-filter:blur(12px);}
+.logo{font-family:Georgia,'Times New Roman',serif;font-size:19px;color:var(--text);letter-spacing:-0.01em;}
+.logo span{color:var(--accent);}
 .nav-tabs{display:flex;gap:4px;}
-.nav-tab{font-size:13px;font-weight:400;color:var(--muted);padding:6px 14px;border-radius:8px;border:none;background:transparent;cursor:pointer;transition:all 0.2s;}
+.nav-tab{font-size:13px;color:var(--muted);padding:6px 14px;border-radius:8px;border:none;background:transparent;cursor:pointer;transition:all 0.2s;font-family:Arial,sans-serif;}
 .nav-tab:hover{color:var(--text);background:var(--surface2);}
-.nav-tab.active{color:var(--accent);background:var(--accent-dim);}
+.nav-tab.active{color:var(--accent);background:var(--accent-dim);font-weight:600;}
 
 .page{display:none;flex:1;}
 .page.active{display:flex;flex-direction:column;}
 
 /* AUDIT PAGE */
 .audit-wrap{max-width:640px;margin:0 auto;padding:3rem 2rem 5rem;width:100%;}
-.page-title{font-family:'DM Serif Display',serif;font-size:34px;color:var(--text);margin-bottom:8px;letter-spacing:-0.02em;}
-.page-sub{font-size:15px;color:var(--muted);margin-bottom:2rem;font-weight:300;}
-.search-card{background:var(--surface);border:0.5px solid var(--border2);border-radius:16px;padding:1.25rem;}
+.page-title{font-family:Georgia,'Times New Roman',serif;font-size:34px;color:var(--text);margin-bottom:8px;letter-spacing:-0.02em;}
+.page-sub{font-size:15px;color:var(--muted);margin-bottom:2rem;}
+.search-card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:1.25rem;box-shadow:var(--shadow-sm);}
 .input-row{display:flex;gap:8px;}
-.search-input{flex:1;background:var(--surface2);border:0.5px solid var(--border2);border-radius:10px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color 0.2s;}
-.search-input::placeholder{color:var(--muted);}
-.search-input:focus{border-color:var(--accent);}
-.btn{font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 18px;border-radius:10px;border:0.5px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.search-input{flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:11px 14px;font-family:Arial,sans-serif;font-size:15px;color:var(--text);outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+.search-input::placeholder{color:var(--hint);}
+.search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim);}
+.btn{font-family:Arial,sans-serif;font-size:14px;padding:10px 18px;border-radius:10px;border:1px solid var(--border2);background:var(--surface);color:var(--text);cursor:pointer;transition:all 0.2s;white-space:nowrap;}
 .btn:hover{background:var(--surface2);}
 .btn:active{transform:scale(0.97);}
-.btn-primary{background:var(--accent);color:#0d0d0d;border-color:var(--accent);font-weight:500;}
-.btn-primary:hover{opacity:0.88;background:var(--accent);}
-.btn-green{background:var(--green-dim);color:var(--green);border-color:rgba(90,158,111,0.3);}
-.btn-green:hover{background:rgba(90,158,111,0.2);}
-.btn-sm{padding:6px 12px;font-size:12px;border-radius:8px;}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;}
+.btn-primary:hover{background:#b8954e;border-color:#b8954e;}
+.btn-green{background:var(--green-dim);color:var(--green);border-color:rgba(45,122,71,0.3);font-weight:600;}
+.btn-green:hover{background:rgba(45,122,71,0.18);}
+.btn-pdf{color:var(--accent);border-color:rgba(200,169,110,0.4);background:var(--accent-dim);font-weight:600;}
+.btn-pdf:hover{background:rgba(200,169,110,0.22);}
+.btn-sm{padding:6px 12px;font-size:13px;border-radius:8px;}
 
 #status{text-align:center;font-size:13px;color:var(--muted);min-height:20px;margin:1rem 0;display:flex;align-items:center;justify-content:center;gap:8px;}
-.spinner{width:14px;height:14px;border:1.5px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+.spinner{width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
 #results{display:none;margin-top:2rem;animation:fadeUp 0.4s ease;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
 
 .biz-row{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;}
-.biz-info{}
-.biz-name{font-family:'DM Serif Display',serif;font-size:26px;color:var(--text);letter-spacing:-0.02em;}
-.biz-address{font-size:14px;color:var(--muted);margin-top:3px;font-weight:300;}
+.biz-name{font-family:Georgia,'Times New Roman',serif;font-size:26px;color:var(--text);letter-spacing:-0.02em;}
+.biz-address{font-size:14px;color:var(--muted);margin-top:3px;}
 .biz-actions{display:flex;gap:8px;flex-shrink:0;}
 
-.score-hero{display:grid;grid-template-columns:auto 1fr;gap:1.25rem;align-items:center;background:var(--surface);border:0.5px solid var(--border2);border-radius:16px;padding:1.5rem;margin-bottom:1.25rem;}
-.score-ring-wrap{position:relative;width:80px;height:80px;flex-shrink:0;}
+.score-hero{display:grid;grid-template-columns:auto 1fr;gap:1.5rem;align-items:center;background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:1.5rem;margin-bottom:1.25rem;box-shadow:var(--shadow-sm);}
+.score-ring-wrap{position:relative;width:84px;height:84px;flex-shrink:0;}
 .score-ring-wrap svg{position:absolute;top:0;left:0;transform:rotate(-90deg);}
 .score-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.score-num{font-family:'DM Serif Display',serif;font-size:30px;line-height:1;}
-.score-denom{font-size:11px;color:var(--muted);font-weight:300;}
-.score-info h2{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text);margin-bottom:6px;}
-.score-info p{font-size:15px;font-weight:300;color:var(--muted);line-height:1.5;}
+.score-num{font-family:Georgia,'Times New Roman',serif;font-size:30px;line-height:1;color:var(--text);}
+.score-denom{font-size:11px;color:var(--muted);}
+.score-info h2{font-family:Georgia,'Times New Roman',serif;font-size:22px;color:var(--text);margin-bottom:6px;}
+.score-info p{font-size:15px;color:var(--muted);line-height:1.5;}
 
 .pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.25rem;}
-.pill{font-size:11px;padding:4px 10px;border-radius:20px;border:0.5px solid;}
-.pill-bad{color:var(--red);background:var(--red-dim);border-color:rgba(200,90,90,0.2);}
-.pill-warn{color:var(--amber);background:var(--amber-dim);border-color:rgba(200,134,58,0.2);}
-.pill-good{color:var(--green);background:var(--green-dim);border-color:rgba(90,158,111,0.2);}
+.pill{font-size:12px;padding:4px 11px;border-radius:20px;border:1px solid;font-weight:600;}
+.pill-bad{color:var(--red);background:var(--red-dim);border-color:rgba(181,48,48,0.25);}
+.pill-warn{color:var(--amber);background:var(--amber-dim);border-color:rgba(181,101,32,0.25);}
+.pill-good{color:var(--green);background:var(--green-dim);border-color:rgba(45,122,71,0.25);}
 
 .checks{display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem;}
-.check-card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1.2rem 1.4rem;}
+.check-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.4rem;box-shadow:var(--shadow-sm);}
 .check-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
-.check-left{display:flex;align-items:center;gap:8px;}
-.sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.check-name{font-size:15px;font-weight:500;color:var(--text);}
-.check-pts{font-size:14px;font-weight:400;}
-.check-val{font-size:14px;font-weight:300;color:var(--muted);margin-bottom:6px;}
-.check-rec{font-size:14px;font-weight:300;line-height:1.6;}
+.check-left{display:flex;align-items:center;gap:9px;}
+.sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.check-name{font-family:Georgia,'Times New Roman',serif;font-size:15px;font-weight:700;color:var(--text);}
+.check-pts{font-size:14px;font-weight:700;}
+.check-val{font-size:14px;color:var(--muted);margin-bottom:6px;}
+.check-rec{font-size:14px;line-height:1.6;}
 .bar-track{height:5px;background:var(--border2);border-radius:3px;margin-top:10px;}
 .bar-fill{height:5px;border-radius:3px;transition:width 0.8s cubic-bezier(0.16,1,0.3,1);}
 
-/* OUTREACH MODAL */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;align-items:center;justify-content:center;padding:1.5rem;}
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:100;align-items:center;justify-content:center;padding:1.5rem;}
 .modal-bg.open{display:flex;}
-.modal{background:var(--surface);border:0.5px solid var(--border2);border-radius:16px;padding:1.75rem;max-width:520px;width:100%;animation:fadeUp 0.3s ease;max-height:90vh;overflow-y:auto;}
-.modal h3{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);margin-bottom:4px;}
-.modal-sub{font-size:13px;color:var(--muted);margin-bottom:1.25rem;font-weight:300;}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:1.75rem;max-width:520px;width:100%;animation:fadeUp 0.3s ease;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow);}
+.modal h3{font-family:Georgia,'Times New Roman',serif;font-size:20px;color:var(--text);margin-bottom:4px;}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:1.25rem;}
 .msg-tabs{display:flex;gap:6px;margin-bottom:1rem;}
-.msg-tab{font-size:12px;padding:5px 12px;border-radius:8px;border:0.5px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;}
-.msg-tab.active{background:var(--accent-dim);color:var(--accent);border-color:rgba(200,169,110,0.3);}
-.modal textarea{width:100%;min-height:180px;background:var(--surface2);border:0.5px solid var(--border2);border-radius:10px;padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:300;line-height:1.6;color:var(--text);outline:none;resize:vertical;}
+.msg-tab{font-size:12px;padding:5px 12px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:Arial,sans-serif;}
+.msg-tab.active{background:var(--accent-dim);color:var(--accent);border-color:rgba(200,169,110,0.4);font-weight:600;}
+.modal textarea{width:100%;min-height:180px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;font-family:Arial,sans-serif;font-size:13px;line-height:1.6;color:var(--text);outline:none;resize:vertical;}
 .modal-actions{display:flex;gap:8px;margin-top:1rem;justify-content:flex-end;}
 
-/* PROSPECTS PAGE */
+/* PROSPECTS */
 .prospects-wrap{max-width:900px;margin:0 auto;padding:3rem 2rem 5rem;width:100%;}
 .prospects-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;}
 .filter-row{display:flex;gap:6px;flex-wrap:wrap;}
-.filter-btn{font-size:12px;padding:5px 12px;border-radius:20px;border:0.5px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.2s;}
+.filter-btn{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.2s;font-family:Arial,sans-serif;}
 .filter-btn:hover{color:var(--text);}
-.filter-btn.active{background:var(--accent-dim);color:var(--accent);border-color:rgba(200,169,110,0.3);}
-
+.filter-btn.active{background:var(--accent-dim);color:var(--accent);border-color:rgba(200,169,110,0.4);font-weight:600;}
 .prospect-table{display:flex;flex-direction:column;gap:8px;}
-.prospect-row{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem;display:grid;grid-template-columns:1fr auto auto auto;gap:1rem;align-items:center;}
-.prospect-row:hover{border-color:var(--border2);}
-.pr-name{font-size:14px;font-weight:500;color:var(--text);}
-.pr-address{font-size:12px;color:var(--muted);margin-top:2px;font-weight:300;}
-.pr-score{font-family:'DM Serif Display',serif;font-size:20px;text-align:center;}
-.pr-score span{font-size:11px;font-family:'DM Sans',sans-serif;font-weight:300;color:var(--muted);display:block;}
-.status-select{font-family:'DM Sans',sans-serif;font-size:12px;padding:5px 10px;border-radius:8px;border:0.5px solid var(--border2);background:var(--surface2);color:var(--text);cursor:pointer;outline:none;}
+.prospect-row{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;display:grid;grid-template-columns:1fr auto auto auto;gap:1rem;align-items:center;box-shadow:var(--shadow-sm);transition:border-color 0.2s,box-shadow 0.2s;}
+.prospect-row:hover{border-color:var(--border2);box-shadow:var(--shadow);}
+.pr-name{font-size:14px;font-weight:700;color:var(--text);}
+.pr-address{font-size:12px;color:var(--muted);margin-top:2px;}
+.pr-score{font-family:Georgia,'Times New Roman',serif;font-size:20px;text-align:center;}
+.pr-score span{font-size:11px;font-family:Arial,sans-serif;color:var(--muted);display:block;}
+.status-select{font-family:Arial,sans-serif;font-size:12px;padding:5px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);cursor:pointer;outline:none;}
 .pr-actions{display:flex;gap:6px;}
 .empty-state{text-align:center;padding:4rem 2rem;color:var(--muted);}
-.empty-state p{font-size:14px;font-weight:300;}
+.empty-state p{font-size:15px;}
 
-.btn-pdf{color:var(--accent);border-color:rgba(200,169,110,0.3);background:var(--accent-dim);}
-.btn-pdf:hover{background:rgba(200,169,110,0.2);}
-footer{margin-top:auto;padding:1.25rem 2rem;border-top:0.5px solid var(--border);text-align:center;font-size:12px;font-weight:300;color:var(--hint);}
+footer{margin-top:auto;padding:1.25rem 2rem;border-top:1px solid var(--border2);text-align:center;font-size:12px;color:var(--hint);}
 
 @media(max-width:600px){
   .input-row{flex-direction:column;}
@@ -173,9 +170,9 @@ footer{margin-top:auto;padding:1.25rem 2rem;border-top:0.5px solid var(--border)
       </div>
       <div class="score-hero">
         <div class="score-ring-wrap">
-          <svg width="80" height="80" viewBox="0 0 80 80">
-            <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
-            <circle id="ringArc" cx="40" cy="40" r="32" fill="none" stroke="#c8a96e" stroke-width="5" stroke-linecap="round" stroke-dasharray="201.1" stroke-dashoffset="201.1"/>
+          <svg width="84" height="84" viewBox="0 0 84 84">
+            <circle cx="42" cy="42" r="34" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="5"/>
+            <circle id="ringArc" cx="42" cy="42" r="34" fill="none" stroke="#c8a96e" stroke-width="5" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6"/>
           </svg>
           <div class="score-inner">
             <div class="score-num" id="scoreNum">0</div>
@@ -324,14 +321,15 @@ function renderAudit(p, placeId) {
   document.getElementById('bizAddress').textContent = p.formatted_address || '';
   document.getElementById('saveBtn').textContent = '+ Save';
   document.getElementById('saveBtn').disabled = false;
+  document.getElementById('saveBtn').style.color = '';
 
-  const circ = 201.1;
+  const circ = 213.6;
   const offset = circ - (total / 100) * circ;
   let grade, desc, ringColor;
-  if (total >= 80) { grade = 'Strong profile'; desc = 'Small tweaks can push you to the top.'; ringColor = '#5a9e6f'; }
-  else if (total >= 60) { grade = 'Needs improvement'; desc = 'Key gaps are costing you leads.'; ringColor = '#c8863a'; }
-  else if (total >= 40) { grade = 'Significant gaps'; desc = 'Several issues hurting visibility and trust.'; ringColor = '#c8863a'; }
-  else { grade = 'Critical issues'; desc = 'Immediate action needed to compete locally.'; ringColor = '#c85a5a'; }
+  if (total >= 80) { grade = 'Strong profile'; desc = 'Small tweaks can push you to the top.'; ringColor = '#2d7a47'; }
+  else if (total >= 60) { grade = 'Needs improvement'; desc = 'Key gaps are costing you leads.'; ringColor = '#b56520'; }
+  else if (total >= 40) { grade = 'Significant gaps'; desc = 'Several issues hurting visibility and trust.'; ringColor = '#b56520'; }
+  else { grade = 'Critical issues'; desc = 'Immediate action needed to compete locally.'; ringColor = '#b53030'; }
 
   document.getElementById('ringArc').setAttribute('stroke', ringColor);
   setTimeout(() => {
@@ -348,7 +346,7 @@ function renderAudit(p, placeId) {
     warnC.map(c => `<span class="pill pill-warn">~ ${c.name}</span>`).join('') +
     goodC.map(c => `<span class="pill pill-good">✓ ${c.name}</span>`).join('');
 
-  const colors = { good:'#5a9e6f', warn:'#c8863a', bad:'#c85a5a' };
+  const colors = { good:'#2d7a47', warn:'#b56520', bad:'#b53030' };
   document.getElementById('checks').innerHTML = checks.map(c => {
     const pct = Math.round((c.score / c.max) * 100);
     return `<div class="check-card">
@@ -376,29 +374,19 @@ async function saveProspect() {
   const checks = buildChecks(p);
   const total = checks.reduce((a, c) => a + c.score, 0);
   const payload = {
-    business_name: p.name,
-    address: p.formatted_address || '',
-    place_id: p.place_id || '',
-    score: total,
-    rating: p.rating || 0,
-    review_count: p.user_ratings_total || 0,
-    has_hours: !!(p.opening_hours?.weekday_text?.length),
-    has_website: !!p.website,
-    has_phone: !!p.formatted_phone_number,
-    photo_count: (p.photos || []).length,
-    status: 'new'
+    business_name: p.name, address: p.formatted_address || '', place_id: p.place_id || '',
+    score: total, rating: p.rating || 0, review_count: p.user_ratings_total || 0,
+    has_hours: !!(p.opening_hours?.weekday_text?.length), has_website: !!p.website,
+    has_phone: !!p.formatted_phone_number, photo_count: (p.photos || []).length, status: 'new'
   };
   try {
     const r = await fetch('/api/audit?action=save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const data = await r.json();
     if (data && !data.error) {
       btn.textContent = '✓ Saved';
-      btn.style.color = '#5a9e6f';
+      btn.style.color = '#2d7a47';
       updateProspectCount();
-    } else {
-      btn.textContent = 'Error';
-      btn.disabled = false;
-    }
+    } else { btn.textContent = 'Error'; btn.disabled = false; }
   } catch(e) { btn.textContent = 'Error'; btn.disabled = false; }
 }
 
@@ -422,13 +410,10 @@ function renderProspects() {
     document.getElementById('prospectTable').innerHTML = `<div class="empty-state"><p>${currentFilter === 'all' ? 'No prospects saved yet.' : 'No prospects with this status.'}</p></div>`;
     return;
   }
-  const scoreColor = s => s >= 80 ? '#5a9e6f' : s >= 50 ? '#c8863a' : '#c85a5a';
+  const scoreColor = s => s >= 80 ? '#2d7a47' : s >= 50 ? '#b56520' : '#b53030';
   document.getElementById('prospectTable').innerHTML = filtered.map(p => `
     <div class="prospect-row">
-      <div>
-        <div class="pr-name">${p.business_name}</div>
-        <div class="pr-address">${p.address || ''}</div>
-      </div>
+      <div><div class="pr-name">${p.business_name}</div><div class="pr-address">${p.address || ''}</div></div>
       <div class="pr-score" style="color:${scoreColor(p.score)}">${p.score}<span>/100</span></div>
       <select class="status-select" onchange="updateStatus('${p.id}', this.value)">
         <option value="new" ${p.status==='new'?'selected':''}>New</option>
@@ -466,10 +451,7 @@ async function deleteProspect(id) {
 }
 
 async function updateProspectCount() {
-  if (!allProspects.length) {
-    const r = await fetch('/api/audit?action=prospects');
-    allProspects = await r.json() || [];
-  }
+  if (!allProspects.length) { const r = await fetch('/api/audit?action=prospects'); allProspects = await r.json() || []; }
   const el = document.getElementById('prospect-count');
   if (allProspects.length > 0) { el.style.display = 'inline'; el.textContent = allProspects.length; }
   else { el.style.display = 'none'; }
@@ -481,11 +463,8 @@ function generateMsg(p, type) {
   if (!p.has_hours) issues.push('missing business hours');
   if (!p.has_website) issues.push('no website listed');
   if ((p.photo_count || 0) < 5) issues.push('few photos');
-
   const issueText = issues.length ? `I noticed a few things holding it back: ${issues.join(', ')}.` : 'There are a few quick improvements that could boost visibility.';
-  const name = p.business_name || p.name;
-  const score = p.score;
-
+  const name = p.business_name || p.name, score = p.score;
   if (type === 'whatsapp') {
     return `Hi! I was looking at ${name}'s Google profile and ran a quick audit — it scored ${score}/100. ${issueText}\n\nI help local businesses get more 5-star reviews and improve their Google ranking automatically. Would you be open to a quick 15-minute chat this week to see if it's a fit?\n\n— [Your name] | Grow Stars`;
   } else {
@@ -549,298 +528,272 @@ function animateNum(id, from, to, dur) {
 document.getElementById('bizInput').addEventListener('keydown', e => { if (e.key === 'Enter') runAudit(); });
 updateProspectCount();
 
+// ─── PDF GENERATION ───────────────────────────────────────────────────────────
 function downloadPDF() {
   if (!auditData) return;
-  if (!window.jspdf) { alert('PDF library not loaded yet — please try again in a moment.'); return; }
+  if (!window.jspdf) { alert('PDF library not loaded yet — please try again.'); return; }
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-  const checks = buildChecks(auditData);
-  const total = checks.reduce((a, c) => a + c.score, 0);
-  const badChecks = checks.filter(c => c.status === 'bad');
+  const checks     = buildChecks(auditData);
+  const total      = checks.reduce((a, c) => a + c.score, 0);
+  const badChecks  = checks.filter(c => c.status === 'bad');
   const warnChecks = checks.filter(c => c.status === 'warn');
   const goodChecks = checks.filter(c => c.status === 'good');
-
-  const bizName = auditData.name;
+  const bizName    = auditData.name;
   const bizAddress = auditData.formatted_address || '';
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const now        = new Date();
+  const dateStr    = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
   const W = 210, ml = 18, mr = 18, cw = W - ml - mr;
 
-  // Light-theme colour palette (prints cleanly)
   const C = {
-    bg:        [248, 247, 244],
-    white:     [255, 255, 255],
-    text:      [26, 26, 26],
-    muted:     [100, 98, 95],
-    border:    [220, 218, 213],
-    headerBg:  [26, 26, 26],
-    accent:    [180, 140, 70],
-    accentBg:  [250, 245, 235],
-    green:     [45, 122, 71],
-    greenBg:   [235, 248, 240],
-    amber:     [181, 98, 26],
-    amberBg:   [254, 244, 230],
-    red:       [181, 48, 48],
-    redBg:     [254, 235, 235],
+    bg:      [250, 249, 246],
+    white:   [255, 255, 255],
+    dark:    [26, 26, 26],
+    text:    [26, 26, 26],
+    muted:   [107, 101, 96],
+    border:  [220, 217, 210],
+    accent:  [200, 169, 110],
+    green:   [45, 122, 71],  greenBg:  [235, 248, 240],
+    amber:   [181, 101, 32], amberBg:  [254, 244, 230],
+    red:     [181, 48, 48],  redBg:    [254, 235, 235],
   };
 
-  let y = 0;
+  const scoreColor = total >= 80 ? C.green : total >= 60 ? C.amber : C.red;
+  const scoreBg    = total >= 80 ? C.greenBg : total >= 60 ? C.amberBg : C.redBg;
 
-  const addPage = () => {
-    doc.addPage();
-    doc.setFillColor(...C.bg);
-    doc.rect(0, 0, W, 297, 'F');
-    y = 18;
+  let grade, gradeDesc;
+  if (total >= 80)      { grade = 'Strong Profile';    gradeDesc = 'Small tweaks can push you to the top of local search.'; }
+  else if (total >= 60) { grade = 'Needs Improvement'; gradeDesc = 'Key profile gaps are costing you leads every day.'; }
+  else if (total >= 40) { grade = 'Significant Gaps';  gradeDesc = 'Several issues are actively hurting your visibility.'; }
+  else                  { grade = 'Critical Issues';   gradeDesc = 'Immediate action is needed to compete locally.'; }
+
+  const insightMap = {
+    high: `${bizName}'s profile is performing well — but in competitive local markets, staying ahead means keeping review momentum strong and profile details current. The businesses at the top aren't there by accident.`,
+    mid:  `${bizName} has a visible Google presence, but profile gaps are causing potential customers to choose better-optimised competitors before they even click. These aren't hard fixes — they're just not done yet.`,
+    low:  `A meaningful number of customers searching for businesses like ${bizName} are landing on a competitor's page instead. Most of the gaps below are fixable in days, not months.`,
+    crit: `${bizName}'s Google profile is actively working against the business. In local search, your profile is your shopfront — and right now, it's losing customers before they even see what you offer.`,
   };
-  const checkPage = (needed = 20) => { if (y + needed > 272) { addPage(); return true; } return false; };
+  const insight = total >= 80 ? insightMap.high : total >= 60 ? insightMap.mid : total >= 40 ? insightMap.low : insightMap.crit;
 
-  const sectionTitle = (title) => {
-    checkPage(14);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7.5);
-    doc.setTextColor(...C.accent);
-    doc.text(title, ml, y);
-    doc.setDrawColor(...C.accent);
-    doc.setLineWidth(0.4);
-    doc.line(ml, y + 2, ml + cw, y + 2);
-    y += 9;
-  };
-
-  const drawPASBox = (label, text, bgColor, borderColor) => {
-    const lines = doc.splitTextToSize(text, cw - 12);
-    const boxH = 9 + lines.length * 5.2 + 5;
-    checkPage(boxH + 4);
-    doc.setFillColor(...bgColor);
-    doc.setDrawColor(...borderColor);
-    doc.setLineWidth(0.3);
-    doc.roundedRect(ml, y, cw, boxH, 2, 2, 'FD');
-    // Left accent bar
-    doc.setFillColor(...borderColor);
-    doc.roundedRect(ml, y, 3.5, boxH, 1, 1, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7.5);
-    doc.setTextColor(...borderColor);
-    doc.text(label, ml + 7, y + 7);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(...C.text);
-    doc.text(lines, ml + 7, y + 13);
-    y += boxH + 4;
+  const focusItems = [...badChecks, ...warnChecks].slice(0, 4);
+  const focusImpact = {
+    'Rating & reviews':    "Fewer than 20 strong reviews signals low trust. Most customers won't choose a business rated below 4.0.",
+    'Owner response rate': "89% of buyers read owner replies before deciding. Not responding signals you don't care.",
+    'Photo count':         'Profiles with 10+ photos receive significantly more clicks and calls than those with fewer.',
+    'Business hours':      'Missing hours causes Google to rank you lower and sends undecided customers to a competitor.',
+    'Website & phone':     'Incomplete contact info reduces your ranking and makes it harder for customers to reach you.',
   };
 
-  // ── PAGE BACKGROUND ──
+  // ── PAGE 1 ──────────────────────────────────────────────────────────────────
+
   doc.setFillColor(...C.bg);
   doc.rect(0, 0, W, 297, 'F');
 
-  // ── HEADER ──
-  doc.setFillColor(...C.headerBg);
-  doc.rect(0, 0, W, 26, 'F');
-  doc.setFont('helvetica', 'bold');
+  // Header bar
+  doc.setFillColor(...C.dark);
+  doc.rect(0, 0, W, 24, 'F');
+  doc.setFont('times', 'bold');
   doc.setFontSize(14);
-  doc.setTextColor(200, 169, 110);
-  doc.text('Grow', ml, 16);
+  doc.setTextColor(...C.accent);
+  doc.text('Grow', ml, 15);
   doc.setTextColor(240, 237, 232);
-  doc.text('Stars', ml + doc.getTextWidth('Grow') + 0.5, 16);
+  doc.text('Stars', ml + doc.getTextWidth('Grow') + 0.5, 15);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
-  doc.setTextColor(120, 115, 108);
-  doc.text('Google Reputation Audit', W - mr, 16, { align: 'right' });
+  doc.setTextColor(150, 145, 138);
+  doc.text('Google Reputation Audit Report', W - mr, 15, { align: 'right' });
 
-  // ── BUSINESS INFO ──
-  y = 36;
-  const nameLines = doc.splitTextToSize(bizName, cw - 40);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(20);
-  doc.setTextColor(...C.text);
+  // Business name block
+  let y = 34;
+  doc.setFont('times', 'bold');
+  doc.setFontSize(22);
+  doc.setTextColor(...C.dark);
+  const nameLines = doc.splitTextToSize(bizName, cw - 30);
   doc.text(nameLines, ml, y);
-  y += nameLines.length * 8.5;
+  y += nameLines.length * 9;
   if (bizAddress) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(...C.muted);
     doc.text(bizAddress, ml, y);
-    y += 5.5;
+    y += 5;
   }
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(...C.muted);
-  doc.text(`Audit date: ${dateStr}`, ml, y);
+  doc.text(`Audit prepared: ${dateStr}`, ml, y);
   y += 10;
 
-  // ── SCORE CARD ──
-  const scoreColor = total >= 80 ? C.green : total >= 60 ? C.amber : C.red;
-  const scoreBg    = total >= 80 ? C.greenBg : total >= 60 ? C.amberBg : C.redBg;
-  const cardH = 36;
+  // Score hero card
+  const heroH = 40;
   doc.setFillColor(...C.white);
   doc.setDrawColor(...C.border);
   doc.setLineWidth(0.3);
-  doc.roundedRect(ml, y, cw, cardH, 3, 3, 'FD');
+  doc.roundedRect(ml, y, cw, heroH, 3, 3, 'FD');
   // Score box
   doc.setFillColor(...scoreBg);
-  doc.roundedRect(ml + 4, y + 4, 28, 28, 2, 2, 'F');
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(22);
+  doc.roundedRect(ml + 4, y + 4, 32, 32, 2, 2, 'F');
+  doc.setFont('times', 'bold');
+  doc.setFontSize(26);
   doc.setTextColor(...scoreColor);
-  doc.text(String(total), ml + 18, y + 18, { align: 'center' });
+  doc.text(String(total), ml + 20, y + 20, { align: 'center' });
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
+  doc.setFontSize(8);
   doc.setTextColor(...C.muted);
-  doc.text('/100', ml + 18, y + 25, { align: 'center' });
+  doc.text('out of 100', ml + 20, y + 27, { align: 'center' });
   // Grade
-  let grade, gradeDesc;
-  if (total >= 80)      { grade = 'Strong profile';      gradeDesc = 'Small tweaks can push you to the top.'; }
-  else if (total >= 60) { grade = 'Needs improvement';   gradeDesc = 'Key gaps are costing you leads.'; }
-  else if (total >= 40) { grade = 'Significant gaps';    gradeDesc = 'Several issues are hurting visibility and trust.'; }
-  else                  { grade = 'Critical issues';     gradeDesc = 'Immediate action needed to compete locally.'; }
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.setTextColor(...C.text);
-  doc.text(grade, ml + 38, y + 13);
+  doc.setFont('times', 'bold');
+  doc.setFontSize(15);
+  doc.setTextColor(...C.dark);
+  doc.text(grade, ml + 42, y + 14);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(...C.muted);
-  doc.text(gradeDesc, ml + 38, y + 20);
-  // Stats row
-  const stats = [
-    { label: `${badChecks.length} issue${badChecks.length !== 1 ? 's' : ''}`,    color: C.red   },
-    { label: `${warnChecks.length} warning${warnChecks.length !== 1 ? 's' : ''}`, color: C.amber },
-    { label: `${goodChecks.length} passed`,                                        color: C.green },
-  ];
-  let sx = ml + 38;
-  stats.forEach((s, i) => {
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8);
-    doc.setTextColor(...s.color);
-    doc.text(s.label, sx, y + 30);
-    sx += doc.getTextWidth(s.label) + 2;
-    if (i < stats.length - 1) {
-      doc.setTextColor(...C.muted);
-      doc.text(' · ', sx, y + 30);
-      sx += doc.getTextWidth(' · ');
-    }
+  doc.text(gradeDesc, ml + 42, y + 21);
+  // Mini stats
+  let sx = ml + 42;
+  [{ n: badChecks.length, label: 'critical', color: C.red },
+   { n: warnChecks.length, label: 'warnings', color: C.amber },
+   { n: goodChecks.length, label: 'passed', color: C.green }
+  ].forEach((s, i) => {
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...s.color);
+    const txt = `${s.n} ${s.label}`; doc.text(txt, sx, y + 30); sx += doc.getTextWidth(txt) + 2;
+    if (i < 2) { doc.setTextColor(...C.muted); doc.text('  ·  ', sx, y + 30); sx += doc.getTextWidth('  ·  '); }
   });
-  y += cardH + 10;
+  y += heroH + 8;
 
-  // ── PAS FRAMEWORK ──
-  sectionTitle('WHY THIS MATTERS — PAS FRAMEWORK');
+  // Insight quote block
+  const insightLines = doc.splitTextToSize(insight, cw - 14);
+  const quoteH = 8 + insightLines.length * 5.5 + 8;
+  doc.setFillColor(245, 243, 238);
+  doc.setDrawColor(...C.accent);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(ml, y, cw, quoteH, 2, 2, 'FD');
+  doc.setFillColor(...C.accent);
+  doc.rect(ml, y, 3.5, quoteH, 'F');
+  doc.setFont('times', 'italic');
+  doc.setFontSize(9.5);
+  doc.setTextColor(...C.dark);
+  doc.text(insightLines, ml + 8, y + 7);
+  y += quoteH + 8;
 
-  const problemParts = [];
-  if (badChecks.length)  problemParts.push(`${badChecks.length} critical issue${badChecks.length > 1 ? 's' : ''} (${badChecks.map(c => c.name.toLowerCase()).join(', ')})`);
-  if (warnChecks.length) problemParts.push(`${warnChecks.length} area${warnChecks.length > 1 ? 's' : ''} needing improvement (${warnChecks.map(c => c.name.toLowerCase()).join(', ')})`);
-  const problemText = problemParts.length
-    ? `${bizName}'s Google Business Profile scored ${total}/100 and has ${problemParts.join(' and ')}.`
-    : `${bizName}'s Google Business Profile scored ${total}/100 and is well optimised, with minor room for improvement.`;
+  // Numbered focus items
+  if (focusItems.length > 0) {
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.accent);
+    doc.text('WHAT NEEDS ATTENTION', ml, y);
+    doc.setDrawColor(...C.accent); doc.setLineWidth(0.35);
+    doc.line(ml, y + 2, ml + cw, y + 2);
+    y += 8;
+    focusItems.forEach((c, i) => {
+      const color = c.status === 'bad' ? C.red : C.amber;
+      const impLines = doc.splitTextToSize(focusImpact[c.name] || c.rec, cw - 22);
+      const rowH = 8 + impLines.length * 5 + 6;
+      doc.setFillColor(...C.white); doc.setDrawColor(...C.border); doc.setLineWidth(0.2);
+      doc.roundedRect(ml, y, cw, rowH, 2, 2, 'FD');
+      // Gold number badge
+      doc.setFillColor(...C.accent);
+      doc.roundedRect(ml + 4, y + (rowH - 9) / 2, 9, 9, 1.5, 1.5, 'F');
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(255, 255, 255);
+      doc.text(String(i + 1), ml + 8.5, y + (rowH - 9) / 2 + 6.5, { align: 'center' });
+      doc.setFont('times', 'bold'); doc.setFontSize(10); doc.setTextColor(...C.dark);
+      doc.text(c.name, ml + 18, y + 8);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...color);
+      doc.text(`${c.score}/${c.max} pts`, W - mr - 2, y + 8, { align: 'right' });
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.muted);
+      doc.text(impLines, ml + 18, y + 14);
+      y += rowH + 4;
+    });
+  }
 
-  const agitateMap = {
-    'Rating & reviews':    'Low ratings deter up to 94% of new customers — they choose competitors with stronger social proof instead of risking a bad experience.',
-    'Owner response rate': 'Unanswered reviews signal poor customer service. 89% of consumers read owner responses before making a purchase decision.',
-    'Photo count':         'Listings with more photos receive up to 520% more phone calls. Without enough photos, customers choose businesses they can visualise.',
-    'Business hours':      'Missing hours cause direct customer loss — when someone can\'t confirm you\'re open, they go to the next result, and Google may rank you lower.',
-    'Website & phone':     'Incomplete contact details reduce your Google ranking and leave customers with no easy way to reach or research you before buying.',
-  };
-  const issueChecks = [...badChecks, ...warnChecks];
-  const agitateLines = issueChecks.slice(0, 2).map(c => agitateMap[c.name]).filter(Boolean);
-  const agitateText = agitateLines.length
-    ? agitateLines.join(' ')
-    : 'Even a well-performing profile can slip as competitors improve. Staying proactive is the difference between dominating local search and being overtaken.';
+  // Dark CTA box
+  const ctaY = Math.max(y + 4, 232);
+  doc.setFillColor(...C.dark);
+  doc.roundedRect(ml, ctaY, cw, 44, 3, 3, 'F');
+  doc.setFont('times', 'bold'); doc.setFontSize(14); doc.setTextColor(255, 255, 255);
+  doc.text('Ready to fix this?', ml + 8, ctaY + 13);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(180, 175, 168);
+  doc.text("We'll walk through your profile and show you exactly what to prioritise first.", ml + 8, ctaY + 21);
+  doc.text('No pitch. No obligation. Just a clear plan.', ml + 8, ctaY + 27);
+  // Gold button
+  const btnX = ml + 8, btnY = ctaY + 31, btnW = 64, btnH = 11;
+  doc.setFillColor(...C.accent);
+  doc.roundedRect(btnX, btnY, btnW, btnH, 2, 2, 'F');
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(...C.dark);
+  doc.text('Book a Free 15-Min Call  \u2192', btnX + btnW / 2, btnY + 7.5, { align: 'center' });
+  doc.link(btnX, btnY, btnW, btnH, { url: 'https://calendly.com/growstars/audit' });
 
-  const solutionActions = [];
-  if (issueChecks.some(c => c.name === 'Rating & reviews'))    solutionActions.push('automated review generation campaigns');
-  if (issueChecks.some(c => c.name === 'Owner response rate')) solutionActions.push('AI-powered review response management');
-  if (issueChecks.some(c => c.name === 'Photo count'))         solutionActions.push('photo optimisation guidance');
-  if (issueChecks.some(c => c.name === 'Business hours') || issueChecks.some(c => c.name === 'Website & phone'))
-    solutionActions.push('profile completion and optimisation');
-  if (!solutionActions.length) solutionActions.push('ongoing profile monitoring and reputation management');
-  const solutionText = `Grow Stars resolves these gaps with ${solutionActions.join(', ')}. Our clients typically see measurable improvement in calls, direction requests, and rankings within 30 days — without any manual effort on your part.`;
+  // ── PAGE 2 ──────────────────────────────────────────────────────────────────
 
-  drawPASBox('PROBLEM — Current Situation',    problemText,  C.redBg,   C.red);
-  drawPASBox('AGITATE — What It\'s Costing You', agitateText, C.amberBg, C.amber);
-  drawPASBox('SOLUTION — How We Fix It',        solutionText, C.greenBg, C.green);
-  y += 4;
+  doc.addPage();
+  doc.setFillColor(...C.bg);
+  doc.rect(0, 0, W, 297, 'F');
 
-  // ── AUDIT BREAKDOWN ──
-  sectionTitle('AUDIT BREAKDOWN');
+  // Small header
+  doc.setFillColor(...C.dark);
+  doc.rect(0, 0, W, 16, 'F');
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...C.accent);
+  doc.text('GrowStars', ml, 11);
+  doc.setFont('helvetica', 'normal'); doc.setTextColor(160, 155, 148);
+  doc.text(`Full Audit Breakdown \u2014 ${bizName}`, ml + doc.getTextWidth('GrowStars') + 4, 11);
+  doc.text(dateStr, W - mr, 11, { align: 'right' });
+
+  y = 26;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.accent);
+  doc.text('FULL AUDIT BREAKDOWN', ml, y);
+  doc.setDrawColor(...C.accent); doc.setLineWidth(0.35);
+  doc.line(ml, y + 2, ml + cw, y + 2);
+  y += 10;
+
   checks.forEach(c => {
-    checkPage(22);
-    const color  = c.status === 'good' ? C.green : c.status === 'warn' ? C.amber : C.red;
-    const pct    = c.score / c.max;
-    doc.setFillColor(...C.white);
-    doc.setDrawColor(...C.border);
-    doc.setLineWidth(0.2);
-    doc.roundedRect(ml, y, cw, 19, 1.5, 1.5, 'FD');
+    const color    = c.status === 'good' ? C.green : c.status === 'warn' ? C.amber : C.red;
+    const pct      = c.score / c.max;
+    const recLines = doc.splitTextToSize(c.rec, cw - 14);
+    const cardH    = 23 + recLines.length * 5;
+    if (y + cardH > 270) { doc.addPage(); doc.setFillColor(...C.bg); doc.rect(0, 0, W, 297, 'F'); y = 20; }
+    doc.setFillColor(...C.white); doc.setDrawColor(...C.border); doc.setLineWidth(0.2);
+    doc.roundedRect(ml, y, cw, cardH, 2, 2, 'FD');
     doc.setFillColor(...color);
-    doc.roundedRect(ml, y, 3.5, 19, 1.5, 0, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.setTextColor(...C.text);
-    doc.text(c.name, ml + 8, y + 7.5);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(...C.muted);
-    doc.text(c.val, ml + 8, y + 14);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.setTextColor(...color);
-    doc.text(`${c.score}/${c.max}`, W - mr - 2, y + 9, { align: 'right' });
-    const barW = 34, barX = W - mr - barW - 14;
-    doc.setFillColor(220, 218, 213);
-    doc.roundedRect(barX, y + 13, barW, 2.5, 1, 1, 'F');
-    if (pct > 0) { doc.setFillColor(...color); doc.roundedRect(barX, y + 13, barW * pct, 2.5, 1, 1, 'F'); }
-    y += 22;
-  });
-  y += 4;
-
-  // ── PRIORITY ACTIONS ──
-  sectionTitle('PRIORITY RECOMMENDATIONS');
-  [...badChecks, ...warnChecks].slice(0, 5).forEach((c, i) => {
-    const recLines = doc.splitTextToSize(c.rec, cw - 16);
-    const rowH = 9 + recLines.length * 5.2 + 6;
-    checkPage(rowH + 4);
-    const color = c.status === 'bad' ? C.red : C.amber;
-    const bg    = c.status === 'bad' ? C.redBg : C.amberBg;
-    doc.setFillColor(...C.white);
-    doc.setDrawColor(...C.border);
-    doc.setLineWidth(0.2);
-    doc.roundedRect(ml, y, cw, rowH, 1.5, 1.5, 'FD');
-    // Number badge
-    const badgeY = y + (rowH - 8) / 2;
-    doc.setFillColor(...bg);
-    doc.roundedRect(ml + 4, badgeY, 8, 8, 1, 1, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8);
-    doc.setTextColor(...color);
-    doc.text(String(i + 1), ml + 8, badgeY + 5.8, { align: 'center' });
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.setTextColor(...C.text);
-    doc.text(c.name, ml + 16, y + 8);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8.5);
-    doc.setTextColor(...C.muted);
-    doc.text(recLines, ml + 16, y + 14);
-    y += rowH + 4;
+    doc.roundedRect(ml, y, 4, cardH, 2, 0, 'F');
+    doc.setFont('times', 'bold'); doc.setFontSize(10); doc.setTextColor(...C.dark);
+    doc.text(c.name, ml + 8, y + 8);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(...color);
+    doc.text(`${c.score}/${c.max}`, W - mr - 2, y + 8, { align: 'right' });
+    const barW = 35, barX = W - mr - barW - 14;
+    doc.setFillColor(220, 217, 210); doc.roundedRect(barX, y + 5, barW, 3, 1, 1, 'F');
+    if (pct > 0) { doc.setFillColor(...color); doc.roundedRect(barX, y + 5, barW * pct, 3, 1, 1, 'F'); }
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...C.muted);
+    doc.text(c.val, ml + 8, y + 15);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.text);
+    doc.text(recLines, ml + 8, y + 21);
+    y += cardH + 5;
   });
 
-  // ── FOOTER on every page ──
+  // Soft footer CTA
+  const footerY = Math.max(y + 4, 252);
+  doc.setFillColor(242, 239, 232); doc.setDrawColor(...C.border); doc.setLineWidth(0.3);
+  doc.roundedRect(ml, footerY, cw, 28, 2, 2, 'FD');
+  doc.setFont('times', 'bold'); doc.setFontSize(11); doc.setTextColor(...C.dark);
+  doc.text('Want us to handle this for you?', ml + cw / 2, footerY + 10, { align: 'center' });
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...C.muted);
+  doc.text('Book a free strategy call at growstars.com — or simply reply to this report.', ml + cw / 2, footerY + 17, { align: 'center' });
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(...C.accent);
+  doc.text('growstars.com/book', ml + cw / 2, footerY + 23, { align: 'center' });
+
+  // Page footers
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
-    doc.setDrawColor(...C.border);
-    doc.setLineWidth(0.3);
-    doc.line(ml, 283, W - mr, 283);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7.5);
-    doc.setTextColor(...C.muted);
-    doc.text('Grow Stars · Google Reputation Audit', ml, 290);
-    doc.text(`Page ${i} of ${pageCount}`, W - mr, 290, { align: 'right' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...C.muted);
+    doc.text('Grow Stars \u00b7 Confidential', ml, 291);
+    doc.text(`${i} / ${pageCount}`, W - mr, 291, { align: 'right' });
   }
 
   const safeName = bizName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-  const datePart = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
-  doc.save(`growstars_audit_${safeName}_${datePart}.pdf`);
+  const dp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+  doc.save(`growstars_audit_${safeName}_${dp}.pdf`);
 }
 </script>
 </body>
