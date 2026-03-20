@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Grow Stars — Prospecting Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0d0d0d;--surface:#161616;--surface2:#1e1e1e;--surface3:#252525;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --text:#f0ede8;--muted:#7a7672;--hint:#4a4845;
+  --accent:#c8a96e;--accent-dim:rgba(200,169,110,0.12);
+  --green:#5a9e6f;--green-dim:rgba(90,158,111,0.12);
+  --amber:#c8863a;--amber-dim:rgba(200,134,58,0.12);
+  --red:#c85a5a;--red-dim:rgba(200,90,90,0.12);
+  --blue:#4a90c8;--blue-dim:rgba(74,144,200,0.12);
+}
+html{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.6;}
+body{min-height:100vh;display:flex;flex-direction:column;}
+
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:10;background:rgba(13,13,13,0.92);backdrop-filter:blur(12px);}
+.logo{font-family:'DM Serif Display',serif;font-size:18px;color:var(--accent);}
+.logo span{color:var(--text);}
+.nav-tabs{display:flex;gap:4px;}
+.nav-tab{font-size:13px;font-weight:400;color:var(--muted);padding:6px 14px;border-radius:8px;border:none;background:transparent;cursor:pointer;transition:all 0.2s;}
+.nav-tab:hover{color:var(--text);background:var(--surface2);}
+.nav-tab.active{color:var(--accent);background:var(--accent-dim);}
+
+.page{display:none;flex:1;}
+.page.active{display:flex;flex-direction:column;}
+
+/* AUDIT PAGE */
+.audit-wrap{max-width:640px;margin:0 auto;padding:3rem 2rem 5rem;width:100%;}
+.page-title{font-family:'DM Serif Display',serif;font-size:28px;color:var(--text);margin-bottom:6px;letter-spacing:-0.02em;}
+.page-sub{font-size:14px;color:var(--muted);margin-bottom:2rem;font-weight:300;}
+.search-card{background:var(--surface);border:0.5px solid var(--border2);border-radius:16px;padding:1.25rem;}
+.input-row{display:flex;gap:8px;}
+.search-input{flex:1;background:var(--surface2);border:0.5px solid var(--border2);border-radius:10px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color 0.2s;}
+.search-input::placeholder{color:var(--muted);}
+.search-input:focus{border-color:var(--accent);}
+.btn{font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 18px;border-radius:10px;border:0.5px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.btn:hover{background:var(--surface2);}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--accent);color:#0d0d0d;border-color:var(--accent);font-weight:500;}
+.btn-primary:hover{opacity:0.88;background:var(--accent);}
+.btn-green{background:var(--green-dim);color:var(--green);border-color:rgba(90,158,111,0.3);}
+.btn-green:hover{background:rgba(90,158,111,0.2);}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:8px;}
+
+#status{text-align:center;font-size:13px;color:var(--muted);min-height:20px;margin:1rem 0;display:flex;align-items:center;justify-content:center;gap:8px;}
+.spinner{width:14px;height:14px;border:1.5px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+#results{display:none;margin-top:2rem;animation:fadeUp 0.4s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+.biz-row{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+.biz-info{}
+.biz-name{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text);letter-spacing:-0.02em;}
+.biz-address{font-size:13px;color:var(--muted);margin-top:2px;font-weight:300;}
+.biz-actions{display:flex;gap:8px;flex-shrink:0;}
+
+.score-hero{display:grid;grid-template-columns:auto 1fr;gap:1.25rem;align-items:center;background:var(--surface);border:0.5px solid var(--border2);border-radius:16px;padding:1.5rem;margin-bottom:1.25rem;}
+.score-ring-wrap{position:relative;width:80px;height:80px;flex-shrink:0;}
+.score-ring-wrap svg{position:absolute;top:0;left:0;transform:rotate(-90deg);}
+.score-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.score-num{font-family:'DM Serif Display',serif;font-size:26px;line-height:1;}
+.score-denom{font-size:11px;color:var(--muted);font-weight:300;}
+.score-info h2{font-family:'DM Serif Display',serif;font-size:18px;color:var(--text);margin-bottom:4px;}
+.score-info p{font-size:13px;font-weight:300;color:var(--muted);line-height:1.5;}
+
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.25rem;}
+.pill{font-size:11px;padding:4px 10px;border-radius:20px;border:0.5px solid;}
+.pill-bad{color:var(--red);background:var(--red-dim);border-color:rgba(200,90,90,0.2);}
+.pill-warn{color:var(--amber);background:var(--amber-dim);border-color:rgba(200,134,58,0.2);}
+.pill-good{color:var(--green);background:var(--green-dim);border-color:rgba(90,158,111,0.2);}
+
+.checks{display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem;}
+.check-card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem;}
+.check-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.check-left{display:flex;align-items:center;gap:8px;}
+.sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.check-name{font-size:13px;font-weight:500;color:var(--text);}
+.check-pts{font-size:12px;font-weight:300;}
+.check-val{font-size:13px;font-weight:300;color:var(--muted);margin-bottom:4px;}
+.check-rec{font-size:12px;font-weight:300;line-height:1.5;}
+.bar-track{height:3px;background:var(--border2);border-radius:2px;margin-top:8px;}
+.bar-fill{height:3px;border-radius:2px;transition:width 0.8s cubic-bezier(0.16,1,0.3,1);}
+
+/* OUTREACH MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;align-items:center;justify-content:center;padding:1.5rem;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--surface);border:0.5px solid var(--border2);border-radius:16px;padding:1.75rem;max-width:520px;width:100%;animation:fadeUp 0.3s ease;max-height:90vh;overflow-y:auto;}
+.modal h3{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);margin-bottom:4px;}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:1.25rem;font-weight:300;}
+.msg-tabs{display:flex;gap:6px;margin-bottom:1rem;}
+.msg-tab{font-size:12px;padding:5px 12px;border-radius:8px;border:0.5px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;}
+.msg-tab.active{background:var(--accent-dim);color:var(--accent);border-color:rgba(200,169,110,0.3);}
+.modal textarea{width:100%;min-height:180px;background:var(--surface2);border:0.5px solid var(--border2);border-radius:10px;padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:300;line-height:1.6;color:var(--text);outline:none;resize:vertical;}
+.modal-actions{display:flex;gap:8px;margin-top:1rem;justify-content:flex-end;}
+
+/* PROSPECTS PAGE */
+.prospects-wrap{max-width:900px;margin:0 auto;padding:3rem 2rem 5rem;width:100%;}
+.prospects-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;}
+.filter-btn{font-size:12px;padding:5px 12px;border-radius:20px;border:0.5px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.2s;}
+.filter-btn:hover{color:var(--text);}
+.filter-btn.active{background:var(--accent-dim);color:var(--accent);border-color:rgba(200,169,110,0.3);}
+
+.prospect-table{display:flex;flex-direction:column;gap:8px;}
+.prospect-row{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem;display:grid;grid-template-columns:1fr auto auto auto;gap:1rem;align-items:center;}
+.prospect-row:hover{border-color:var(--border2);}
+.pr-name{font-size:14px;font-weight:500;color:var(--text);}
+.pr-address{font-size:12px;color:var(--muted);margin-top:2px;font-weight:300;}
+.pr-score{font-family:'DM Serif Display',serif;font-size:20px;text-align:center;}
+.pr-score span{font-size:11px;font-family:'DM Sans',sans-serif;font-weight:300;color:var(--muted);display:block;}
+.status-select{font-family:'DM Sans',sans-serif;font-size:12px;padding:5px 10px;border-radius:8px;border:0.5px solid var(--border2);background:var(--surface2);color:var(--text);cursor:pointer;outline:none;}
+.pr-actions{display:flex;gap:6px;}
+.empty-state{text-align:center;padding:4rem 2rem;color:var(--muted);}
+.empty-state p{font-size:14px;font-weight:300;}
+
+footer{margin-top:auto;padding:1.25rem 2rem;border-top:0.5px solid var(--border);text-align:center;font-size:12px;font-weight:300;color:var(--hint);}
+
+@media(max-width:600px){
+  .input-row{flex-direction:column;}
+  .score-hero{grid-template-columns:1fr;text-align:center;justify-items:center;}
+  .biz-row{flex-direction:column;}
+  .prospect-row{grid-template-columns:1fr auto;grid-template-rows:auto auto;}
+  nav{padding:0.75rem 1rem;}
+  .audit-wrap,.prospects-wrap{padding:2rem 1.25rem 4rem;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Grow<span>Stars</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('audit')">Audit</button>
+    <button class="nav-tab" onclick="showPage('prospects')" id="prospects-tab">Prospects <span id="prospect-count" style="display:none;background:var(--accent-dim);color:var(--accent);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px;"></span></button>
+  </div>
+</nav>
+
+<!-- AUDIT PAGE -->
+<div class="page active" id="page-audit">
+  <div class="audit-wrap">
+    <h1 class="page-title">Audit a business</h1>
+    <p class="page-sub">Search any business to see their Google reputation score.</p>
+    <div class="search-card">
+      <div class="input-row">
+        <input class="search-input" id="bizInput" type="text" placeholder="Business name + city (e.g. Jollibee Pulilan Bulacan)"/>
+        <button class="btn btn-primary" id="auditBtn" onclick="runAudit()">Run audit</button>
+      </div>
+    </div>
+    <div id="status"><div class="spinner" id="spinner"></div><span id="statusText"></span></div>
+    <div id="results">
+      <div class="biz-row">
+        <div class="biz-info">
+          <div class="biz-name" id="bizName"></div>
+          <div class="biz-address" id="bizAddress"></div>
+        </div>
+        <div class="biz-actions">
+          <button class="btn btn-sm" onclick="openOutreach()">Outreach ↗</button>
+          <button class="btn btn-sm btn-green" id="saveBtn" onclick="saveProspect()">+ Save</button>
+        </div>
+      </div>
+      <div class="score-hero">
+        <div class="score-ring-wrap">
+          <svg width="80" height="80" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
+            <circle id="ringArc" cx="40" cy="40" r="32" fill="none" stroke="#c8a96e" stroke-width="5" stroke-linecap="round" stroke-dasharray="201.1" stroke-dashoffset="201.1"/>
+          </svg>
+          <div class="score-inner">
+            <div class="score-num" id="scoreNum">0</div>
+            <div class="score-denom">/100</div>
+          </div>
+        </div>
+        <div class="score-info">
+          <h2 id="scoreGrade"></h2>
+          <p id="scoreDesc"></p>
+        </div>
+      </div>
+      <div class="pills" id="pills"></div>
+      <div class="checks" id="checks"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROSPECTS PAGE -->
+<div class="page" id="page-prospects">
+  <div class="prospects-wrap">
+    <div class="prospects-header">
+      <div>
+        <h1 class="page-title">Prospects</h1>
+        <p class="page-sub" id="prospects-sub">All saved businesses.</p>
+      </div>
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="filterProspects('all', this)">All</button>
+        <button class="filter-btn" onclick="filterProspects('new', this)">New</button>
+        <button class="filter-btn" onclick="filterProspects('contacted', this)">Contacted</button>
+        <button class="filter-btn" onclick="filterProspects('call_booked', this)">Call booked</button>
+        <button class="filter-btn" onclick="filterProspects('client', this)">Client</button>
+      </div>
+    </div>
+    <div class="prospect-table" id="prospectTable">
+      <div class="empty-state"><p>No prospects saved yet. Run an audit and click Save.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- OUTREACH MODAL -->
+<div class="modal-bg" id="outreachModal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <h3>Outreach message</h3>
+    <div class="modal-sub" id="outreachSub"></div>
+    <div class="msg-tabs">
+      <button class="msg-tab active" onclick="switchMsg('whatsapp', this)">WhatsApp</button>
+      <button class="msg-tab" onclick="switchMsg('email', this)">Email</button>
+    </div>
+    <textarea id="outreachText" readonly></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-sm" onclick="closeModal()">Close</button>
+      <button class="btn btn-sm btn-primary" onclick="copyMsg()">Copy</button>
+    </div>
+  </div>
+</div>
+
+<footer>© 2025 Grow Stars · Private prospecting tool</footer>
+
+<script>
+let auditData = null;
+let currentMsgType = 'whatsapp';
+let allProspects = [];
+let currentFilter = 'all';
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-tab')[name === 'audit' ? 0 : 1].classList.add('active');
+  if (name === 'prospects') loadProspects();
+}
+
+function setStatus(msg, loading = false) {
+  document.getElementById('statusText').textContent = msg;
+  document.getElementById('spinner').style.display = loading ? 'block' : 'none';
+}
+
+async function runAudit() {
+  const biz = document.getElementById('bizInput').value.trim();
+  if (!biz) { setStatus('Enter a business name and city.'); return; }
+  const btn = document.getElementById('auditBtn');
+  btn.disabled = true;
+  document.getElementById('results').style.display = 'none';
+  try {
+    setStatus('Searching…', true);
+    const r1 = await fetch(`/api/audit?action=search&query=${encodeURIComponent(biz)}`);
+    const d1 = await r1.json();
+    if (!d1.candidates || !d1.candidates.length) { setStatus('Business not found. Try adding city name.'); btn.disabled = false; return; }
+    const placeId = d1.candidates[0].place_id;
+    setStatus('Fetching profile…', true);
+    const r2 = await fetch(`/api/audit?action=details&place_id=${placeId}`);
+    const d2 = await r2.json();
+    const p = d2.result;
+    if (!p) { setStatus('Could not load details.'); btn.disabled = false; return; }
+    setStatus('');
+    renderAudit(p, placeId);
+  } catch(e) { setStatus('Error: ' + e.message); }
+  btn.disabled = false;
+}
+
+function buildChecks(p) {
+  const checks = [];
+  const rating = p.rating || 0, total = p.user_ratings_total || 0;
+  let rs = 0, rstat = 'bad';
+  if (rating >= 4.5 && total >= 50) { rs = 25; rstat = 'good'; }
+  else if (rating >= 4.0 && total >= 20) { rs = 18; rstat = 'warn'; }
+  else if (rating >= 3.5) { rs = 10; rstat = 'warn'; }
+  const rval = `${rating > 0 ? rating.toFixed(1) + ' stars' : 'No rating'} · ${total} review${total !== 1 ? 's' : ''}`;
+  const rrec = rstat === 'bad' ? 'Critical: start a review generation campaign — aim for 4.0+ with 20+ reviews.' : rstat === 'warn' ? 'Push toward 4.5+ stars and 50+ reviews to dominate local search.' : 'Excellent — keep a steady review flow.';
+  checks.push({ name: 'Rating & reviews', score: rs, max: 25, status: rstat, val: rval, rec: rrec });
+
+  const reviews = p.reviews || [];
+  let os = 0, ostat = 'bad', oval = '', orec = '';
+  if (reviews.length > 0) {
+    const pct = Math.round((reviews.filter(r => r.author_name && r.text).length / reviews.length) * 100);
+    if (pct >= 80) { os = 20; ostat = 'good'; } else if (pct >= 50) { os = 12; ostat = 'warn'; } else { os = 4; ostat = 'bad'; }
+    oval = `~${pct}% response rate (${reviews.length} reviews sampled)`;
+    orec = ostat === 'bad' ? 'Respond to every review within 48 hours — it directly impacts ranking.' : ostat === 'warn' ? 'Aim for 100% response rate.' : 'Great — keep responding fast.';
+  } else { oval = 'No reviews in sample'; orec = 'Once reviews come in, respond to all of them.'; }
+  checks.push({ name: 'Owner response rate', score: os, max: 20, status: ostat, val: oval, rec: orec });
+
+  const pc = (p.photos || []).length;
+  let ps = 0, pstat = 'bad';
+  if (pc >= 10) { ps = 20; pstat = 'good'; } else if (pc >= 5) { ps = 13; pstat = 'warn'; } else if (pc >= 1) { ps = 6; pstat = 'warn'; }
+  checks.push({ name: 'Photo count', score: ps, max: 20, status: pstat, val: `${pc} photo${pc !== 1 ? 's' : ''}`, rec: pstat === 'bad' ? 'No photos — upload at least 5 quality images now.' : pstat === 'warn' ? 'Target 15+ photos.' : 'Good — update regularly.' });
+
+  const hasHours = p.opening_hours?.weekday_text?.length > 0;
+  checks.push({ name: 'Business hours', score: hasHours ? 20 : 0, max: 20, status: hasHours ? 'good' : 'bad', val: hasHours ? 'Hours listed for all days' : 'Hours not listed', rec: hasHours ? 'Update for holidays.' : 'Missing hours cause customers to skip your listing.' });
+
+  const hw = !!p.website, hp = !!p.formatted_phone_number;
+  let cs = 0, cstat = 'bad';
+  if (hw && hp) { cs = 15; cstat = 'good'; } else if (hw || hp) { cs = 8; cstat = 'warn'; }
+  const cval = [hw ? 'Website ✓' : 'No website', hp ? 'Phone ✓' : 'No phone'].join(' · ');
+  const crec = cstat === 'bad' ? 'Both website and phone missing — add them immediately.' : cstat === 'warn' ? `Add ${!hw ? 'a website' : 'a phone number'}.` : 'Contact info complete.';
+  checks.push({ name: 'Website & phone', score: cs, max: 15, status: cstat, val: cval, rec: crec });
+
+  return checks;
+}
+
+function renderAudit(p, placeId) {
+  auditData = { ...p, place_id: placeId };
+  const checks = buildChecks(p);
+  const total = checks.reduce((a, c) => a + c.score, 0);
+
+  document.getElementById('bizName').textContent = p.name;
+  document.getElementById('bizAddress').textContent = p.formatted_address || '';
+  document.getElementById('saveBtn').textContent = '+ Save';
+  document.getElementById('saveBtn').disabled = false;
+
+  const circ = 201.1;
+  const offset = circ - (total / 100) * circ;
+  let grade, desc, ringColor;
+  if (total >= 80) { grade = 'Strong profile'; desc = 'Small tweaks can push you to the top.'; ringColor = '#5a9e6f'; }
+  else if (total >= 60) { grade = 'Needs improvement'; desc = 'Key gaps are costing you leads.'; ringColor = '#c8863a'; }
+  else if (total >= 40) { grade = 'Significant gaps'; desc = 'Several issues hurting visibility and trust.'; ringColor = '#c8863a'; }
+  else { grade = 'Critical issues'; desc = 'Immediate action needed to compete locally.'; ringColor = '#c85a5a'; }
+
+  document.getElementById('ringArc').setAttribute('stroke', ringColor);
+  setTimeout(() => {
+    document.getElementById('ringArc').style.transition = 'stroke-dashoffset 1s cubic-bezier(0.16,1,0.3,1)';
+    document.getElementById('ringArc').style.strokeDashoffset = offset;
+    animateNum('scoreNum', 0, total, 900);
+  }, 100);
+  document.getElementById('scoreGrade').textContent = grade;
+  document.getElementById('scoreDesc').textContent = desc;
+
+  const badC = checks.filter(c => c.status === 'bad'), warnC = checks.filter(c => c.status === 'warn'), goodC = checks.filter(c => c.status === 'good');
+  document.getElementById('pills').innerHTML =
+    badC.map(c => `<span class="pill pill-bad">✗ ${c.name}</span>`).join('') +
+    warnC.map(c => `<span class="pill pill-warn">~ ${c.name}</span>`).join('') +
+    goodC.map(c => `<span class="pill pill-good">✓ ${c.name}</span>`).join('');
+
+  const colors = { good:'#5a9e6f', warn:'#c8863a', bad:'#c85a5a' };
+  document.getElementById('checks').innerHTML = checks.map(c => {
+    const pct = Math.round((c.score / c.max) * 100);
+    return `<div class="check-card">
+      <div class="check-top">
+        <div class="check-left"><div class="sdot" style="background:${colors[c.status]}"></div><div class="check-name">${c.name}</div></div>
+        <div class="check-pts" style="color:${colors[c.status]}">${c.score}/${c.max}</div>
+      </div>
+      <div class="check-val">${c.val}</div>
+      <div class="check-rec" style="color:${colors[c.status]}">${c.rec}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${colors[c.status]};"></div></div>
+    </div>`;
+  }).join('');
+
+  const resultsEl = document.getElementById('results');
+  resultsEl.style.display = 'block';
+  setTimeout(() => resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+async function saveProspect() {
+  if (!auditData) return;
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  const p = auditData;
+  const checks = buildChecks(p);
+  const total = checks.reduce((a, c) => a + c.score, 0);
+  const payload = {
+    business_name: p.name,
+    address: p.formatted_address || '',
+    place_id: p.place_id || '',
+    score: total,
+    rating: p.rating || 0,
+    review_count: p.user_ratings_total || 0,
+    has_hours: !!(p.opening_hours?.weekday_text?.length),
+    has_website: !!p.website,
+    has_phone: !!p.formatted_phone_number,
+    photo_count: (p.photos || []).length,
+    status: 'new'
+  };
+  try {
+    const r = await fetch('/api/audit?action=save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const data = await r.json();
+    if (data && !data.error) {
+      btn.textContent = '✓ Saved';
+      btn.style.color = '#5a9e6f';
+      updateProspectCount();
+    } else {
+      btn.textContent = 'Error';
+      btn.disabled = false;
+    }
+  } catch(e) { btn.textContent = 'Error'; btn.disabled = false; }
+}
+
+async function loadProspects() {
+  document.getElementById('prospectTable').innerHTML = '<div class="empty-state"><p>Loading…</p></div>';
+  try {
+    const r = await fetch('/api/audit?action=prospects');
+    allProspects = await r.json();
+    if (!Array.isArray(allProspects)) allProspects = [];
+    updateProspectCount();
+    renderProspects();
+  } catch(e) {
+    document.getElementById('prospectTable').innerHTML = '<div class="empty-state"><p>Could not load prospects.</p></div>';
+  }
+}
+
+function renderProspects() {
+  const filtered = currentFilter === 'all' ? allProspects : allProspects.filter(p => p.status === currentFilter);
+  document.getElementById('prospects-sub').textContent = `${filtered.length} business${filtered.length !== 1 ? 'es' : ''} ${currentFilter === 'all' ? 'saved' : '· ' + currentFilter.replace('_', ' ')}.`;
+  if (!filtered.length) {
+    document.getElementById('prospectTable').innerHTML = `<div class="empty-state"><p>${currentFilter === 'all' ? 'No prospects saved yet.' : 'No prospects with this status.'}</p></div>`;
+    return;
+  }
+  const scoreColor = s => s >= 80 ? '#5a9e6f' : s >= 50 ? '#c8863a' : '#c85a5a';
+  document.getElementById('prospectTable').innerHTML = filtered.map(p => `
+    <div class="prospect-row">
+      <div>
+        <div class="pr-name">${p.business_name}</div>
+        <div class="pr-address">${p.address || ''}</div>
+      </div>
+      <div class="pr-score" style="color:${scoreColor(p.score)}">${p.score}<span>/100</span></div>
+      <select class="status-select" onchange="updateStatus('${p.id}', this.value)">
+        <option value="new" ${p.status==='new'?'selected':''}>New</option>
+        <option value="contacted" ${p.status==='contacted'?'selected':''}>Contacted</option>
+        <option value="call_booked" ${p.status==='call_booked'?'selected':''}>Call booked</option>
+        <option value="client" ${p.status==='client'?'selected':''}>Client</option>
+        <option value="not_interested" ${p.status==='not_interested'?'selected':''}>Not interested</option>
+      </select>
+      <div class="pr-actions">
+        <button class="btn btn-sm" onclick="openOutreachFromProspect(${JSON.stringify(p).replace(/"/g,'&quot;')})">Msg</button>
+        <button class="btn btn-sm" style="color:var(--red)" onclick="deleteProspect('${p.id}')">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterProspects(status, btn) {
+  currentFilter = status;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProspects();
+}
+
+async function updateStatus(id, status) {
+  await fetch(`/api/audit?action=update&id=${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
+  const p = allProspects.find(p => p.id === id);
+  if (p) p.status = status;
+}
+
+async function deleteProspect(id) {
+  await fetch(`/api/audit?action=delete&id=${id}`, { method: 'POST' });
+  allProspects = allProspects.filter(p => p.id !== id);
+  updateProspectCount();
+  renderProspects();
+}
+
+async function updateProspectCount() {
+  if (!allProspects.length) {
+    const r = await fetch('/api/audit?action=prospects');
+    allProspects = await r.json() || [];
+  }
+  const el = document.getElementById('prospect-count');
+  if (allProspects.length > 0) { el.style.display = 'inline'; el.textContent = allProspects.length; }
+  else { el.style.display = 'none'; }
+}
+
+function generateMsg(p, type) {
+  const issues = [];
+  if ((p.review_count || 0) < 20 || (p.rating || 0) < 4.0) issues.push('few or low-rated reviews');
+  if (!p.has_hours) issues.push('missing business hours');
+  if (!p.has_website) issues.push('no website listed');
+  if ((p.photo_count || 0) < 5) issues.push('few photos');
+
+  const issueText = issues.length ? `I noticed a few things holding it back: ${issues.join(', ')}.` : 'There are a few quick improvements that could boost visibility.';
+  const name = p.business_name || p.name;
+  const score = p.score;
+
+  if (type === 'whatsapp') {
+    return `Hi! I was looking at ${name}'s Google profile and ran a quick audit — it scored ${score}/100. ${issueText}\n\nI help local businesses get more 5-star reviews and improve their Google ranking automatically. Would you be open to a quick 15-minute chat this week to see if it's a fit?\n\n— [Your name] | Grow Stars`;
+  } else {
+    return `Subject: Quick note about ${name}'s Google reputation\n\nHi,\n\nI came across ${name} on Google and ran a quick reputation audit — your profile scored ${score}/100. ${issueText}\n\nI work with local businesses to automate review generation, manage responses, and improve Google rankings — usually seeing results within 30 days.\n\nWould you be open to a 15-minute call this week? Happy to share what I found in more detail.\n\nBest,\n[Your name]\nGrow Stars`;
+  }
+}
+
+function openOutreach() {
+  if (!auditData) return;
+  const p = { ...auditData, score: buildChecks(auditData).reduce((a, c) => a + c.score, 0) };
+  document.getElementById('outreachSub').textContent = `${p.name} · Score: ${p.score}/100`;
+  currentMsgType = 'whatsapp';
+  document.querySelectorAll('.msg-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
+  document.getElementById('outreachText').value = generateMsg(p, 'whatsapp');
+  document.getElementById('outreachModal').classList.add('open');
+}
+
+function openOutreachFromProspect(p) {
+  document.getElementById('outreachSub').textContent = `${p.business_name} · Score: ${p.score}/100`;
+  currentMsgType = 'whatsapp';
+  document.querySelectorAll('.msg-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
+  document.getElementById('outreachText').value = generateMsg(p, 'whatsapp');
+  document.getElementById('outreachModal').classList.add('open');
+}
+
+function switchMsg(type, btn) {
+  currentMsgType = type;
+  document.querySelectorAll('.msg-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const sub = document.getElementById('outreachSub').textContent;
+  const nameMatch = sub.match(/^(.+) · Score: (\d+)/);
+  if (!nameMatch) return;
+  const fakePros = { business_name: nameMatch[1], score: parseInt(nameMatch[2]) };
+  const fullData = auditData && auditData.name === nameMatch[1] ? { ...auditData, score: parseInt(nameMatch[2]) } : fakePros;
+  document.getElementById('outreachText').value = generateMsg(fullData, type);
+}
+
+function copyMsg() {
+  const ta = document.getElementById('outreachText');
+  ta.select();
+  document.execCommand('copy');
+  const btn = document.querySelector('.modal-actions .btn-primary');
+  btn.textContent = 'Copied!';
+  setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+}
+
+function closeModal() { document.getElementById('outreachModal').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target.id === 'outreachModal') closeModal(); }
+
+function animateNum(id, from, to, dur) {
+  const el = document.getElementById(id);
+  const start = performance.now();
+  function step(now) {
+    const p = Math.min((now - start) / dur, 1);
+    el.textContent = Math.round(from + (to - from) * (1 - Math.pow(1 - p, 3)));
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+document.getElementById('bizInput').addEventListener('keydown', e => { if (e.key === 'Enter') runAudit(); });
+updateProspectCount();
+</script>
+</body>
+</html>
