@@ -16,7 +16,7 @@ export default async function handler(req, res) {
       Authorization: `Bearer ${SUPABASE_KEY}`,
       'Content-Type': 'application/json',
     };
-    if (method === 'POST') headers['Prefer'] = 'return=representation';
+    if (method === 'POST' || method === 'PATCH') headers['Prefer'] = 'return=representation';
     const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
       method,
       headers,
