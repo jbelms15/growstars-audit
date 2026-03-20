@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     // Supabase: save prospect
     if (action === 'save') {
       if (!SUPABASE_URL || !SUPABASE_KEY) return res.status(500).json({ error: 'Supabase not configured' });
-      const data = await sbFetch('POST', 'prospects', req.body);
+      const data = await sbFetch('POST', 'Prospects', req.body);
       if (Array.isArray(data) && data.length) return res.status(200).json(data[0]);
       if (data && !data.error) return res.status(200).json(data);
       return res.status(400).json(data || { error: 'Save failed' });
@@ -55,21 +55,21 @@ export default async function handler(req, res) {
     // Supabase: list all prospects
     if (action === 'prospects') {
       if (!SUPABASE_URL || !SUPABASE_KEY) return res.status(500).json({ error: 'Supabase not configured' });
-      const data = await sbFetch('GET', 'prospects?select=*&order=created_at.desc');
+      const data = await sbFetch('GET', 'Prospects?select=*&order=created_at.desc');
       return res.status(200).json(Array.isArray(data) ? data : []);
     }
 
     // Supabase: update prospect status
     if (action === 'update') {
       if (!SUPABASE_URL || !SUPABASE_KEY) return res.status(500).json({ error: 'Supabase not configured' });
-      const data = await sbFetch('PATCH', `prospects?id=eq.${encodeURIComponent(id)}`, req.body);
+      const data = await sbFetch('PATCH', `Prospects?id=eq.${encodeURIComponent(id)}`, req.body);
       return res.status(200).json(data);
     }
 
     // Supabase: delete prospect
     if (action === 'delete') {
       if (!SUPABASE_URL || !SUPABASE_KEY) return res.status(500).json({ error: 'Supabase not configured' });
-      await sbFetch('DELETE', `prospects?id=eq.${encodeURIComponent(id)}`);
+      await sbFetch('DELETE', `Prospects?id=eq.${encodeURIComponent(id)}`);
       return res.status(200).json({ ok: true });
     }
 
