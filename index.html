@@ -23,36 +23,39 @@
 html{background:var(--cream);color:var(--text);font-family:'DM Sans',Arial,sans-serif;font-size:16px;line-height:1.6;}
 body{min-height:100vh;display:flex;flex-direction:column;}
 
-/* ── NAV ────────────────────────────────────────────────────────── */
+/* ── NAV ── */
 nav{display:flex;align-items:center;justify-content:space-between;padding:.9rem 2rem;border-bottom:1px solid var(--border2);position:sticky;top:0;z-index:20;background:rgba(255,253,248,0.97);backdrop-filter:blur(12px);}
-.logo{font-family:Georgia,serif;font-size:18px;letter-spacing:-0.01em;color:var(--text);}
+.logo{font-family:Georgia,serif;font-size:18px;letter-spacing:-.01em;}
 .logo span{color:var(--gold);}
 .nav-tabs{display:flex;gap:4px;}
 .nav-tab{font-size:13px;color:var(--muted);padding:6px 14px;border-radius:8px;border:none;background:transparent;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;font-weight:500;}
 .nav-tab:hover{color:var(--text);background:var(--surface);}
 .nav-tab.active{color:var(--gold);background:var(--gold-dim);font-weight:600;}
 
-/* ── PAGES ──────────────────────────────────────────────────────── */
+/* ── PAGES ── */
 .page{display:none;flex:1;flex-direction:column;}
 .page.active{display:flex;}
 
-/* ── BUTTONS ────────────────────────────────────────────────────── */
+/* ── BUTTONS ── */
 .btn{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;padding:9px 18px;border-radius:10px;border:1px solid var(--border2);background:var(--white);color:var(--text);cursor:pointer;transition:all .18s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
 .btn:hover{background:var(--surface);}
 .btn:active{transform:scale(0.97);}
-.btn:disabled{opacity:.55;cursor:default;}
+.btn:disabled{opacity:.5;cursor:default;}
 .btn-primary{background:var(--gold);color:#1a1a1a;border-color:var(--gold);font-weight:600;}
 .btn-primary:hover{background:var(--gold-dark);border-color:var(--gold-dark);}
 .btn-dark{background:#1a1a1a;color:#fff;border-color:#1a1a1a;font-weight:600;}
-.btn-dark:hover{background:#2e2e2e;border-color:#2e2e2e;}
-.btn-ghost{background:transparent;border-color:var(--border2);color:var(--muted);}
-.btn-ghost:hover{color:var(--text);background:var(--surface);}
+.btn-dark:hover{background:#2e2e2e;}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--muted);}
+.btn-ghost:hover{background:var(--surface);border-color:var(--border);}
 .btn-green{background:var(--green-dim);color:var(--green);border-color:rgba(45,122,71,.3);font-weight:600;}
 .btn-green:hover{background:rgba(45,122,71,.18);}
+.btn-red{background:var(--red-dim);color:var(--red);border-color:rgba(181,48,48,.3);}
+.btn-red:hover{background:rgba(181,48,48,.18);}
 .btn-sm{padding:6px 12px;font-size:13px;border-radius:8px;}
-.btn-icon{padding:7px 10px;border-radius:9px;}
+.btn-xs{padding:4px 9px;font-size:12px;border-radius:7px;}
+.btn-icon{padding:7px 11px;border-radius:9px;}
 
-/* ── SEARCH PAGE ────────────────────────────────────────────────── */
+/* ── SEARCH ── */
 .search-wrap{max-width:600px;margin:4rem auto 2rem;padding:0 1.5rem;width:100%;}
 .search-title{font-family:Georgia,serif;font-size:32px;letter-spacing:-.02em;margin-bottom:.5rem;}
 .search-sub{font-size:15px;color:var(--muted);margin-bottom:2rem;}
@@ -61,163 +64,159 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:.9rem 
 .search-input{flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s;}
 .search-input::placeholder{color:var(--hint);}
 .search-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-dim);}
-.search-results{margin-top:10px;display:flex;flex-direction:column;gap:4px;}
+.search-results{margin-top:8px;display:flex;flex-direction:column;gap:3px;}
 .result-item{padding:10px 14px;border-radius:9px;cursor:pointer;border:1px solid transparent;transition:all .15s;}
 .result-item:hover{background:var(--surface);border-color:var(--border);}
-.result-name{font-size:14px;font-weight:600;color:var(--text);}
+.result-name{font-size:14px;font-weight:600;}
 .result-addr{font-size:12px;color:var(--muted);margin-top:1px;}
 
-#status-line{text-align:center;font-size:13px;color:var(--muted);padding:.75rem;display:flex;align-items:center;justify-content:center;gap:8px;min-height:40px;}
-.spinner{width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;}
+/* ── LOADING SCREEN ── */
+#loading-screen{display:none;flex:1;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;padding:3rem;}
+.loading-biz{font-family:Georgia,serif;font-size:22px;letter-spacing:-.01em;color:var(--text);text-align:center;}
+.spinner-lg{width:40px;height:40px;border:3px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
+.loading-steps{display:flex;flex-direction:column;gap:.5rem;min-width:260px;}
+.loading-step-item{display:flex;align-items:center;gap:.75rem;font-size:14px;color:var(--hint);transition:color .3s;}
+.loading-step-item.active{color:var(--text);font-weight:500;}
+.loading-step-item.done{color:var(--green);}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);flex-shrink:0;transition:background .3s;}
+.loading-step-item.active .step-dot{background:var(--gold);animation:pulse .9s ease-in-out infinite;}
+.loading-step-item.done .step-dot{background:var(--green);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
 
-/* ── DECK UI ────────────────────────────────────────────────────── */
+/* ── DECK UI ── */
 #deck-ui{display:none;flex:1;flex-direction:column;min-height:0;}
-
-.deck-header{display:flex;align-items:center;gap:1rem;padding:.85rem 1.5rem;border-bottom:1px solid var(--border);background:var(--white);flex-wrap:wrap;}
+.deck-header{display:flex;align-items:center;gap:1rem;padding:.8rem 1.5rem;border-bottom:1px solid var(--border);background:var(--white);flex-wrap:wrap;}
 .deck-biz{flex:1;min-width:0;}
-.deck-biz-name{font-family:Georgia,serif;font-size:20px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.deck-biz-meta{font-size:13px;color:var(--muted);margin-top:2px;}
-.deck-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;}
+.deck-biz-name{font-family:Georgia,serif;font-size:19px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.deck-biz-meta{font-size:13px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.meta-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:8px;}
+.gap-high{background:var(--red-dim);color:var(--red);}
+.gap-medium{background:var(--amber-dim);color:var(--amber);}
+.gap-low{background:var(--green-dim);color:var(--green);}
+.save-indicator{font-size:12px;color:var(--green);font-weight:600;display:none;align-items:center;gap:4px;}
+.save-indicator.show{display:flex;}
+.deck-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;align-items:center;}
 
 .deck-body{display:flex;flex:1;min-height:0;overflow:hidden;}
 
 /* Sidebar */
-.slide-sidebar{width:200px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;background:var(--surface);padding:.75rem .5rem;}
-.slide-nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;cursor:pointer;transition:all .15s;margin-bottom:2px;}
-.slide-nav-item:hover{background:var(--surface2);}
-.slide-nav-item.active{background:var(--gold-dim);color:var(--gold);}
-.slide-nav-item.active .sni-num{color:var(--gold);}
+.slide-sidebar{width:190px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;background:var(--surface);padding:.6rem .5rem;}
+.sni{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;cursor:pointer;transition:all .15s;margin-bottom:2px;}
+.sni:hover{background:var(--surface2);}
+.sni.active{background:var(--gold-dim);}
 .sni-num{font-size:11px;font-weight:700;color:var(--muted);width:16px;flex-shrink:0;}
+.sni.active .sni-num{color:var(--gold);}
 .sni-label{font-size:12px;font-weight:500;color:var(--text);line-height:1.3;}
-.slide-nav-item.active .sni-label{color:var(--gold-dark);font-weight:600;}
+.sni.active .sni-label{color:var(--gold-dark);font-weight:600;}
 
-/* Slide stage */
+/* Stage */
 .slide-stage{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:2rem;background:var(--cream);}
-.slide{width:100%;max-width:820px;min-height:460px;border-radius:20px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;justify-content:center;padding:3.5rem 4rem;position:relative;animation:slideIn .3s ease;}
-@keyframes slideIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.slide{width:100%;max-width:820px;min-height:440px;border-radius:20px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;justify-content:center;padding:3.5rem 4rem;position:relative;animation:slideIn .28s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
-/* Deck footer */
-.deck-footer{display:flex;align-items:center;justify-content:center;gap:1rem;padding:.85rem;border-top:1px solid var(--border);background:var(--white);}
-.slide-counter{font-size:13px;color:var(--muted);font-weight:500;min-width:60px;text-align:center;}
+.deck-footer{display:flex;align-items:center;justify-content:center;gap:1rem;padding:.75rem;border-top:1px solid var(--border);background:var(--white);}
+.slide-counter{font-size:13px;color:var(--muted);font-weight:500;min-width:50px;text-align:center;}
 
-/* ── SLIDE TYPES ────────────────────────────────────────────────── */
+/* ── SHARED SLIDE ELEMENTS ── */
+.s-eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;}
+.s-title{font-family:Georgia,serif;font-size:1.5rem;letter-spacing:-.01em;margin-bottom:1.5rem;}
+.s-main{font-family:Georgia,serif;font-size:2.4rem;line-height:1.15;letter-spacing:-.02em;margin-bottom:.75rem;}
+.s-main-sm{font-family:Georgia,serif;font-size:1.75rem;line-height:1.25;letter-spacing:-.02em;margin-bottom:.75rem;}
+.s-support{font-size:1rem;color:var(--muted);line-height:1.55;}
 
-/* 0 – Insight */
-.slide-insight{background:var(--white);}
-.slide-insight .s-eyebrow{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:1.2rem;}
-.slide-insight .s-headline{font-family:Georgia,serif;font-size:2.4rem;line-height:1.2;letter-spacing:-.02em;color:var(--text);margin-bottom:1.5rem;}
-.slide-insight .s-highlight{background:var(--gold-dim);border-left:4px solid var(--gold);border-radius:0 10px 10px 0;padding:1rem 1.25rem;font-size:1rem;line-height:1.6;color:var(--text);}
-
-/* 1 – Comparison */
+/* ── SLIDE 0: COMPARISON ── */
 .slide-comparison{background:var(--white);}
-.slide-comparison .s-title{font-family:Georgia,serif;font-size:1.8rem;letter-spacing:-.02em;margin-bottom:2rem;}
-.comp-table{width:100%;border-collapse:collapse;}
-.comp-table th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.6rem .8rem;border-bottom:2px solid var(--border2);text-align:left;}
-.comp-table td{padding:.75rem .8rem;border-bottom:1px solid var(--border);font-size:15px;}
-.comp-table tr.you td{background:var(--gold-dim);font-weight:600;}
-.comp-table tr.you td:first-child{border-left:4px solid var(--gold);}
-.stars{color:var(--gold);}
-.review-bar-wrap{display:flex;align-items:center;gap:8px;}
-.review-bar{height:6px;border-radius:3px;background:var(--gold);flex-shrink:0;}
+.comp-table{width:100%;border-collapse:collapse;margin-top:.5rem;}
+.comp-table th{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);padding:.55rem .75rem;border-bottom:2px solid var(--border2);text-align:left;}
+.comp-table td{padding:.7rem .75rem;border-bottom:1px solid var(--border);font-size:14px;vertical-align:middle;}
+.comp-table tr.you-row td{background:var(--gold-dim);font-weight:600;}
+.comp-table tr.you-row td:first-child{border-left:4px solid var(--gold);}
+.bar-wrap{display:flex;align-items:center;gap:8px;}
+.bar{height:6px;border-radius:3px;min-width:4px;flex-shrink:0;}
 
-/* 2 – Gap */
+/* ── SLIDE 1: GAP ── */
 .slide-gap{background:#1a1a1a;color:#f5f2ec;}
-.slide-gap .s-eyebrow{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;}
-.slide-gap .s-big-num{font-family:Georgia,serif;font-size:5rem;line-height:1;color:var(--gold);margin-bottom:.5rem;}
-.slide-gap .s-big-label{font-family:Georgia,serif;font-size:1.6rem;color:#f5f2ec;margin-bottom:1.25rem;}
-.slide-gap .s-support{font-size:1rem;color:rgba(245,242,236,.65);max-width:480px;line-height:1.6;}
+.slide-gap .s-eyebrow{color:var(--gold);}
+.slide-gap .s-main{font-size:4.5rem;color:var(--gold);}
+.slide-gap .s-support{color:rgba(245,242,236,.6);}
 
-/* 3 – Visibility */
-.slide-visibility{background:var(--cream);}
-.slide-visibility .s-title{font-family:Georgia,serif;font-size:1.7rem;letter-spacing:-.02em;margin-bottom:1.5rem;}
-.slide-visibility .s-quote{font-family:Georgia,serif;font-style:italic;font-size:1.35rem;line-height:1.55;color:var(--text);border-left:5px solid var(--gold);padding:.75rem 1.25rem;margin-bottom:1.25rem;}
-.slide-visibility .s-support{font-size:.95rem;color:var(--muted);line-height:1.6;}
+/* ── SLIDE 2: IMPACT ── */
+.slide-impact{background:var(--cream);}
+.slide-impact .s-main-sm{color:var(--text);}
+.slide-impact .s-quote{font-family:Georgia,serif;font-style:italic;font-size:1.5rem;line-height:1.5;color:var(--text);border-left:5px solid var(--gold);padding:.6rem 1.25rem;margin-bottom:.75rem;}
 
-/* 4 – Cost */
+/* ── SLIDE 3: COST ── */
 .slide-cost{background:var(--white);}
-.slide-cost .s-title{font-family:Georgia,serif;font-size:1.7rem;letter-spacing:-.02em;margin-bottom:1.5rem;}
-.slide-cost .s-money{font-family:Georgia,serif;font-size:3.8rem;color:var(--red);line-height:1;margin-bottom:.5rem;}
-.slide-cost .s-money-label{font-size:1rem;color:var(--muted);margin-bottom:1.25rem;}
-.slide-cost .s-support{font-size:.95rem;line-height:1.7;color:var(--text);max-width:500px;}
+.slide-cost .s-main{color:var(--red);}
 
-/* 5 – Opportunity */
+/* ── SLIDE 4: OPPORTUNITY ── */
 .slide-opportunity{background:var(--cream);}
-.slide-opportunity .s-title{font-family:Georgia,serif;font-size:1.7rem;letter-spacing:-.02em;margin-bottom:1.5rem;}
-.slide-opportunity .s-money{font-family:Georgia,serif;font-size:3.8rem;color:var(--green);line-height:1;margin-bottom:.5rem;}
-.slide-opportunity .s-money-label{font-size:1rem;color:var(--muted);margin-bottom:1.25rem;}
-.slide-opportunity .s-support{font-size:.95rem;line-height:1.7;color:var(--text);max-width:500px;}
+.slide-opportunity .s-main{color:var(--green);}
 
-/* 6 – How it works */
-.slide-how{background:var(--white);}
-.slide-how .s-title{font-family:Georgia,serif;font-size:1.7rem;letter-spacing:-.02em;margin-bottom:2.5rem;}
-.how-steps{display:flex;gap:0;align-items:flex-start;}
-.how-step{flex:1;text-align:center;padding:0 .5rem;}
-.how-step-num{width:42px;height:42px;border-radius:50%;background:var(--gold);color:#1a1a1a;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;}
-.how-step-label{font-size:1rem;font-weight:600;color:var(--text);margin-bottom:.35rem;}
-.how-step-sub{font-size:.85rem;color:var(--muted);line-height:1.4;}
-.how-arrow{padding-top:20px;color:var(--border2);font-size:1.5rem;flex-shrink:0;}
-
-/* 7 – CTA */
+/* ── SLIDE 5: CTA ── */
 .slide-cta{background:#1a1a1a;color:#f5f2ec;align-items:center;text-align:center;}
-.slide-cta .s-eyebrow{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;}
-.slide-cta .s-headline{font-family:Georgia,serif;font-size:2.6rem;line-height:1.15;letter-spacing:-.02em;margin-bottom:.75rem;}
-.slide-cta .s-sub{font-size:1rem;color:rgba(245,242,236,.6);margin-bottom:2.5rem;max-width:420px;}
-.slide-cta .btn-cta{background:var(--gold);color:#1a1a1a;border:none;padding:1rem 2.5rem;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
-.slide-cta .btn-cta:hover{background:var(--gold-dark);transform:translateY(-1px);}
+.slide-cta .s-eyebrow{color:var(--gold);}
+.slide-cta .s-main{color:#f5f2ec;font-size:2.6rem;}
+.slide-cta .s-support{color:rgba(245,242,236,.6);margin-bottom:2rem;}
+.btn-cta{background:var(--gold);color:#1a1a1a;border:none;padding:1rem 2.5rem;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.btn-cta:hover{background:var(--gold-dark);transform:translateY(-1px);}
 
-/* ── PRESENTATION MODE ──────────────────────────────────────────── */
-#pres-overlay{display:none;position:fixed;inset:0;z-index:100;background:#111;flex-direction:column;}
+/* ── SLIDE 6: HOW IT WORKS ── */
+.slide-how{background:var(--white);}
+.how-steps{display:flex;gap:0;align-items:flex-start;margin-top:.5rem;}
+.how-step{flex:1;text-align:center;padding:0 .5rem;}
+.how-num{width:40px;height:40px;border-radius:50%;background:var(--gold);color:#1a1a1a;font-size:17px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto .9rem;}
+.how-label{font-size:.95rem;font-weight:600;color:var(--text);margin-bottom:.3rem;}
+.how-sub{font-size:.82rem;color:var(--muted);line-height:1.4;}
+.how-arrow{padding-top:18px;color:var(--border2);font-size:1.4rem;flex-shrink:0;}
+
+/* ── PRESENTATION MODE ── */
+#pres-overlay{display:none;position:fixed;inset:0;z-index:100;background:#0d0d0d;flex-direction:column;}
 #pres-overlay.open{display:flex;}
 #pres-slide-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;}
-#pres-slide-wrap .slide{max-width:900px;width:100%;}
-#pres-nav{display:flex;align-items:center;justify-content:center;gap:1.5rem;padding:1rem;}
-#pres-nav .slide-counter{color:rgba(255,255,255,.5);}
-#pres-exit{position:fixed;top:1rem;right:1.5rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;}
-#pres-exit:hover{background:rgba(255,255,255,.2);}
+#pres-slide-wrap .slide{max-width:920px;width:100%;}
+#pres-nav{display:flex;align-items:center;justify-content:center;gap:1.5rem;padding:.9rem;border-top:1px solid rgba(255,255,255,.08);}
+#pres-nav .slide-counter{color:rgba(255,255,255,.4);}
+#pres-exit{position:fixed;top:1rem;right:1.5rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+#pres-exit:hover{background:rgba(255,255,255,.15);}
 
-/* ── PROSPECTS PAGE ─────────────────────────────────────────────── */
-.prospects-wrap{max-width:900px;margin:0 auto;padding:2.5rem 1.5rem 4rem;width:100%;}
-.prospects-title{font-family:Georgia,serif;font-size:26px;letter-spacing:-.02em;margin-bottom:.4rem;}
-.prospects-sub{font-size:14px;color:var(--muted);margin-bottom:1.75rem;}
-.pipeline{display:flex;gap:10px;overflow-x:auto;padding-bottom:.5rem;margin-bottom:2rem;}
-.pipe-col{min-width:200px;flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:.85rem;}
-.pipe-col-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between;}
-.pipe-col-count{font-size:11px;background:var(--border2);padding:2px 7px;border-radius:10px;color:var(--text);font-weight:700;}
-.pipe-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:.85rem;margin-bottom:6px;cursor:pointer;transition:all .15s;}
+/* ── PROSPECTS ── */
+.prospects-wrap{max-width:960px;margin:0 auto;padding:2.5rem 1.5rem 5rem;width:100%;}
+.prospects-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem;}
+.prospects-title{font-family:Georgia,serif;font-size:26px;letter-spacing:-.02em;}
+.filter-tabs{display:flex;gap:4px;}
+.filter-tab{font-size:12px;padding:5px 12px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;}
+.filter-tab.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-dark);font-weight:600;}
+
+.pipeline{display:flex;gap:8px;overflow-x:auto;padding-bottom:.5rem;margin-bottom:2rem;}
+.pipe-col{min-width:175px;flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:.75rem;}
+.pipe-col-hdr{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:.6rem;display:flex;align-items:center;justify-content:space-between;}
+.pipe-count{font-size:11px;background:var(--surface2);padding:1px 7px;border-radius:8px;color:var(--text);font-weight:700;}
+.pipe-card{background:var(--white);border:1px solid var(--border);border-radius:9px;padding:.8rem;margin-bottom:5px;cursor:pointer;transition:all .15s;}
 .pipe-card:hover{border-color:var(--gold);box-shadow:var(--shadow-sm);}
-.pipe-card-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.pipe-card-name{font-size:13px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .pipe-card-meta{font-size:11px;color:var(--muted);}
-.pipe-card-score{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;margin-top:5px;}
-.score-high{background:var(--red-dim);color:var(--red);}
-.score-medium{background:var(--amber-dim);color:var(--amber);}
-.score-low{background:var(--green-dim);color:var(--green);}
-.prospects-list{display:flex;flex-direction:column;gap:8px;}
-.prospect-row{display:flex;align-items:center;gap:1rem;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;transition:all .15s;}
-.prospect-row:hover{border-color:var(--border2);box-shadow:var(--shadow-sm);}
-.pr-name{font-size:14px;font-weight:600;flex:1;}
-.pr-meta{font-size:12px;color:var(--muted);}
-.pr-status select{font-size:12px;border:1px solid var(--border2);border-radius:7px;padding:4px 8px;background:var(--surface);color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;}
-.pr-del{font-size:13px;color:var(--red);cursor:pointer;background:none;border:none;padding:4px 8px;border-radius:6px;}
-.pr-del:hover{background:var(--red-dim);}
+.gap-pill{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:6px;margin-top:4px;}
 
-/* ── MODAL ──────────────────────────────────────────────────────── */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:50;align-items:center;justify-content:center;}
-.modal-overlay.open{display:flex;}
-.modal{background:var(--white);border-radius:16px;padding:1.75rem;width:90%;max-width:500px;box-shadow:var(--shadow);max-height:85vh;overflow-y:auto;}
-.modal-title{font-family:Georgia,serif;font-size:20px;margin-bottom:.35rem;}
-.modal-sub{font-size:13px;color:var(--muted);margin-bottom:1.25rem;}
-.modal-textarea{width:100%;border:1px solid var(--border2);border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;color:var(--text);resize:vertical;background:var(--surface);outline:none;min-height:160px;}
-.modal-textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-dim);}
-.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:1rem;}
-.msg-tabs{display:flex;gap:4px;margin-bottom:.75rem;}
-.msg-tab{font-size:12px;padding:5px 12px;border-radius:7px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;}
-.msg-tab.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-dark);font-weight:600;}
+.prospect-list{display:flex;flex-direction:column;gap:6px;}
+.p-row{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .15s;}
+.p-row:hover{border-color:var(--border2);}
+.p-main{display:flex;align-items:center;gap:1rem;padding:1rem 1.25rem;flex-wrap:wrap;}
+.p-name{font-size:14px;font-weight:600;flex:1;min-width:120px;}
+.p-meta{font-size:12px;color:var(--muted);}
+.p-actions{display:flex;gap:5px;flex-shrink:0;}
+.p-edit-panel{display:none;padding:.75rem 1.25rem 1rem;border-top:1px solid var(--border);background:var(--surface);gap:10px;flex-direction:column;}
+.p-edit-panel.open{display:flex;}
+.p-edit-row{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;}
+.p-notes{width:100%;border:1px solid var(--border2);border-radius:8px;padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--white);outline:none;resize:vertical;min-height:70px;}
+.p-notes:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-dim);}
+.p-status-sel{font-size:13px;border:1px solid var(--border2);border-radius:8px;padding:7px 10px;background:var(--white);color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;}
 
-/* ── PRINT ──────────────────────────────────────────────────────── */
+/* ── PRINT ── */
 @media print{
-  nav,#deck-ui .deck-header,#deck-ui .deck-body .slide-sidebar,#deck-ui .deck-footer,#deck-ui .deck-actions{display:none!important;}
-  .slide-stage{padding:0;background:white;}
+  nav,.deck-header,.slide-sidebar,.deck-footer,.deck-actions{display:none!important;}
+  .slide-stage{padding:0;}
   .slide{page-break-after:always;border-radius:0;box-shadow:none;max-width:100%;}
 }
 </style>
@@ -232,7 +231,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:.9rem 
   </div>
 </nav>
 
-<!-- ── AUDIT PAGE ──────────────────────────────────────────────── -->
+<!-- ── AUDIT PAGE ── -->
 <div class="page active" id="page-audit">
 
   <!-- Search -->
@@ -246,10 +245,22 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:.9rem 
       </div>
       <div id="searchResults" class="search-results"></div>
     </div>
-    <div id="status-line"></div>
+    <div id="status-line" style="text-align:center;font-size:13px;color:var(--muted);padding:.75rem;min-height:40px;display:flex;align-items:center;justify-content:center;gap:8px;"></div>
   </div>
 
-  <!-- Deck UI (shown after analysis) -->
+  <!-- Loading screen -->
+  <div id="loading-screen">
+    <div class="loading-biz" id="loading-biz-name"></div>
+    <div class="spinner-lg"></div>
+    <div class="loading-steps" id="loading-steps">
+      <div class="loading-step-item" id="step-0"><div class="step-dot"></div>Fetching profile data…</div>
+      <div class="loading-step-item" id="step-1"><div class="step-dot"></div>Finding competitors nearby…</div>
+      <div class="loading-step-item" id="step-2"><div class="step-dot"></div>Calculating gaps…</div>
+      <div class="loading-step-item" id="step-3"><div class="step-dot"></div>Generating insights…</div>
+    </div>
+  </div>
+
+  <!-- Deck UI -->
   <div id="deck-ui">
     <div class="deck-header">
       <div class="deck-biz">
@@ -257,75 +268,69 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:.9rem 
         <div class="deck-biz-meta" id="deck-biz-meta"></div>
       </div>
       <div class="deck-actions">
+        <div class="save-indicator" id="saveIndicator">✓ Saved</div>
         <button class="btn btn-sm" id="copyWaBtn" onclick="copyWhatsApp()">📋 WhatsApp</button>
         <button class="btn btn-sm" id="copyLoomBtn" onclick="copyLoom()">📋 Loom Script</button>
         <button class="btn btn-sm" onclick="exportPDF()">PDF</button>
-        <button class="btn btn-sm btn-green" id="saveBtn" onclick="saveProspect()">+ Save</button>
         <button class="btn btn-sm btn-dark" onclick="enterPresentation()">⛶ Present</button>
         <button class="btn btn-sm btn-ghost" onclick="resetToSearch()">✕</button>
       </div>
     </div>
-
     <div class="deck-body">
       <aside class="slide-sidebar" id="slideSidebar"></aside>
       <div class="slide-stage" id="slideStage"></div>
     </div>
-
     <div class="deck-footer">
       <button class="btn btn-icon" onclick="goDeck(-1)">&#8592;</button>
-      <span class="slide-counter" id="deckCounter">1 / 8</span>
+      <span class="slide-counter" id="deckCounter">1 / 7</span>
       <button class="btn btn-icon" onclick="goDeck(1)">&#8594;</button>
     </div>
   </div>
 </div>
 
-<!-- ── PROSPECTS PAGE ──────────────────────────────────────────── -->
+<!-- ── PROSPECTS PAGE ── -->
 <div class="page" id="page-prospects">
   <div class="prospects-wrap">
-    <h1 class="prospects-title">Prospects</h1>
-    <p class="prospects-sub">Track your outreach pipeline.</p>
-    <div id="prospectsContainer"><div style="color:var(--muted);font-size:14px;padding:2rem 0">Loading...</div></div>
+    <div class="prospects-hdr">
+      <h1 class="prospects-title">Prospects</h1>
+      <div class="filter-tabs" id="filterTabs">
+        <button class="filter-tab active" onclick="filterProspects('all',this)">All</button>
+        <button class="filter-tab" onclick="filterProspects('new',this)">New</button>
+        <button class="filter-tab" onclick="filterProspects('contacted',this)">Contacted</button>
+        <button class="filter-tab" onclick="filterProspects('booked',this)">Booked</button>
+      </div>
+    </div>
+    <div id="prospectsContainer"><div style="color:var(--muted);font-size:14px;padding:2rem 0">Loading…</div></div>
   </div>
 </div>
 
-<!-- ── PRESENTATION OVERLAY ────────────────────────────────────── -->
+<!-- ── PRESENTATION OVERLAY ── -->
 <div id="pres-overlay">
   <button id="pres-exit" onclick="exitPresentation()">✕ Exit</button>
   <div id="pres-slide-wrap"></div>
   <div id="pres-nav">
     <button class="btn btn-icon" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff;" onclick="goPres(-1)">&#8592;</button>
-    <span class="slide-counter" id="presCounter">1 / 8</span>
+    <span class="slide-counter" id="presCounter">1 / 7</span>
     <button class="btn btn-icon" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff;" onclick="goPres(1)">&#8594;</button>
   </div>
 </div>
 
-<!-- ── OUTREACH MODAL ──────────────────────────────────────────── -->
-<div class="modal-overlay" id="outreachModal">
-  <div class="modal">
-    <div class="modal-title" id="outreachTitle">Outreach Message</div>
-    <div class="modal-sub" id="outreachSub"></div>
-    <div class="msg-tabs">
-      <button class="msg-tab active" onclick="switchMsg('whatsapp',this)">WhatsApp</button>
-      <button class="msg-tab" onclick="switchMsg('loom',this)">Loom Script</button>
-    </div>
-    <textarea class="modal-textarea" id="outreachText" rows="8"></textarea>
-    <div class="modal-footer">
-      <button class="btn btn-sm" onclick="copyOutreach()">Copy</button>
-      <button class="btn btn-sm btn-primary" onclick="closeOutreach()">Done</button>
-    </div>
-  </div>
-</div>
-
 <script>
-// ── STATE ─────────────────────────────────────────────────────────
-let analysisData  = null;
-let currentSlide  = 0;
-let currentMsgType = 'whatsapp';
-let placeData     = null;  // { place_id, name, address, rating, review_count }
-const SLIDE_LABELS = ['Insight','Competitors','The Gap','Visibility','Cost','Opportunity','How It Works','Book a Call'];
+// ── CONSTANTS ──────────────────────────────────────────────────────
 const API = '/api/audit';
+const SLIDE_LABELS = ['You vs Competitors','The Gap','Impact','Cost / Risk','Opportunity','Call to Action','How It Works'];
+const STATUSES = ['new','contacted','viewed','booked','lost'];
+const STATUS_LABELS = {new:'New',contacted:'Contacted',viewed:'Viewed',booked:'Booked',lost:'Lost'};
 
-// ── TABS ──────────────────────────────────────────────────────────
+// ── STATE ──────────────────────────────────────────────────────────
+let analysisData  = null;
+let placeData     = null;
+let currentSlide  = 0;
+let allProspects  = [];
+let currentFilter = 'all';
+let presSlide     = 0;
+
+// ── TABS ───────────────────────────────────────────────────────────
 function switchTab(tab) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -334,17 +339,16 @@ function switchTab(tab) {
   if (tab === 'prospects') loadProspects();
 }
 
-// ── SEARCH ────────────────────────────────────────────────────────
+// ── SEARCH ─────────────────────────────────────────────────────────
 async function doSearch() {
   const q = document.getElementById('searchInput').value.trim();
   if (!q) return;
   setStatus('Searching…', true);
   document.getElementById('searchResults').innerHTML = '';
   try {
-    const r = await fetch(API + '?action=search&query=' + encodeURIComponent(q));
-    const data = await r.json();
-    const candidates = data.candidates || [];
+    const data = await apiFetch(API + '?action=search&query=' + encodeURIComponent(q));
     setStatus('');
+    const candidates = data.candidates || [];
     if (!candidates.length) { setStatus('No results found.'); return; }
     const sr = document.getElementById('searchResults');
     candidates.forEach(c => {
@@ -360,10 +364,9 @@ async function doSearch() {
 
 async function selectBusiness(placeId, name, address) {
   document.getElementById('searchResults').innerHTML = '';
-  setStatus('Loading business details…', true);
+  showLoading(name);
   try {
-    const r = await fetch(API + '?action=details&place_id=' + encodeURIComponent(placeId));
-    const data = await r.json();
+    const data = await apiFetch(API + '?action=details&place_id=' + encodeURIComponent(placeId));
     const biz = data.result || {};
     placeData = {
       place_id: placeId,
@@ -374,218 +377,227 @@ async function selectBusiness(placeId, name, address) {
       website: biz.website || '',
       phone: biz.formatted_phone_number || '',
     };
-    setStatus('');
     runAnalysis();
-  } catch (e) { setStatus('Failed to load details: ' + e.message); }
+  } catch (e) { hideLoading(); setStatus('Failed to load details: ' + e.message); }
 }
 
 function resetToSearch() {
   document.getElementById('deck-ui').style.display = 'none';
   document.getElementById('search-section').style.display = 'block';
-  analysisData = null;
-  placeData = null;
-  currentSlide = 0;
+  analysisData = null; placeData = null; currentSlide = 0;
 }
 
-// ── ANALYSIS ──────────────────────────────────────────────────────
-async function runAnalysis() {
+// ── LOADING SCREEN ─────────────────────────────────────────────────
+const STEP_DELAYS = [0, 1400, 3000, 5200];
+let stepTimers = [];
+
+function showLoading(bizName) {
   document.getElementById('search-section').style.display = 'none';
-  document.getElementById('deck-ui').style.display = 'none';
-  setStatus('Analyzing competitors and generating insights…', true);
+  document.getElementById('loading-biz-name').textContent = bizName;
+  document.getElementById('loading-screen').style.display = 'flex';
+  // Reset steps
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById('step-' + i);
+    el.classList.remove('active', 'done');
+  }
+  // Animate steps
+  stepTimers.forEach(clearTimeout);
+  stepTimers = [];
+  STEP_DELAYS.forEach((delay, i) => {
+    stepTimers.push(setTimeout(() => {
+      if (i > 0) document.getElementById('step-' + (i - 1)).classList.replace('active', 'done');
+      document.getElementById('step-' + i).classList.add('active');
+    }, delay));
+  });
+}
+
+function hideLoading() {
+  stepTimers.forEach(clearTimeout);
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('search-section').style.display = 'block';
+}
+
+// ── ANALYSIS ───────────────────────────────────────────────────────
+async function runAnalysis() {
   try {
-    const r = await fetch(API + '?action=analyze&place_id=' + encodeURIComponent(placeData.place_id), {
+    const data = await apiFetch(API + '?action=analyze&place_id=' + encodeURIComponent(placeData.place_id), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ biz: { website: placeData.website, phone: placeData.phone } }),
     });
-    const data = await r.json();
     if (data.error) throw new Error(data.error);
+    // Mark last step done
+    document.getElementById('step-3').classList.replace('active', 'done');
+    await sleep(300);
     analysisData = { ...data, ...placeData };
-    setStatus('');
+    document.getElementById('loading-screen').style.display = 'none';
     showDeck();
+    autoSave();
   } catch (e) {
+    hideLoading();
     setStatus('Analysis failed: ' + e.message);
-    document.getElementById('search-section').style.display = 'block';
   }
 }
 
-// ── DECK ──────────────────────────────────────────────────────────
+// ── DECK ───────────────────────────────────────────────────────────
 function showDeck() {
-  document.getElementById('search-section').style.display = 'none';
   const d = analysisData;
   document.getElementById('deck-biz-name').textContent = d.name;
-  document.getElementById('deck-biz-meta').textContent =
-    '\u2605 ' + (d.biz_rating || d.rating || 0) + '  \u00b7  '
-    + (d.biz_reviews || d.review_count || 0) + ' reviews  \u00b7  '
-    + (d.category || '')
-    + (d.map_pack_score != null ? '  \u00b7  Map Score: ' + d.map_pack_score + '/100' : '');
+  const gapClass = d.gap_level === 'high' ? 'gap-high' : d.gap_level === 'medium' ? 'gap-medium' : 'gap-low';
+  document.getElementById('deck-biz-meta').innerHTML =
+    '\u2605 ' + (d.biz_rating || d.rating || 0) + ' &nbsp;\u00b7&nbsp; '
+    + (d.biz_reviews || d.review_count || 0) + ' reviews &nbsp;\u00b7&nbsp; '
+    + _esc(d.category || '')
+    + (d.map_pack_score != null ? ' &nbsp;<span class="meta-badge ' + gapClass + '">' + d.gap_level + ' gap</span> &nbsp; Map Score: ' + d.map_pack_score + '/100' : '');
 
+  document.getElementById('saveIndicator').classList.remove('show');
   buildSidebar();
   currentSlide = 0;
   renderSlide(0);
   document.getElementById('deck-ui').style.display = 'flex';
-  document.getElementById('saveBtn').textContent = '+ Save';
-  document.getElementById('saveBtn').disabled = false;
 }
 
 function buildSidebar() {
   const sb = document.getElementById('slideSidebar');
-  sb.innerHTML = '';
-  SLIDE_LABELS.forEach((label, i) => {
-    const el = document.createElement('div');
-    el.className = 'slide-nav-item' + (i === 0 ? ' active' : '');
-    el.id = 'sni-' + i;
-    el.innerHTML = '<span class="sni-num">' + (i + 1) + '</span><span class="sni-label">' + label + '</span>';
-    el.onclick = () => { currentSlide = i; renderSlide(i); };
-    sb.appendChild(el);
-  });
+  sb.innerHTML = SLIDE_LABELS.map((label, i) =>
+    '<div class="sni' + (i === 0 ? ' active' : '') + '" id="sni-' + i + '" onclick="jumpSlide(' + i + ')">'
+    + '<span class="sni-num">' + (i + 1) + '</span>'
+    + '<span class="sni-label">' + label + '</span></div>'
+  ).join('');
 }
 
+function jumpSlide(i) { currentSlide = i; renderSlide(i); }
+
 function goDeck(dir) {
-  const n = Math.max(0, Math.min(7, currentSlide + dir));
+  const n = Math.max(0, Math.min(SLIDE_LABELS.length - 1, currentSlide + dir));
   if (n !== currentSlide) { currentSlide = n; renderSlide(n); }
 }
 
 function renderSlide(idx) {
-  document.querySelectorAll('.slide-nav-item').forEach((el, i) => el.classList.toggle('active', i === idx));
-  document.getElementById('deckCounter').textContent = (idx + 1) + ' / 8';
-  const html = buildSlideHTML(idx, analysisData);
-  document.getElementById('slideStage').innerHTML = html;
+  document.querySelectorAll('.sni').forEach((el, i) => el.classList.toggle('active', i === idx));
+  document.getElementById('deckCounter').textContent = (idx + 1) + ' / ' + SLIDE_LABELS.length;
+  document.getElementById('slideStage').innerHTML = buildSlideHTML(idx, analysisData);
 }
 
+// ── SLIDE BUILDER ──────────────────────────────────────────────────
 function buildSlideHTML(idx, d) {
   const slides = d.slides || [];
   const s = slides[idx] || {};
-  const title = s.title || SLIDE_LABELS[idx];
-  const content = s.content || '';
-  const support = s.supporting_text || '';
-
   switch (idx) {
-    case 0: return slideInsight(title, content, support, d);
-    case 1: return slideComparison(title, d);
-    case 2: return slideGap(title, content, support, d);
-    case 3: return slideVisibility(title, content, support);
-    case 4: return slideCost(title, content, support, d);
-    case 5: return slideOpportunity(title, content, support, d);
-    case 6: return slideHowItWorks(title, d);
-    case 7: return slideCTA(title, content, support);
-    default: return slideGeneric(title, content, support);
+    case 0: return slideComparison(s, d);
+    case 1: return slideGap(s, d);
+    case 2: return slideImpact(s);
+    case 3: return slideCost(s, d);
+    case 4: return slideOpportunity(s, d);
+    case 5: return slideCTA(s);
+    case 6: return slideHow(s, d);
+    default: return slideGeneric(s);
   }
 }
 
-function slideInsight(title, content, support, d) {
-  return '<div class="slide slide-insight">'
-    + '<div class="s-eyebrow">Audit Finding</div>'
-    + '<div class="s-headline">' + _esc(d.insight_summary || content || title) + '</div>'
-    + (support ? '<div class="s-highlight">' + _esc(support) + '</div>' : '')
-    + '</div>';
-}
-
-function slideComparison(title, d) {
+function slideComparison(s, d) {
   const bizReviews = d.biz_reviews || d.review_count || 0;
   const bizRating  = d.biz_rating  || d.rating || 0;
   const comps = d.competitors || [];
-  const maxReviews = Math.max(bizReviews, ...comps.map(c => c.review_count));
-
-  let rows = '<tr class="you"><td><strong>' + _esc(d.name) + '</strong> <span style="font-size:11px;color:var(--gold);font-weight:700;">YOU</span></td>'
-    + '<td class="stars">' + starsHtml(bizRating) + ' ' + bizRating + '</td>'
-    + '<td><div class="review-bar-wrap"><div class="review-bar" style="width:' + barPct(bizReviews, maxReviews) + 'px"></div><span>' + bizReviews + '</span></div></td></tr>';
+  const maxR = Math.max(bizReviews, ...comps.map(c => c.review_count), 1);
+  let rows = '<tr class="you-row">'
+    + '<td><strong>' + _esc(d.name) + '</strong> <span style="font-size:10px;color:var(--gold-dark);font-weight:700;background:var(--gold-dim);padding:1px 6px;border-radius:5px;">YOU</span></td>'
+    + '<td>' + starStr(bizRating) + ' ' + bizRating + '</td>'
+    + '<td><div class="bar-wrap"><div class="bar" style="width:' + barW(bizReviews, maxR) + 'px;background:var(--gold)"></div><span>' + bizReviews + '</span></div></td></tr>';
   comps.forEach(c => {
     rows += '<tr><td>' + _esc(c.name) + '</td>'
-      + '<td class="stars">' + starsHtml(c.rating) + ' ' + c.rating + '</td>'
-      + '<td><div class="review-bar-wrap"><div class="review-bar" style="width:' + barPct(c.review_count, maxReviews) + 'px;background:#ddd"></div><span>' + c.review_count + '</span></div></td></tr>';
+      + '<td>' + starStr(c.rating) + ' ' + c.rating + '</td>'
+      + '<td><div class="bar-wrap"><div class="bar" style="width:' + barW(c.review_count, maxR) + 'px;background:var(--border2)"></div><span>' + c.review_count + '</span></div></td></tr>';
   });
-
   return '<div class="slide slide-comparison">'
-    + '<div class="s-title">' + _esc(title) + '</div>'
-    + '<table class="comp-table"><thead><tr><th>Business</th><th>Rating</th><th>Reviews</th></tr></thead>'
-    + '<tbody>' + rows + '</tbody></table>'
+    + '<div class="s-eyebrow">Audit Finding</div>'
+    + '<div class="s-title">' + _esc(s.title || 'You vs Competitors') + '</div>'
+    + (s.main ? '<div class="s-main-sm">' + _esc(s.main) + '</div>' : '')
+    + '<table class="comp-table"><thead><tr><th>Business</th><th>Rating</th><th>Reviews</th></tr></thead><tbody>' + rows + '</tbody></table>'
+    + (s.supporting ? '<div class="s-support" style="margin-top:1rem">' + _esc(s.supporting) + '</div>' : '')
     + '</div>';
 }
 
-function slideGap(title, content, support, d) {
+function slideGap(s, d) {
   const ratio = d.dominance_ratio || 1;
-  const dispRatio = ratio >= 10 ? Math.round(ratio) : ratio.toFixed(1);
+  const disp  = ratio >= 10 ? Math.round(ratio) + 'x' : ratio.toFixed(1) + 'x';
   return '<div class="slide slide-gap">'
     + '<div class="s-eyebrow">The Gap</div>'
-    + '<div class="s-big-num">' + dispRatio + 'x</div>'
-    + '<div class="s-big-label">' + _esc(content || 'Fewer reviews than top competitors') + '</div>'
-    + '<div class="s-support">' + _esc(support || 'This gap directly affects how often you appear when customers search locally.') + '</div>'
+    + '<div class="s-main">' + _esc(s.main || disp) + '</div>'
+    + '<div class="s-title" style="color:#f5f2ec;font-size:1.4rem;margin-bottom:.75rem">' + _esc(s.title || 'Behind top competitors') + '</div>'
+    + (s.supporting ? '<div class="s-support">' + _esc(s.supporting) + '</div>' : '')
     + '</div>';
 }
 
-function slideVisibility(title, content, support) {
-  return '<div class="slide slide-visibility">'
-    + '<div class="s-title">' + _esc(title) + '</div>'
-    + '<div class="s-quote">' + _esc(content || 'Google tends to favor businesses that consistently get reviews. More reviews = more visibility = more customers choosing you.') + '</div>'
-    + (support ? '<div class="s-support">' + _esc(support) + '</div>' : '')
+function slideImpact(s) {
+  return '<div class="slide slide-impact">'
+    + '<div class="s-eyebrow">Impact</div>'
+    + '<div class="s-quote">' + _esc(s.main || s.title || '') + '</div>'
+    + (s.supporting ? '<div class="s-support">' + _esc(s.supporting) + '</div>' : '')
     + '</div>';
 }
 
-function slideCost(title, content, support, d) {
+function slideCost(s, d) {
   const rev = d.revenue_range || '€30–€80';
-  const avgComp = d.avg_competitor_reviews || 0;
-  const biz = d.biz_reviews || d.review_count || 0;
-  const gap = Math.max(0, avgComp - biz);
   return '<div class="slide slide-cost">'
-    + '<div class="s-title">' + _esc(title) + '</div>'
-    + '<div class="s-money">' + rev + '</div>'
-    + '<div class="s-money-label">average value per customer in your category</div>'
-    + '<div class="s-support">' + _esc(content || ('With ' + gap + ' fewer reviews than your top competitors, you\'re likely missing customers every week who are choosing them instead.')) + '</div>'
-    + (support ? '<div style="margin-top:.75rem;font-size:.9rem;color:var(--muted);">' + _esc(support) + '</div>' : '')
+    + '<div class="s-eyebrow">Cost / Risk</div>'
+    + '<div class="s-main">' + _esc(s.main || rev + ' per missed customer') + '</div>'
+    + '<div class="s-title" style="font-size:1.3rem;margin-bottom:.75rem">' + _esc(s.title || 'What this is costing you') + '</div>'
+    + (s.supporting ? '<div class="s-support">' + _esc(s.supporting) + '</div>' : '')
     + '</div>';
 }
 
-function slideOpportunity(title, content, support, d) {
+function slideOpportunity(s, d) {
   const rev = d.revenue_range || '€30–€80';
   return '<div class="slide slide-opportunity">'
-    + '<div class="s-title">' + _esc(title) + '</div>'
-    + '<div class="s-money">' + rev + '</div>'
-    + '<div class="s-money-label">per new customer you could be winning back</div>'
-    + '<div class="s-support">' + _esc(content || 'Close the review gap and Google starts showing your business to more people searching locally — customers who are ready to buy.') + '</div>'
-    + (support ? '<div style="margin-top:.75rem;font-size:.9rem;color:var(--muted);">' + _esc(support) + '</div>' : '')
+    + '<div class="s-eyebrow">Opportunity</div>'
+    + '<div class="s-main">' + _esc(s.main || rev + ' per new customer') + '</div>'
+    + '<div class="s-title" style="font-size:1.3rem;margin-bottom:.75rem">' + _esc(s.title || 'What happens if this is fixed') + '</div>'
+    + (s.supporting ? '<div class="s-support">' + _esc(s.supporting) + '</div>' : '')
     + '</div>';
 }
 
-function slideHowItWorks(title, d) {
-  const slides = (d.slides || [])[6] || {};
-  const steps = slides.content ? slides.content.split('\n').filter(Boolean) : null;
-  const s1 = (steps && steps[0]) || 'More Reviews';
-  const s2 = (steps && steps[1]) || 'More Visibility';
-  const s3 = (steps && steps[2]) || 'More Customers';
-  const sub1 = (steps && steps[3]) || 'Customer gets a prompt after their visit';
-  const sub2 = (steps && steps[4]) || 'Google ranks you higher locally';
-  const sub3 = (steps && steps[5]) || 'Revenue grows automatically';
-  return '<div class="slide slide-how">'
-    + '<div class="s-title">' + _esc(title) + '</div>'
-    + '<div class="how-steps">'
-    + '<div class="how-step"><div class="how-step-num">1</div><div class="how-step-label">' + _esc(s1) + '</div><div class="how-step-sub">' + _esc(sub1) + '</div></div>'
-    + '<div class="how-arrow">&rarr;</div>'
-    + '<div class="how-step"><div class="how-step-num">2</div><div class="how-step-label">' + _esc(s2) + '</div><div class="how-step-sub">' + _esc(sub2) + '</div></div>'
-    + '<div class="how-arrow">&rarr;</div>'
-    + '<div class="how-step"><div class="how-step-num">3</div><div class="how-step-label">' + _esc(s3) + '</div><div class="how-step-sub">' + _esc(sub3) + '</div></div>'
-    + '</div></div>';
-}
-
-function slideCTA(title, content, support) {
+function slideCTA(s) {
   return '<div class="slide slide-cta">'
     + '<div class="s-eyebrow">Next Step</div>'
-    + '<div class="s-headline">' + _esc(title || 'Ready to Fix This?') + '</div>'
-    + '<div class="s-sub">' + _esc(content || support || 'Book a free 20-minute call. We\'ll show you exactly what to do.') + '</div>'
+    + '<div class="s-main">' + _esc(s.title || 'Ready to fix this?') + '</div>'
+    + '<div class="s-support">' + _esc(s.main || s.supporting || 'Book a free 20-minute call.') + '</div>'
     + '<button class="btn-cta" onclick="window.open(\'https://growstars.com/book\',\'_blank\')">Book a Free Call</button>'
     + '</div>';
 }
 
-function slideGeneric(title, content, support) {
-  return '<div class="slide" style="background:var(--white)">'
-    + '<div style="font-family:Georgia,serif;font-size:1.8rem;margin-bottom:1.25rem">' + _esc(title) + '</div>'
-    + '<div style="font-size:1.05rem;line-height:1.7;color:var(--text)">' + _esc(content) + '</div>'
-    + (support ? '<div style="margin-top:1rem;font-size:.9rem;color:var(--muted)">' + _esc(support) + '</div>' : '')
+function slideHow(s, d) {
+  const slides7 = (d.slides || [])[6] || {};
+  const parts = (slides7.main || '').split(/→|->|\n/).map(p => p.trim()).filter(Boolean);
+  const steps = [
+    { label: parts[0] || 'More Reviews',     sub: 'Customer gets a simple review prompt' },
+    { label: parts[1] || 'More Visibility',  sub: 'Google ranks you higher in local search' },
+    { label: parts[2] || 'More Customers',   sub: 'Revenue grows automatically' },
+  ];
+  return '<div class="slide slide-how">'
+    + '<div class="s-eyebrow">How It Works</div>'
+    + '<div class="s-title">' + _esc(s.title || 'Simple system, real results') + '</div>'
+    + '<div class="how-steps">'
+    + steps.map((st, i) =>
+        (i > 0 ? '<div class="how-arrow">&rarr;</div>' : '')
+        + '<div class="how-step"><div class="how-num">' + (i + 1) + '</div>'
+        + '<div class="how-label">' + _esc(st.label) + '</div>'
+        + '<div class="how-sub">' + _esc(st.sub) + '</div></div>'
+      ).join('')
+    + '</div>'
+    + (s.supporting ? '<div class="s-support" style="margin-top:1.5rem">' + _esc(s.supporting) + '</div>' : '')
     + '</div>';
 }
 
-// ── PRESENTATION MODE ─────────────────────────────────────────────
-let presSlide = 0;
+function slideGeneric(s) {
+  return '<div class="slide" style="background:var(--white)">'
+    + '<div class="s-title">' + _esc(s.title || '') + '</div>'
+    + '<div class="s-main-sm">' + _esc(s.main || '') + '</div>'
+    + (s.supporting ? '<div class="s-support">' + _esc(s.supporting) + '</div>' : '')
+    + '</div>';
+}
+
+// ── PRESENTATION ───────────────────────────────────────────────────
 function enterPresentation() {
   presSlide = currentSlide;
   renderPresSlide(presSlide);
@@ -595,11 +607,11 @@ function exitPresentation() {
   document.getElementById('pres-overlay').classList.remove('open');
 }
 function goPres(dir) {
-  presSlide = Math.max(0, Math.min(7, presSlide + dir));
+  presSlide = Math.max(0, Math.min(SLIDE_LABELS.length - 1, presSlide + dir));
   renderPresSlide(presSlide);
 }
 function renderPresSlide(idx) {
-  document.getElementById('presCounter').textContent = (idx + 1) + ' / 8';
+  document.getElementById('presCounter').textContent = (idx + 1) + ' / ' + SLIDE_LABELS.length;
   document.getElementById('pres-slide-wrap').innerHTML = buildSlideHTML(idx, analysisData);
 }
 document.addEventListener('keydown', e => {
@@ -609,250 +621,303 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'Escape') exitPresentation();
 });
 
-// ── COPY ──────────────────────────────────────────────────────────
+// ── COPY ───────────────────────────────────────────────────────────
 function copyWhatsApp() {
   if (!analysisData?.whatsapp_message) return;
-  navigator.clipboard.writeText(analysisData.whatsapp_message).then(() => {
-    const btn = document.getElementById('copyWaBtn');
-    btn.textContent = '✓ Copied!';
-    setTimeout(() => { btn.textContent = '📋 WhatsApp'; }, 2000);
-  });
+  navigator.clipboard.writeText(analysisData.whatsapp_message).then(() => flashBtn('copyWaBtn', '✓ Copied', '📋 WhatsApp'));
 }
 function copyLoom() {
   if (!analysisData) return;
-  const text = typeof analysisData.loom_script === 'object'
-    ? JSON.stringify(analysisData.loom_script, null, 2)
+  const t = Array.isArray(analysisData.loom_script)
+    ? analysisData.loom_script.join('\n\n')
     : (analysisData.loom_script || '');
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById('copyLoomBtn');
-    btn.textContent = '✓ Copied!';
-    setTimeout(() => { btn.textContent = '📋 Loom Script'; }, 2000);
-  });
+  navigator.clipboard.writeText(t).then(() => flashBtn('copyLoomBtn', '✓ Copied', '📋 Loom Script'));
+}
+function flashBtn(id, msg, original) {
+  const btn = document.getElementById(id);
+  btn.textContent = msg;
+  setTimeout(() => { btn.textContent = original; }, 2000);
 }
 
-// ── OUTREACH MODAL ────────────────────────────────────────────────
-function openOutreach() {
+// ── AUTO-SAVE ──────────────────────────────────────────────────────
+async function autoSave() {
   if (!analysisData) return;
-  currentMsgType = 'whatsapp';
-  document.querySelector('.msg-tab').classList.add('active');
-  document.querySelectorAll('.msg-tab')[1].classList.remove('active');
-  document.getElementById('outreachSub').textContent = analysisData.name;
-  document.getElementById('outreachText').value = analysisData.whatsapp_message || '';
-  document.getElementById('outreachModal').classList.add('open');
-}
-function closeOutreach() { document.getElementById('outreachModal').classList.remove('open'); }
-function switchMsg(type, btn) {
-  currentMsgType = type;
-  document.querySelectorAll('.msg-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  const d = analysisData || {};
-  if (type === 'whatsapp') {
-    document.getElementById('outreachText').value = d.whatsapp_message || '';
-  } else {
-    document.getElementById('outreachText').value = typeof d.loom_script === 'object'
-      ? JSON.stringify(d.loom_script, null, 2)
-      : (d.loom_script || '');
-  }
-}
-function copyOutreach() {
-  const t = document.getElementById('outreachText');
-  navigator.clipboard.writeText(t.value);
+  const d = analysisData;
+  const reportJson = JSON.stringify({
+    slides:           d.slides,
+    competitors:      d.competitors,
+    loom_script:      d.loom_script,
+    insight_summary:  d.insight_summary,
+    whatsapp_message: d.whatsapp_message,
+    dominance_ratio:  d.dominance_ratio,
+    gap_level:        d.gap_level,
+    map_pack_score:   d.map_pack_score,
+    revenue_range:    d.revenue_range,
+    avg_competitor_reviews: d.avg_competitor_reviews,
+    biz_reviews:      d.biz_reviews,
+    biz_rating:       d.biz_rating,
+    category:         d.category,
+    name:             d.name,
+    address:          d.address,
+    rating:           d.rating,
+    review_count:     d.review_count,
+    website:          d.website,
+    phone:            d.phone,
+  });
+  const payload = {
+    business_name:    d.name,
+    address:          d.address,
+    place_id:         d.place_id,
+    rating:           d.biz_rating || d.rating,
+    review_count:     d.biz_reviews || d.review_count,
+    website:          d.website,
+    phone:            d.phone,
+    score:            d.map_pack_score,
+    gap_level:        d.gap_level,
+    dominance_ratio:  d.dominance_ratio,
+    category:         d.category,
+    insight_summary:  d.insight_summary,
+    whatsapp_message: d.whatsapp_message,
+    report_json:      reportJson,
+    status:           'new',
+  };
+  try {
+    const result = await apiFetch(API + '?action=save', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (result.error) {
+      // Retry without report_json in case column doesn't exist
+      delete payload.report_json;
+      await apiFetch(API + '?action=save', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    }
+    const ind = document.getElementById('saveIndicator');
+    ind.classList.add('show');
+    setTimeout(() => ind.classList.remove('show'), 3000);
+  } catch (_) { /* silent fail on auto-save */ }
 }
 
-// ── PDF EXPORT ────────────────────────────────────────────────────
+// ── PDF EXPORT ─────────────────────────────────────────────────────
 async function exportPDF() {
   if (!analysisData) return;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-  const W = 297, H = 210, margin = 20;
-
+  const W = 297, H = 210, ml = 20, mr = 20;
   const slides = analysisData.slides || [];
   const d = analysisData;
+  const DARK = [26, 26, 26]; const LIGHT = [245, 242, 236]; const GOLD = [200, 169, 110];
+  const CREAM = [255, 253, 248]; const WHITE = [255, 255, 255];
 
   slides.forEach((s, i) => {
     if (i > 0) doc.addPage();
-    // Background
-    if (i === 2 || i === 7) {
-      doc.setFillColor(26, 26, 26);
-    } else {
-      doc.setFillColor(255, 253, 248);
-    }
+    const isDark = (i === 1 || i === 5);
+    doc.setFillColor(...(isDark ? DARK : i % 2 === 0 ? WHITE : CREAM));
     doc.rect(0, 0, W, H, 'F');
-
-    // Slide number
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(i === 2 || i === 7 ? 120 : 160, i === 2 || i === 7 ? 110 : 150, i === 2 || i === 7 ? 90 : 130);
-    doc.text((i + 1) + ' / ' + slides.length, W - margin, H - 10, { align: 'right' });
-
-    const isLight = !(i === 2 || i === 7);
-    const titleColor = isLight ? [26, 26, 26] : [245, 242, 236];
-    const bodyColor  = isLight ? [107, 101, 96] : [180, 170, 155];
-    const goldColor  = [200, 169, 110];
-
-    // Title
-    doc.setFont('times', 'bold');
-    doc.setFontSize(22);
-    doc.setTextColor(...titleColor);
-    doc.text(s.title || SLIDE_LABELS[i], margin, 45);
-
-    // Content
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(13);
-    doc.setTextColor(...bodyColor);
-    const lines = doc.splitTextToSize(s.content || '', W - margin * 2);
-    doc.text(lines, margin, 65);
-
-    // Supporting text
-    if (s.supporting_text) {
-      doc.setFontSize(11);
-      doc.setTextColor(...goldColor);
-      const sLines = doc.splitTextToSize(s.supporting_text, W - margin * 2);
-      doc.text(sLines, margin, 65 + lines.length * 7 + 8);
+    if (isDark) {
+      doc.setFillColor(...GOLD);
+      doc.rect(0, 0, 5, H, 'F');
     }
-
+    // Slide number
+    doc.setFont('helvetica','normal'); doc.setFontSize(8);
+    doc.setTextColor(...(isDark ? [80,70,50] : [160,150,130]));
+    doc.text((i+1)+' / '+slides.length, W-mr, H-8, {align:'right'});
+    // Eyebrow
+    doc.setFont('helvetica','bold'); doc.setFontSize(8);
+    doc.setTextColor(...GOLD);
+    doc.text((SLIDE_LABELS[i]||'').toUpperCase(), ml, 28);
+    // Title
+    doc.setFont('times','bold'); doc.setFontSize(20);
+    doc.setTextColor(...(isDark ? LIGHT : DARK));
+    doc.text(s.title||'', ml, 44);
+    // Main
+    doc.setFont('times','bold'); doc.setFontSize(28);
+    doc.setTextColor(...(isDark ? GOLD : DARK));
+    const mainLines = doc.splitTextToSize(s.main||'', W - ml - mr);
+    doc.text(mainLines, ml, 65);
+    // Supporting
+    if (s.supporting) {
+      doc.setFont('helvetica','normal'); doc.setFontSize(12);
+      doc.setTextColor(...(isDark ? [160,150,130] : [107,101,96]));
+      doc.text(doc.splitTextToSize(s.supporting, W-ml-mr), ml, 65 + mainLines.length*12 + 6);
+    }
     // Footer
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(...bodyColor);
-    doc.text('GrowStars.com', margin, H - 10);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8);
+    doc.setTextColor(...(isDark ? [80,70,50] : [160,150,130]));
+    doc.text('GrowStars.com', ml, H-8);
   });
 
-  const safeName = (d.name || 'audit').replace(/[^a-z0-9]/gi, '_').toLowerCase();
-  doc.save('growstars_' + safeName + '.pdf');
+  const safe = (d.name||'audit').replace(/[^a-z0-9]/gi,'_').toLowerCase();
+  doc.save('growstars_' + safe + '.pdf');
 }
 
-// ── SAVE PROSPECT ─────────────────────────────────────────────────
-async function saveProspect() {
-  if (!analysisData) return;
-  const btn = document.getElementById('saveBtn');
-  btn.disabled = true;
-  btn.textContent = 'Saving…';
-  try {
-    const payload = {
-      business_name:    analysisData.name,
-      address:          analysisData.address,
-      place_id:         analysisData.place_id,
-      rating:           analysisData.biz_rating || analysisData.rating,
-      review_count:     analysisData.biz_reviews || analysisData.review_count,
-      website:          analysisData.website,
-      phone:            analysisData.phone,
-      score:            analysisData.map_pack_score,
-      gap_level:        analysisData.gap_level,
-      dominance_ratio:  analysisData.dominance_ratio,
-      category:         analysisData.category,
-      insight_summary:  analysisData.insight_summary,
-      whatsapp_message: analysisData.whatsapp_message,
-      status:           'new',
-    };
-    const r = await fetch(API + '?action=save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    const data = await r.json();
-    if (data.error) throw new Error(data.error);
-    btn.textContent = '✓ Saved';
-    btn.style.color = 'var(--green)';
-  } catch (e) {
-    btn.disabled = false;
-    btn.textContent = '+ Save';
-    alert('Save failed: ' + e.message);
-  }
-}
-
-// ── PROSPECTS ─────────────────────────────────────────────────────
+// ── PROSPECTS ──────────────────────────────────────────────────────
 async function loadProspects() {
   try {
-    const r = await fetch(API + '?action=prospects');
-    const data = await r.json();
-    renderProspects(Array.isArray(data) ? data : []);
+    const data = await apiFetch(API + '?action=prospects');
+    allProspects = Array.isArray(data) ? data : [];
+    renderProspects(allProspects);
   } catch (e) {
     document.getElementById('prospectsContainer').innerHTML =
       '<div style="color:var(--muted);font-size:14px">Failed to load: ' + _esc(e.message) + '</div>';
   }
 }
 
+function filterProspects(status, btn) {
+  currentFilter = status;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = status === 'all' ? allProspects : allProspects.filter(p => p.status === status);
+  renderProspects(filtered);
+}
+
 function renderProspects(prospects) {
   const container = document.getElementById('prospectsContainer');
   if (!prospects.length) {
-    container.innerHTML = '<div style="color:var(--muted);font-size:14px;padding:2rem 0">No prospects saved yet. Run an audit and click Save.</div>';
+    container.innerHTML = '<div style="color:var(--muted);font-size:14px;padding:2rem 0">'
+      + (currentFilter === 'all' ? 'No prospects yet. Run an audit — it saves automatically.' : 'No prospects with this status.')
+      + '</div>';
     return;
   }
 
-  const statuses = ['new','contacted','viewed','booked','lost'];
-  const statusLabels = { new:'New', contacted:'Contacted', viewed:'Viewed', booked:'Booked', lost:'Lost' };
-  const cols = {};
-  statuses.forEach(s => { cols[s] = []; });
-  prospects.forEach(p => { const s = p.status || 'new'; if (cols[s]) cols[s].push(p); else cols['new'].push(p); });
-
+  // Pipeline
+  const cols = {}; STATUSES.forEach(s => { cols[s] = []; });
+  allProspects.forEach(p => { (cols[p.status || 'new'] || cols.new).push(p); });
   let html = '<div class="pipeline">';
-  statuses.forEach(status => {
-    html += '<div class="pipe-col">'
-      + '<div class="pipe-col-title">' + statusLabels[status]
-      + '<span class="pipe-col-count">' + cols[status].length + '</span></div>';
-    cols[status].forEach(p => {
-      const scoreClass = p.gap_level === 'high' ? 'score-high' : p.gap_level === 'medium' ? 'score-medium' : 'score-low';
-      html += '<div class="pipe-card" onclick="showProspectDetail(' + JSON.stringify(p).replace(/"/g,'&quot;') + ')">'
+  STATUSES.forEach(st => {
+    html += '<div class="pipe-col"><div class="pipe-col-hdr">' + STATUS_LABELS[st]
+      + '<span class="pipe-count">' + cols[st].length + '</span></div>';
+    cols[st].forEach(p => {
+      const gc = p.gap_level === 'high' ? 'gap-high' : p.gap_level === 'medium' ? 'gap-medium' : 'gap-low';
+      html += '<div class="pipe-card" onclick="jumpToProspect(\'' + p.id + '\')">'
         + '<div class="pipe-card-name">' + _esc(p.business_name) + '</div>'
-        + '<div class="pipe-card-meta">' + _esc((p.rating || '') + ' \u2605  \u00b7  ' + (p.review_count || 0) + ' reviews') + '</div>'
-        + (p.gap_level ? '<span class="pipe-card-score ' + scoreClass + '">' + (p.gap_level) + ' gap</span>' : '')
+        + '<div class="pipe-card-meta">' + _esc((p.rating||'?') + '★ · ' + (p.review_count||0) + ' reviews') + '</div>'
+        + (p.gap_level ? '<span class="gap-pill ' + gc + '">' + p.gap_level + ' gap</span>' : '')
         + '</div>';
     });
     html += '</div>';
   });
   html += '</div>';
 
-  html += '<div class="prospects-list">';
+  // List
+  html += '<div class="prospect-list">';
   prospects.forEach(p => {
-    html += '<div class="prospect-row">'
-      + '<div style="flex:1;min-width:0"><div class="pr-name">' + _esc(p.business_name) + '</div>'
-      + '<div class="pr-meta">' + _esc(p.address || '') + '</div></div>'
-      + '<div class="pr-meta">' + _esc((p.rating || '') + ' \u2605') + '</div>'
-      + '<div><select onchange="updateStatus(\'' + p.id + '\',this.value)" onclick="event.stopPropagation()">'
-      + statuses.map(s => '<option value="' + s + '"' + (p.status === s ? ' selected' : '') + '>' + statusLabels[s] + '</option>').join('')
-      + '</select></div>'
-      + '<button class="pr-del" onclick="deleteProspect(\'' + p.id + '\')" title="Delete">&times;</button>'
+    const hasReport = !!p.report_json;
+    const gc = p.gap_level === 'high' ? 'gap-high' : p.gap_level === 'medium' ? 'gap-medium' : 'gap-low';
+    const dateStr = p.created_at ? new Date(p.created_at).toLocaleDateString('en-IE', {day:'numeric',month:'short',year:'numeric'}) : '';
+    html += '<div class="p-row" id="prow-' + p.id + '">'
+      + '<div class="p-main">'
+      + '<div class="p-name">' + _esc(p.business_name) + '</div>'
+      + '<div class="p-meta">' + _esc((p.rating||'?') + '★ · ' + (p.review_count||0) + ' reviews · ' + (p.category||'')) + '</div>'
+      + (p.gap_level ? '<span class="gap-pill ' + gc + ' p-meta">' + p.gap_level + ' gap</span>' : '')
+      + '<div class="p-meta">' + (p.score != null ? 'Score: ' + p.score + '/100' : '') + (dateStr ? ' · ' + dateStr : '') + '</div>'
+      + '<div class="p-actions">'
+      + (hasReport ? '<button class="btn btn-xs btn-dark" onclick="viewSavedSlides(\'' + p.id + '\')">View Slides</button>' : '')
+      + '<button class="btn btn-xs" onclick="copyProspectWa(\'' + p.id + '\')">📋 WA</button>'
+      + '<button class="btn btn-xs" onclick="toggleEdit(\'' + p.id + '\')">Edit</button>'
+      + '<button class="btn btn-xs btn-red" onclick="deleteProspect(\'' + p.id + '\')">Delete</button>'
+      + '</div></div>'
+      + '<div class="p-edit-panel" id="edit-' + p.id + '">'
+      + '<div class="p-edit-row">'
+      + '<select class="p-status-sel" id="sel-' + p.id + '">'
+      + STATUSES.map(s => '<option value="' + s + '"' + (p.status === s ? ' selected' : '') + '>' + STATUS_LABELS[s] + '</option>').join('')
+      + '</select>'
+      + '<div style="flex:1"><textarea class="p-notes" id="notes-' + p.id + '" placeholder="Notes…">' + _esc(p.notes || '') + '</textarea></div>'
+      + '</div>'
+      + '<div style="display:flex;gap:8px">'
+      + '<button class="btn btn-sm btn-green" onclick="saveEdit(\'' + p.id + '\')">Save</button>'
+      + '<button class="btn btn-sm btn-ghost" onclick="toggleEdit(\'' + p.id + '\')">Cancel</button>'
+      + '</div></div>'
       + '</div>';
   });
   html += '</div>';
   container.innerHTML = html;
 }
 
-async function updateStatus(id, status) {
-  await fetch(API + '?action=update&id=' + encodeURIComponent(id), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status }),
-  });
+function jumpToProspect(id) {
+  const el = document.getElementById('prow-' + id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function toggleEdit(id) {
+  const panel = document.getElementById('edit-' + id);
+  panel.classList.toggle('open');
+}
+
+async function saveEdit(id) {
+  const status = document.getElementById('sel-' + id).value;
+  const notes  = document.getElementById('notes-' + id).value;
+  try {
+    await apiFetch(API + '?action=update&id=' + encodeURIComponent(id), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status, notes }),
+    });
+    const p = allProspects.find(x => x.id == id);
+    if (p) { p.status = status; p.notes = notes; }
+    toggleEdit(id);
+    loadProspects();
+  } catch (e) { alert('Save failed: ' + e.message); }
 }
 
 async function deleteProspect(id) {
-  if (!confirm('Delete this prospect?')) return;
-  await fetch(API + '?action=delete&id=' + encodeURIComponent(id));
-  loadProspects();
+  const p = allProspects.find(x => x.id == id);
+  if (!confirm('Delete ' + (p ? p.business_name : 'this prospect') + '?')) return;
+  try {
+    await apiFetch(API + '?action=delete&id=' + encodeURIComponent(id));
+    loadProspects();
+  } catch (e) { alert('Delete failed: ' + e.message); }
 }
 
-function showProspectDetail(p) {
-  if (!p.whatsapp_message) return;
-  navigator.clipboard.writeText(p.whatsapp_message).then(() => alert('WhatsApp message copied!'));
+function copyProspectWa(id) {
+  const p = allProspects.find(x => x.id == id);
+  if (!p) return;
+  const msg = p.whatsapp_message || (p.report_json ? tryParseJson(p.report_json)?.whatsapp_message : '');
+  if (msg) navigator.clipboard.writeText(msg).then(() => alert('Copied!'));
+  else alert('No WhatsApp message saved for this prospect.');
 }
 
-// ── HELPERS ───────────────────────────────────────────────────────
+function viewSavedSlides(id) {
+  const p = allProspects.find(x => x.id == id);
+  if (!p || !p.report_json) return;
+  const report = tryParseJson(p.report_json);
+  if (!report) { alert('Report data could not be loaded.'); return; }
+  // Restore analysisData from stored report
+  analysisData = {
+    ...report,
+    place_id:     p.place_id,
+    name:         report.name || p.business_name,
+    address:      report.address || p.address,
+    rating:       report.rating || p.rating,
+    review_count: report.review_count || p.review_count,
+    website:      report.website || p.website || '',
+    phone:        report.phone || p.phone || '',
+  };
+  switchTab('audit');
+  currentSlide = 0;
+  showDeck();
+}
+
+function tryParseJson(str) {
+  try { return JSON.parse(str); } catch { return null; }
+}
+
+// ── UTILS ──────────────────────────────────────────────────────────
 function _esc(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function setStatus(msg, loading) {
   const el = document.getElementById('status-line');
-  el.innerHTML = (loading ? '<div class="spinner"></div>' : '') + _esc(msg);
+  el.innerHTML = (loading ? '<div class="spinner-lg" style="width:14px;height:14px;border-width:2px"></div>' : '') + _esc(msg);
 }
-function starsHtml(rating) {
-  const full = Math.round(rating || 0);
-  return '\u2605'.repeat(Math.min(5, Math.max(0, full)));
-}
-function barPct(val, max) {
-  if (!max) return 0;
-  return Math.round((val / max) * 140);
+function starStr(r) { return '\u2605'.repeat(Math.min(5, Math.max(0, Math.round(r||0)))); }
+function barW(val, max) { return max ? Math.round((val/max) * 140) : 0; }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+async function apiFetch(url, opts) {
+  const r = await fetch(url, opts);
+  const t = await r.text();
+  try { return JSON.parse(t); } catch { throw new Error(t); }
 }
 
 document.getElementById('searchInput').addEventListener('keydown', e => {
