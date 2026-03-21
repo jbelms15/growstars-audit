@@ -49,6 +49,20 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2
 .btn-green:hover{background:rgba(45,122,71,0.18);}
 .btn-pdf{color:var(--accent);border-color:rgba(200,169,110,0.4);background:var(--accent-dim);font-weight:600;}
 .btn-pdf:hover{background:rgba(200,169,110,0.22);}
+.btn-slides{background:#1a1a1a;color:#fff;border-color:#1a1a1a;font-weight:600;}
+.btn-slides:hover{background:#2e2e2e;border-color:#2e2e2e;}
+.btn-analyze{background:var(--accent);color:#1a1a1a;border-color:var(--accent);font-weight:600;}
+.btn-analyze:hover{background:#b8954e;border-color:#b8954e;}
+.btn-analyze:disabled{opacity:0.65;cursor:default;}
+.ai-panel{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:1.2rem 1.4rem;box-shadow:var(--shadow-sm);margin-top:1rem;}
+.ai-panel-title{font-family:Georgia,serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.comp-card{flex:1;min-width:140px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+.comp-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.comp-meta{font-size:12px;color:var(--muted);}
+.ai-quote{font-family:Georgia,serif;font-style:italic;font-size:14px;color:var(--text);line-height:1.7;border-left:3px solid var(--accent);padding-left:12px;}
+.ai-pre{font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;max-height:220px;overflow-y:auto;}
+.ai-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.gap-badge{font-size:12px;font-weight:700;padding:3px 12px;border-radius:12px;border:1px solid;}
 .btn-sm{padding:6px 12px;font-size:13px;border-radius:8px;}
 
 #status{text-align:center;font-size:13px;color:var(--muted);min-height:20px;margin:1rem 0;display:flex;align-items:center;justify-content:center;gap:8px;}
@@ -165,6 +179,8 @@ footer{margin-top:auto;padding:1.25rem 2rem;border-top:1px solid var(--border2);
         <div class="biz-actions">
           <button class="btn btn-sm" onclick="openOutreach()">Outreach ↗</button>
           <button class="btn btn-sm btn-pdf" id="pdfBtn" onclick="downloadPDF()">↓ PDF</button>
+          <button class="btn btn-sm btn-slides" onclick="viewSlides()">&#8862; Slides</button>
+          <button class="btn btn-sm btn-analyze" id="analyzeBtn" onclick="runAnalysis()">&#10022; Analyze</button>
           <button class="btn btn-sm btn-green" id="saveBtn" onclick="saveProspect()">+ Save</button>
         </div>
       </div>
@@ -186,6 +202,7 @@ footer{margin-top:auto;padding:1.25rem 2rem;border-top:1px solid var(--border2);
       </div>
       <div class="pills" id="pills"></div>
       <div class="checks" id="checks"></div>
+      <div id="ai-results" style="display:none"></div>
     </div>
   </div>
 </div>
@@ -236,6 +253,7 @@ let auditData = null;
 let currentMsgType = 'whatsapp';
 let allProspects = [];
 let currentFilter = 'all';
+let analysisData = null;
 
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -322,6 +340,9 @@ function renderAudit(p, placeId) {
   document.getElementById('saveBtn').textContent = '+ Save';
   document.getElementById('saveBtn').disabled = false;
   document.getElementById('saveBtn').style.color = '';
+  analysisData = null;
+  var _ai = document.getElementById('ai-results'); if (_ai) { _ai.style.display = 'none'; _ai.innerHTML = ''; }
+  var _ab = document.getElementById('analyzeBtn'); if (_ab) { _ab.textContent = '✶ Analyze'; _ab.disabled = false; }
 
   const circ = 213.6;
   const offset = circ - (total / 100) * circ;
@@ -478,7 +499,7 @@ function openOutreach() {
   document.getElementById('outreachSub').textContent = `${p.name} · Score: ${p.score}/100`;
   currentMsgType = 'whatsapp';
   document.querySelectorAll('.msg-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
-  document.getElementById('outreachText').value = generateMsg(p, 'whatsapp');
+  document.getElementById('outreachText').value = (analysisData && analysisData.whatsapp_message) ? analysisData.whatsapp_message : generateMsg(p, 'whatsapp');
   document.getElementById('outreachModal').classList.add('open');
 }
 
@@ -794,6 +815,133 @@ function downloadPDF() {
   const safeName = bizName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
   const dp = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
   doc.save(`growstars_audit_${safeName}_${dp}.pdf`);
+}
+
+function _esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function copyText(id, btn) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.innerText || el.textContent || el.value || '').then(function() {
+    var orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = orig; }, 1800);
+  });
+}
+
+async function runAnalysis() {
+  if (!auditData) return;
+  var btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  btn.textContent = 'Analyzing…';
+  var scores = {};
+  buildChecks(auditData).forEach(function(c) { scores[c.id || c.name] = { score: c.score, max: c.max }; });
+  try {
+    var res = await fetch('/api/audit?action=analyze&place_id=' + encodeURIComponent(auditData.place_id), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ audit_scores: scores, biz: { website: auditData.website, phone: auditData.phone } })
+    });
+    var data = await res.json();
+    if (data.error) throw new Error(data.error);
+    analysisData = data;
+    renderAnalysis(data);
+    btn.textContent = '✶ Analyzed';
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = '✶ Analyze';
+    alert('Analysis failed: ' + err.message);
+  }
+}
+
+function renderAnalysis(data) {
+  var el = document.getElementById('ai-results');
+  if (!el) return;
+  var GC = {
+    leading:              { bg: '#e6f4ea', bd: '#34a853', tx: '#1e7e34' },
+    competitive:          { bg: '#e8f0fe', bd: '#4285f4', tx: '#1a56cc' },
+    behind:               { bg: '#fff3e0', bd: '#fbbc04', tx: '#b06000' },
+    significantly_behind: { bg: '#fce8e6', bd: '#ea4335', tx: '#c5221f' }
+  };
+  var gc = GC[data.gap_level] || GC.behind;
+  var gl = (data.gap_level || '').replace(/_/g, ' ');
+  var ch = (data.competitors || []).map(function(c) {
+    return '<div class="comp-card">'
+      + '<div class="comp-name" title="' + _esc(c.name) + '">' + _esc(c.name) + '</div>'
+      + '<div class="comp-meta">' + (c.rating ? '★ ' + c.rating : '') + ' &middot; ' + (c.review_count || 0) + ' reviews</div>'
+      + '</div>';
+  }).join('');
+  var lt = typeof data.loom_script === 'object' ? JSON.stringify(data.loom_script, null, 2) : (data.loom_script || '');
+  var sb = (data.slides && data.slides.length)
+    ? '<div style="margin-top:1rem"><button class="btn btn-sm btn-slides" onclick="viewSlides()">&#8862; View Slides (' + data.slides.length + ')</button></div>'
+    : '';
+  el.innerHTML =
+    '<div class="ai-panel">'
+    + '<div class="ai-hdr">'
+    + '<span class="ai-panel-title">AI Audit Analysis</span>'
+    + '<span class="gap-badge" style="background:' + gc.bg + ';border-color:' + gc.bd + ';color:' + gc.tx + '">'
+    + _esc(gl) + '</span></div>'
+    + (ch ? '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem;">' + ch + '</div>' : '')
+    + '<div class="ai-hdr"><span class="ai-panel-title" style="font-size:13px">Insight</span></div>'
+    + '<div class="ai-quote">' + _esc(data.insight_summary || '') + '</div>'
+    + '<div class="ai-hdr" style="margin-top:1rem">'
+    + '<span class="ai-panel-title" style="font-size:13px">WhatsApp Message</span>'
+    + '<button class="btn btn-sm" style="font-size:11px;padding:3px 10px" onclick="copyText(&#39;wa-msg&#39;,this)">Copy</button></div>'
+    + '<div class="ai-pre" id="wa-msg">' + _esc(data.whatsapp_message || '') + '</div>'
+    + '<div class="ai-hdr" style="margin-top:1rem">'
+    + '<span class="ai-panel-title" style="font-size:13px">Loom Script</span>'
+    + '<button class="btn btn-sm" style="font-size:11px;padding:3px 10px" onclick="copyText(&#39;loom-script&#39;,this)">Copy</button></div>'
+    + '<div class="ai-pre" id="loom-script">' + _esc(lt) + '</div>'
+    + sb
+    + '</div>';
+  el.style.display = 'block';
+}
+
+function viewSlides() {
+  if (!analysisData || !analysisData.slides || !analysisData.slides.length) {
+    alert('Run Analyze first to generate slides.');
+    return;
+  }
+  var slides = analysisData.slides;
+  var n = slides.length;
+  var win = window.open('', '_blank', 'width=900,height=640');
+  var sh = slides.map(function(s, i) {
+    var ct = s.bullets
+      ? '<ul style="margin:0;padding-left:1.4em;line-height:1.9">'
+        + s.bullets.map(function(b) { return '<li>' + _esc(b) + '</li>'; }).join('')
+        + '</ul>'
+      : '<p style="font-size:1.1em;line-height:1.7">' + _esc(s.content || '') + '</p>';
+    return '<section id="s' + i + '" style="display:' + (i === 0 ? 'flex' : 'none')
+      + ';flex-direction:column;justify-content:center;padding:3rem 4rem;height:100%;box-sizing:border-box;">'
+      + '<div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#999;margin-bottom:.5rem">'
+      + _esc(s.type || '') + '</div>'
+      + '<h2 style="font-family:Georgia,serif;font-size:1.9em;margin:0 0 1.2rem">' + _esc(s.title || '') + '</h2>'
+      + ct + '</section>';
+  }).join('');
+  var css = '*{box-sizing:border-box}body{margin:0;background:#111;color:#f0ede8;font-family:system-ui,sans-serif;height:100vh;overflow:hidden}'
+    + '#deck{height:100vh}section{height:100vh}'
+    + '#nav{position:fixed;bottom:1.5rem;right:2rem;display:flex;gap:.5rem}'
+    + 'button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;padding:.4rem 1rem;border-radius:8px;cursor:pointer;font-size:13px}'
+    + 'button:hover{background:rgba(255,255,255,.22)}'
+    + '#counter{position:fixed;bottom:1.7rem;left:2rem;font-size:12px;color:#888}';
+  var jsNav = 'var cur=0,tot=' + n + ';'
+    + 'function go(d){document.getElementById("s"+cur).style.display="none";'
+    + 'cur=Math.max(0,Math.min(tot-1,cur+d));'
+    + 'document.getElementById("s"+cur).style.display="flex";'
+    + 'document.getElementById("counter").textContent=(cur+1)+" / "+tot;}'
+    + 'document.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key===" ")go(1);else if(e.key==="ArrowLeft")go(-1);});';
+  win.document.write(
+    '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Slides<\/title>'
+    + '<style>' + css + '<\/style><\/head><body>'
+    + '<div id="deck">' + sh + '<\/div>'
+    + '<div id="counter">1 / ' + n + '<\/div>'
+    + '<div id="nav"><button onclick="go(-1)">&#8592;<\/button><button onclick="go(1)">&#8594;<\/button><\/div>'
+    + '<script>' + jsNav + '<\/script>'
+    + '<\/body><\/html>'
+  );
+  win.document.close();
 }
 </script>
 </body>
