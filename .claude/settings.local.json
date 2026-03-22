@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:growstars-audit.vercel.app)",
+      "Bash(python -m json.tool)",
+      "Bash(npx --no-install vercel env ls)",
+      "Bash(where vercel:*)",
+      "Read(//c/Users/Joanna \\(Freelancing\\)/AppData/Roaming/npm/**)",
+      "Read(//c/Program Files/nodejs/**)",
+      "Read(//c/Users/Joanna \\(Freelancing\\)/AppData/Local/com.vercel.cli/**)",
+      "Read(//c/Users/Joanna \\(Freelancing\\)/AppData/Roaming/com.vercel.cli/**)",
+      "Bash(python -c \"import sys,json;d=json.load\\(sys.stdin\\);print\\(list\\(d.keys\\(\\)\\)\\)\")",
+      "Bash(cat:*)",
+      "Bash(npx vercel:*)",
+      "Bash(curl:*)"
+    ]
+  }
+}
