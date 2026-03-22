@@ -101,12 +101,23 @@ function meetsICP(place, icp) {
   return true;
 }
 
+// Step 1.5 — Observation Layer
+function generateObservation(rating, reviews) {
+  if (reviews >= 80 && rating <= 4.4) {
+    return `You've already got strong review volume (${reviews}), but your rating sits at ${rating} — there's clear room to push this higher.`;
+  } else if (reviews <= 60 && rating >= 4.3) {
+    return `Your rating is solid (${rating}), but with only ${reviews} reviews you're likely losing trust vs nearby competitors.`;
+  } else {
+    return `You're in a strong middle position (${rating} rating from ${reviews} reviews), but not yet standing out in your area.`;
+  }
+}
+
 function formatLead(place) {
   return {
     id: place.place_id,
     name: place.name,
     rating: place.rating,
-    review_count: place.user_ratings_total,
+    reviews: place.user_ratings_total,
     phone: place.international_phone_number || "",
     website: place.website || "",
     address: place.formatted_address || "",
@@ -178,7 +189,9 @@ async function generateHitList({ city, icp, limit }) {
   const leads = await Promise.all(
     passing.map(async (candidate) => {
       const details = await getPlaceDetails(candidate.place_id, apiKey);
-      return formatLead({ ...candidate, ...details });
+      const lead = formatLead({ ...candidate, ...details });
+      lead.observation = generateObservation(lead.rating, lead.reviews);
+      return lead;
     })
   );
 
