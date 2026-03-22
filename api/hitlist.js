@@ -119,6 +119,9 @@ async function generateHitList({ city, icp, limit }) {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
   if (!apiKey) throw new Error("GOOGLE_PLACES_API_KEY is not set");
 
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
   // Collect raw candidates from all search queries
   const seenIds = new Set();
   const candidates = [];
@@ -130,7 +133,41 @@ async function generateHitList({ city, icp, limit }) {
     for (const place of results) {
       if (seenIds.has(place.place_id)) continue;
       seenIds.add(place.place_id);
-      candidates.push(place);
+      candidates.push({ ...place, _query: query });
+    }
+  }
+
+  // Step 1.2 — Raw Data Pool: store all scraped businesses before filtering
+  if (SUPABASE_URL && SUPABASE_KEY) {
+    const rawBusinesses = candidates.map((p) => ({
+      place_id: p.place_id,
+      name: p.name,
+      rating: p.rating ?? null,
+      reviews: p.user_ratings_total || 0,
+      address: p.formatted_address || p.vicinity || "",
+      types: p.types || [],
+      lat: p.geometry?.location?.lat || null,
+      lng: p.geometry?.location?.lng || null,
+      city,
+      query: p._query || "",
+    }));
+
+    try {
+      await fetch(
+        `${SUPABASE_URL}/rest/v1/raw_businesses?on_conflict=place_id,city`,
+        {
+          method: "POST",
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+            Prefer: "resolution=merge-duplicates",
+          },
+          body: JSON.stringify(rawBusinesses),
+        }
+      );
+    } catch (err) {
+      console.error("[hitlist] raw upsert failed:", err.message);
     }
   }
 
