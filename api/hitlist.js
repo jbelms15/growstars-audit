@@ -101,6 +101,14 @@ function meetsICP(place, icp) {
   return true;
 }
 
+// Step 1.6 — Message Layer
+function generateMessages(name, observation) {
+  return {
+    whatsapp_message: `Hey — came across ${name} and noticed ${observation}\n\nWe help salons fix this exact issue and boost bookings.\n\nHappy to show you what this could look like.`,
+    loom_hook: `I was looking at ${name} and noticed ${observation}\n\nQuick idea on how you could improve this — recorded a short video for you.`,
+  };
+}
+
 // Step 1.5 — Observation Layer
 function generateObservation(rating, reviews) {
   if (reviews >= 80 && rating <= 4.4) {
@@ -191,6 +199,7 @@ async function generateHitList({ city, icp, limit }) {
       const details = await getPlaceDetails(candidate.place_id, apiKey);
       const lead = formatLead({ ...candidate, ...details });
       lead.observation = generateObservation(lead.rating, lead.reviews);
+      Object.assign(lead, generateMessages(lead.name, lead.observation));
       return lead;
     })
   );
