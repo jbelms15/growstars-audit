@@ -131,7 +131,7 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 60px 24px;
+      padding: 36px 24px 48px;
       min-height: calc(100vh - 56px);
     }
 
@@ -198,7 +198,19 @@
       max-width: 300px;
       line-height: 1.9;
       letter-spacing: 0.02em;
-      margin-bottom: 28px;
+      margin-bottom: 20px;
+      transition: color 0.4s;
+    }
+
+    .input-helper {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 300;
+      color: var(--sub);
+      opacity: 0.7;
+      text-align: center;
+      margin-top: 10px;
+      letter-spacing: 0.02em;
       transition: color 0.4s;
     }
 
@@ -416,8 +428,9 @@
   <p class="hero-sub">Generate qualified salons with ready-to-send outreach messages.</p>
   <div class="input-group">
     <input type="text" id="city-input" placeholder="Enter city, e.g. Leeds" />
-    <button id="generate-btn" onclick="generateLeads()">Generate Leads →</button>
+    <button id="generate-btn" onclick="generateLeads()">Run Lead Engine →</button>
   </div>
+  <div class="input-helper">Runs multi-source search + filters high-fit salons</div>
   <div class="city-hints">
     Try · <span class="city-pill" onclick="setCity('Leeds')">Leeds</span> · <span class="city-pill" onclick="setCity('Birmingham')">Birmingham</span> · <span class="city-pill" onclick="setCity('Manchester')">Manchester</span>
   </div>
@@ -482,7 +495,7 @@
       statusEl.textContent = 'Request failed: ' + err.message;
     } finally {
       generateBtn.disabled = false;
-      generateBtn.textContent = 'Generate Leads →';
+      generateBtn.textContent = 'Run Lead Engine →';
     }
   }
 
