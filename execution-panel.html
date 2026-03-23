@@ -11,64 +11,136 @@
       font-family: 'DM Sans', system-ui, sans-serif;
       background: #f5f3ee;
       color: #1a1a1a;
-      padding: 32px 24px 64px;
-      max-width: 860px;
-      margin: 0 auto;
-    }
-
-    h1 {
-      font-family: Georgia, serif;
-      font-size: 22px;
-      font-weight: normal;
-      margin-bottom: 32px;
-      color: #1a1a1a;
       display: flex;
-      align-items: center;
-      gap: 12px;
+      min-height: 100vh;
     }
 
-    h1 a {
+    /* ── SIDEBAR ── */
+    #sidebar {
+      width: 200px;
+      min-width: 200px;
+      background: #1a1a1a;
+      color: #ccc;
+      display: flex;
+      flex-direction: column;
+      padding: 24px 0 32px;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      overflow-y: auto;
+    }
+
+    #sidebar .logo {
+      font-family: Georgia, serif;
+      font-size: 15px;
+      color: #fff;
+      padding: 0 18px 24px;
+      border-bottom: 1px solid #2e2e2e;
+      margin-bottom: 16px;
+    }
+
+    #sidebar .logo span {
+      display: block;
+      font-size: 11px;
+      color: #666;
       font-family: 'DM Sans', system-ui, sans-serif;
-      font-size: 13px;
-      color: #888;
-      text-decoration: none;
-      border: 1px solid #ddd;
-      padding: 4px 10px;
-      border-radius: 6px;
-      background: #fff;
+      margin-top: 2px;
     }
 
-    h1 a:hover { background: #eee; }
+    .nav-group {
+      margin-bottom: 6px;
+    }
 
-    section {
+    .nav-group-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #555;
+      padding: 8px 18px 4px;
+    }
+
+    .nav-item {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 13px;
+      color: #999;
+      padding: 7px 18px;
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .nav-item:hover { color: #fff; background: #222; }
+    .nav-item.active { color: #fff; border-left-color: #b59a6a; background: #222; }
+
+    #sidebar .back-link {
+      margin-top: auto;
+      padding: 16px 18px 0;
+      border-top: 1px solid #2e2e2e;
+    }
+
+    #sidebar .back-link a {
+      font-size: 12px;
+      color: #555;
+      text-decoration: none;
+    }
+
+    #sidebar .back-link a:hover { color: #999; }
+
+    /* ── MAIN PANEL ── */
+    #main {
+      margin-left: 200px;
+      flex: 1;
+      padding: 32px 32px 64px;
+      max-width: 740px;
+    }
+
+    .panel-section { display: none; }
+    .panel-section.active { display: block; }
+
+    .panel-section h2 {
+      font-family: Georgia, serif;
+      font-size: 18px;
+      font-weight: normal;
+      margin-bottom: 20px;
+      color: #1a1a1a;
+    }
+
+    /* ── CARDS ── */
+    .card {
       background: #fff;
       border: 1px solid #e5e2da;
       border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 20px;
+      padding: 22px;
+      margin-bottom: 16px;
     }
 
-    section h2 {
+    .card-label {
       font-size: 11px;
       font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: #888;
-      margin-bottom: 18px;
+      margin-bottom: 14px;
     }
 
+    /* ── FIELDS ── */
     .field-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-bottom: 20px;
+      gap: 12px;
+      margin-bottom: 18px;
     }
 
     .field label {
       display: block;
       font-size: 12px;
       color: #666;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
       font-weight: 500;
     }
 
@@ -86,10 +158,11 @@
 
     .field input:focus { border-color: #b59a6a; }
 
+    /* ── CHECKLIST ── */
     .checklist {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 9px;
     }
 
     .checklist label {
@@ -102,47 +175,52 @@
     }
 
     .checklist input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
+      width: 15px;
+      height: 15px;
       accent-color: #b59a6a;
       cursor: pointer;
+      flex-shrink: 0;
     }
 
-    .checklist label.checked {
-      color: #888;
-      text-decoration: line-through;
+    .checklist label.checked { color: #aaa; text-decoration: line-through; }
+
+    /* ── STEP STATUS ── */
+    .step-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .step-group-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #b59a6a;
+      margin: 12px 0 6px;
     }
 
-    /* Step Status */
-    .step-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    .step-group-label:first-child { margin-top: 0; }
 
     .step-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 14px;
+      padding: 9px 13px;
       border: 1px solid #eee;
       border-radius: 8px;
       background: #fafaf8;
     }
 
     .step-name {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 500;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 9px;
     }
 
-    .step-icon { font-size: 16px; min-width: 20px; }
+    .step-icon { font-size: 14px; min-width: 18px; }
 
     .step-select {
-      font-size: 13px;
-      padding: 5px 8px;
+      font-size: 12px;
+      padding: 4px 7px;
       border: 1px solid #ddd;
       border-radius: 6px;
       background: #fff;
@@ -153,25 +231,13 @@
 
     .step-select:focus { border-color: #b59a6a; }
 
-    .step-row[data-status="LOCKED"]       { background: #f5f3ee; }
-    .step-row[data-status="NOT STARTED"]  { background: #fafaf8; }
-    .step-row[data-status="IN PROGRESS"]  { background: #fffbf0; border-color: #e8d9a8; }
-    .step-row[data-status="DONE"]         { background: #f0faf4; border-color: #a8d8b8; }
+    .step-row[data-status="LOCKED"]      { background: #f5f3ee; color: #999; }
+    .step-row[data-status="NOT STARTED"] { background: #fafaf8; }
+    .step-row[data-status="IN PROGRESS"] { background: #fffbf0; border-color: #e8d9a8; }
+    .step-row[data-status="DONE"]        { background: #f0faf4; border-color: #a8d8b8; }
 
-    /* Textareas */
-    .textarea-field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .textarea-field label {
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: #888;
-    }
+    /* ── TEXTAREAS ── */
+    .textarea-field { display: flex; flex-direction: column; gap: 6px; }
 
     .textarea-field textarea {
       width: 100%;
@@ -180,7 +246,7 @@
       border-radius: 8px;
       font-size: 13px;
       font-family: 'DM Mono', 'Courier New', monospace;
-      line-height: 1.6;
+      line-height: 1.65;
       background: #fafaf8;
       color: #1a1a1a;
       resize: vertical;
@@ -193,142 +259,232 @@
 </head>
 <body>
 
-<h1>
-  Execution Panel
-  <a href="index.html">← Audit Tool</a>
-</h1>
-
-<!-- TODAY SECTION -->
-<section>
-  <h2>Today</h2>
-  <div class="field-row">
-    <div class="field">
-      <label for="city">City</label>
-      <input type="text" id="city" placeholder="e.g. Leeds" />
-    </div>
-    <div class="field">
-      <label for="niche">Niche</label>
-      <input type="text" id="niche" placeholder="hair salon" />
-    </div>
-    <div class="field">
-      <label for="leads-target">Leads Target</label>
-      <input type="number" id="leads-target" placeholder="e.g. 20" min="1" />
-    </div>
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="logo">
+    GrowStars
+    <span>Execution Panel</span>
   </div>
-  <div class="checklist">
-    <label id="lbl-hitlist"><input type="checkbox" id="chk-hitlist" /> Hit list generated</label>
-    <label id="lbl-selected"><input type="checkbox" id="chk-selected" /> Leads selected</label>
-    <label id="lbl-messages"><input type="checkbox" id="chk-messages" /> Messages sent</label>
-    <label id="lbl-looms"><input type="checkbox" id="chk-looms" /> Looms recorded</label>
-  </div>
-</section>
 
-<!-- STEP STATUS TRACKER -->
-<section>
-  <h2>Step Status</h2>
-  <div class="step-list">
-    <div class="step-row" id="row-step1" data-status="LOCKED">
-      <div class="step-name">
-        <span class="step-icon" id="icon-step1">🔒</span>
-        Step 1 — Hit List Engine
+  <div class="nav-group">
+    <div class="nav-group-label">Execution</div>
+    <button class="nav-item active" data-target="today">Today</button>
+    <button class="nav-item" data-target="focus">Focus Today</button>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">System</div>
+    <button class="nav-item" data-target="steps">Step Status</button>
+    <button class="nav-item" data-target="roadmap">Roadmap</button>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Strategy</div>
+    <button class="nav-item" data-target="markets">Active Markets</button>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Knowledge</div>
+    <button class="nav-item" data-target="insights">Winning Insights</button>
+    <button class="nav-item" data-target="notes">Notes</button>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Future</div>
+    <button class="nav-item" data-target="future">Future Features</button>
+  </div>
+
+  <div class="back-link"><a href="index.html">← Audit Tool</a></div>
+</nav>
+
+<!-- MAIN PANEL -->
+<main id="main">
+
+  <!-- TODAY -->
+  <div class="panel-section active" id="section-today">
+    <h2>Today</h2>
+    <div class="card">
+      <div class="card-label">Session Setup</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="city">City</label>
+          <input type="text" id="city" placeholder="e.g. Leeds" />
+        </div>
+        <div class="field">
+          <label for="niche">Niche</label>
+          <input type="text" id="niche" placeholder="hair salon" />
+        </div>
+        <div class="field">
+          <label for="leads-target">Leads Target</label>
+          <input type="number" id="leads-target" placeholder="e.g. 20" min="1" />
+        </div>
       </div>
-      <select class="step-select" id="sel-step1">
-        <option value="LOCKED">LOCKED</option>
-        <option value="NOT STARTED">NOT STARTED</option>
-        <option value="IN PROGRESS">IN PROGRESS</option>
-        <option value="DONE">DONE</option>
-      </select>
-    </div>
-    <div class="step-row" id="row-step15" data-status="NOT STARTED">
-      <div class="step-name">
-        <span class="step-icon" id="icon-step15">⬜</span>
-        Step 1.5 — Observation Layer
+      <div class="checklist">
+        <label id="lbl-hitlist"><input type="checkbox" id="chk-hitlist" /> Hit list generated</label>
+        <label id="lbl-selected"><input type="checkbox" id="chk-selected" /> Leads selected</label>
+        <label id="lbl-messages"><input type="checkbox" id="chk-messages" /> Messages sent</label>
+        <label id="lbl-looms"><input type="checkbox" id="chk-looms" /> Looms recorded</label>
       </div>
-      <select class="step-select" id="sel-step15">
-        <option value="LOCKED">LOCKED</option>
-        <option value="NOT STARTED">NOT STARTED</option>
-        <option value="IN PROGRESS">IN PROGRESS</option>
-        <option value="DONE">DONE</option>
-      </select>
     </div>
-    <div class="step-row" id="row-step2" data-status="NOT STARTED">
-      <div class="step-name">
-        <span class="step-icon" id="icon-step2">⬜</span>
-        Step 2 — Message Generator
+  </div>
+
+  <!-- FOCUS TODAY -->
+  <div class="panel-section" id="section-focus">
+    <h2>Focus Today</h2>
+    <div class="card">
+      <div class="textarea-field">
+        <textarea id="focus" rows="12" placeholder="What's the one thing to focus on today?"></textarea>
       </div>
-      <select class="step-select" id="sel-step2">
-        <option value="LOCKED">LOCKED</option>
-        <option value="NOT STARTED">NOT STARTED</option>
-        <option value="IN PROGRESS">IN PROGRESS</option>
-        <option value="DONE">DONE</option>
-      </select>
     </div>
-    <div class="step-row" id="row-step3" data-status="NOT STARTED">
-      <div class="step-name">
-        <span class="step-icon" id="icon-step3">⬜</span>
-        Step 3 — Outreach Tracker
+  </div>
+
+  <!-- STEP STATUS -->
+  <div class="panel-section" id="section-steps">
+    <h2>Step Status</h2>
+    <div class="card">
+      <div class="step-list">
+
+        <div class="step-group-label">Core Engine</div>
+
+        <div class="step-row" id="row-step1" data-status="LOCKED">
+          <div class="step-name"><span class="step-icon" id="icon-step1">🔒</span>Step 1 — Hit List Engine</div>
+          <select class="step-select" id="sel-step1">
+            <option value="LOCKED">LOCKED</option>
+            <option value="NOT STARTED">NOT STARTED</option>
+            <option value="IN PROGRESS">IN PROGRESS</option>
+            <option value="DONE">DONE</option>
+          </select>
+        </div>
+
+        <div class="step-group-label">Sub-Steps</div>
+
+        <div class="step-row" id="row-step12" data-status="NOT STARTED">
+          <div class="step-name"><span class="step-icon" id="icon-step12">⬜</span>Step 1.2 — Market Selection</div>
+          <select class="step-select" id="sel-step12">
+            <option value="LOCKED">LOCKED</option>
+            <option value="NOT STARTED">NOT STARTED</option>
+            <option value="IN PROGRESS">IN PROGRESS</option>
+            <option value="DONE">DONE</option>
+          </select>
+        </div>
+
+        <div class="step-row" id="row-step13" data-status="NOT STARTED">
+          <div class="step-name"><span class="step-icon" id="icon-step13">⬜</span>Step 1.3 — Lead Selection</div>
+          <select class="step-select" id="sel-step13">
+            <option value="LOCKED">LOCKED</option>
+            <option value="NOT STARTED">NOT STARTED</option>
+            <option value="IN PROGRESS">IN PROGRESS</option>
+            <option value="DONE">DONE</option>
+          </select>
+        </div>
+
+        <div class="step-row" id="row-step14" data-status="NOT STARTED">
+          <div class="step-name"><span class="step-icon" id="icon-step14">⬜</span>Step 1.4 — Context Review</div>
+          <select class="step-select" id="sel-step14">
+            <option value="LOCKED">LOCKED</option>
+            <option value="NOT STARTED">NOT STARTED</option>
+            <option value="IN PROGRESS">IN PROGRESS</option>
+            <option value="DONE">DONE</option>
+          </select>
+        </div>
+
+        <div class="step-row" id="row-step15" data-status="NOT STARTED">
+          <div class="step-name"><span class="step-icon" id="icon-step15">⬜</span>Step 1.5 — Observation Layer</div>
+          <select class="step-select" id="sel-step15">
+            <option value="LOCKED">LOCKED</option>
+            <option value="NOT STARTED">NOT STARTED</option>
+            <option value="IN PROGRESS">IN PROGRESS</option>
+            <option value="DONE">DONE</option>
+          </select>
+        </div>
+
+        <div class="step-group-label">Pipeline</div>
+
+        <div class="step-row" id="row-step2" data-status="NOT STARTED">
+          <div class="step-name"><span class="step-icon" id="icon-step2">⬜</span>Step 2 — Message Generator</div>
+          <select class="step-select" id="sel-step2">
+            <option value="LOCKED">LOCKED</option>
+            <option value="NOT STARTED">NOT STARTED</option>
+            <option value="IN PROGRESS">IN PROGRESS</option>
+            <option value="DONE">DONE</option>
+          </select>
+        </div>
+
+        <div class="step-row" id="row-step3" data-status="NOT STARTED">
+          <div class="step-name"><span class="step-icon" id="icon-step3">⬜</span>Step 3 — Outreach Tracker</div>
+          <select class="step-select" id="sel-step3">
+            <option value="LOCKED">LOCKED</option>
+            <option value="NOT STARTED">NOT STARTED</option>
+            <option value="IN PROGRESS">IN PROGRESS</option>
+            <option value="DONE">DONE</option>
+          </select>
+        </div>
+
+        <div class="step-row" id="row-step4" data-status="NOT STARTED">
+          <div class="step-name"><span class="step-icon" id="icon-step4">⬜</span>Step 4 — Optimization</div>
+          <select class="step-select" id="sel-step4">
+            <option value="LOCKED">LOCKED</option>
+            <option value="NOT STARTED">NOT STARTED</option>
+            <option value="IN PROGRESS">IN PROGRESS</option>
+            <option value="DONE">DONE</option>
+          </select>
+        </div>
+
       </div>
-      <select class="step-select" id="sel-step3">
-        <option value="LOCKED">LOCKED</option>
-        <option value="NOT STARTED">NOT STARTED</option>
-        <option value="IN PROGRESS">IN PROGRESS</option>
-        <option value="DONE">DONE</option>
-      </select>
     </div>
-    <div class="step-row" id="row-step4" data-status="NOT STARTED">
-      <div class="step-name">
-        <span class="step-icon" id="icon-step4">⬜</span>
-        Step 4 — Optimization
+  </div>
+
+  <!-- ROADMAP -->
+  <div class="panel-section" id="section-roadmap">
+    <h2>System Roadmap</h2>
+    <div class="card">
+      <div class="textarea-field">
+        <textarea id="roadmap" rows="18"></textarea>
       </div>
-      <select class="step-select" id="sel-step4">
-        <option value="LOCKED">LOCKED</option>
-        <option value="NOT STARTED">NOT STARTED</option>
-        <option value="IN PROGRESS">IN PROGRESS</option>
-        <option value="DONE">DONE</option>
-      </select>
     </div>
   </div>
-</section>
 
-<!-- SYSTEM ROADMAP -->
-<section>
-  <div class="textarea-field">
-    <label>System Roadmap</label>
-    <textarea id="roadmap" rows="14"></textarea>
+  <!-- ACTIVE MARKETS -->
+  <div class="panel-section" id="section-markets">
+    <h2>Active Markets</h2>
+    <div class="card">
+      <div class="textarea-field">
+        <textarea id="markets" rows="8"></textarea>
+      </div>
+    </div>
   </div>
-</section>
 
-<!-- FUTURE FEATURES -->
-<section>
-  <div class="textarea-field">
-    <label>Future Features (Do Not Build Yet)</label>
-    <textarea id="future-features" rows="18"></textarea>
+  <!-- WINNING INSIGHTS -->
+  <div class="panel-section" id="section-insights">
+    <h2>Winning Insights</h2>
+    <div class="card">
+      <div class="textarea-field">
+        <textarea id="insights" rows="10" placeholder="Patterns, messaging learnings, conversion insights..."></textarea>
+      </div>
+    </div>
   </div>
-</section>
 
-<!-- ACTIVE MARKETS -->
-<section>
-  <div class="textarea-field">
-    <label>Active Markets</label>
-    <textarea id="markets" rows="5"></textarea>
+  <!-- NOTES -->
+  <div class="panel-section" id="section-notes">
+    <h2>Notes</h2>
+    <div class="card">
+      <div class="textarea-field">
+        <textarea id="notes" rows="12" placeholder="General notes..."></textarea>
+      </div>
+    </div>
   </div>
-</section>
 
-<!-- NOTES -->
-<section>
-  <div class="textarea-field">
-    <label>Notes</label>
-    <textarea id="notes" rows="5" placeholder="Today's notes..."></textarea>
+  <!-- FUTURE FEATURES -->
+  <div class="panel-section" id="section-future">
+    <h2>Future Features</h2>
+    <div class="card">
+      <div class="textarea-field">
+        <textarea id="future-features" rows="18"></textarea>
+      </div>
+    </div>
   </div>
-</section>
 
-<!-- WINNING INSIGHTS -->
-<section>
-  <div class="textarea-field">
-    <label>Winning Insights</label>
-    <textarea id="insights" rows="6"></textarea>
-  </div>
-</section>
+</main>
 
 <script>
   const DEFAULTS = {
@@ -339,11 +495,15 @@
     'chk-selected': false,
     'chk-messages': false,
     'chk-looms': false,
-    'sel-step1': 'LOCKED',
+    focus: '',
+    'sel-step1':  'LOCKED',
+    'sel-step12': 'NOT STARTED',
+    'sel-step13': 'NOT STARTED',
+    'sel-step14': 'NOT STARTED',
     'sel-step15': 'NOT STARTED',
-    'sel-step2': 'NOT STARTED',
-    'sel-step3': 'NOT STARTED',
-    'sel-step4': 'NOT STARTED',
+    'sel-step2':  'NOT STARTED',
+    'sel-step3':  'NOT STARTED',
+    'sel-step4':  'NOT STARTED',
     roadmap: `SYSTEM ROADMAP
 
 ACTIVE:
@@ -354,6 +514,9 @@ ACTIVE:
     Reviews: 30 – 400
     Niches: Hair salons / Barbershops
 
+- Step 1.2 — Market Selection
+- Step 1.3 — Lead Selection
+- Step 1.4 — Context Review
 - Step 1.5 — Observation Layer
 - Step 2 — Message Generator
 - Step 3 — Outreach Tracker
@@ -361,6 +524,9 @@ ACTIVE:
 
 RULE:
 Do not modify Step 1 unless critical bug`,
+    markets: `Leeds → working\nManchester → working\nBirmingham → low yield`,
+    notes: '',
+    insights: `Mid-tier (4.3–4.5) responds best\nCompetitor gap angle works better\nLeeds has best density`,
     'future-features': `FUTURE FEATURES — Do NOT implement until core workflow is validated
 
 - Segmentation Layer:
@@ -379,16 +545,13 @@ Do not modify Step 1 unless critical bug`,
 - Outreach Optimization:
   - Track which hooks perform best
   - Analyze response patterns`,
-    markets: `Leeds → working\nManchester → working\nBirmingham → low yield`,
-    notes: '',
-    insights: `Mid-tier (4.3–4.5) responds best\nCompetitor gap angle works better\nLeeds has best density`,
   };
 
   const STATUS_ICONS = {
-    'LOCKED': '🔒',
+    'LOCKED':      '🔒',
     'NOT STARTED': '⬜',
     'IN PROGRESS': '🔄',
-    'DONE': '✔',
+    'DONE':        '✔',
   };
 
   function save(key, value) {
@@ -401,10 +564,27 @@ Do not modify Step 1 unless critical bug`,
     try { return JSON.parse(raw); } catch { return DEFAULTS[key]; }
   }
 
+  // Sidebar navigation
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(btn => {
+    btn.addEventListener('click', () => {
+      navItems.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.panel-section').forEach(s => s.classList.remove('active'));
+      document.getElementById('section-' + btn.dataset.target).classList.add('active');
+      save('active-section', btn.dataset.target);
+    });
+  });
+
+  // Restore last active section
+  const lastSection = load('active-section') || 'today';
+  const targetBtn = document.querySelector(`[data-target="${lastSection}"]`);
+  if (targetBtn) targetBtn.click();
+
   // Text inputs
   ['city', 'niche', 'leads-target'].forEach(id => {
     const el = document.getElementById(id);
-    el.value = load(id) ?? DEFAULTS[id];
+    el.value = load(id) ?? '';
     el.addEventListener('input', () => save(id, el.value));
   });
 
@@ -421,12 +601,12 @@ Do not modify Step 1 unless critical bug`,
 
   function updateCheckLabel(id) {
     const el = document.getElementById(id);
-    const lbl = el.closest('label');
-    lbl.classList.toggle('checked', el.checked);
+    el.closest('label').classList.toggle('checked', el.checked);
   }
 
   // Step selects
-  ['sel-step1', 'sel-step15', 'sel-step2', 'sel-step3', 'sel-step4'].forEach(id => {
+  ['sel-step1', 'sel-step12', 'sel-step13', 'sel-step14', 'sel-step15',
+   'sel-step2', 'sel-step3', 'sel-step4'].forEach(id => {
     const el = document.getElementById(id);
     const status = load(id);
     el.value = status;
@@ -439,18 +619,17 @@ Do not modify Step 1 unless critical bug`,
 
   function updateStepRow(selId, status) {
     const suffix = selId.replace('sel-', '');
-    const row = document.getElementById('row-' + suffix);
+    const row  = document.getElementById('row-'  + suffix);
     const icon = document.getElementById('icon-' + suffix);
     row.dataset.status = status;
     icon.textContent = STATUS_ICONS[status] || '⬜';
-    // sync select value in case called from load
     document.getElementById(selId).value = status;
   }
 
   // Textareas
-  ['roadmap', 'future-features', 'markets', 'notes', 'insights'].forEach(id => {
+  ['focus', 'roadmap', 'markets', 'notes', 'insights', 'future-features'].forEach(id => {
     const el = document.getElementById(id);
-    el.value = load(id) ?? DEFAULTS[id];
+    el.value = load(id) ?? DEFAULTS[id] ?? '';
     el.addEventListener('input', () => save(id, el.value));
   });
 </script>
