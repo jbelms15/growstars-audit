@@ -466,6 +466,74 @@
       margin-top: 2px;
     }
 
+    .lead-row.contacted { opacity: 0.38; }
+
+    .done-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--sub);
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .done-label input { cursor: pointer; accent-color: #D4A43A; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+    }
+
+    .modal-box {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 101;
+      background: var(--bg);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      padding: 24px;
+      width: min(520px, 92vw);
+      max-height: 80vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .modal-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .modal-close {
+      font-size: 16px;
+      background: none;
+      border: none;
+      color: var(--sub);
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .modal-close:hover { color: var(--text); }
+
     .empty-state {
       text-align: center;
       padding: 48px 0;
@@ -512,6 +580,21 @@
   <div id="pool-count"></div>
   <div id="status"></div>
   <div id="leads"></div>
+  <div id="export-bar" style="max-width:720px;margin:12px auto 48px;padding:0 20px;display:none;">
+    <button class="copy-btn" onclick="exportCSV()">Export CSV</button>
+  </div>
+</div>
+
+<!-- Single modal instance, reused for all leads -->
+<div id="lead-modal" style="display:none">
+  <div class="modal-overlay" id="modal-overlay"></div>
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title"></div>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
 </div>
 
 <script>
@@ -521,9 +604,7 @@
   const leadsEl     = document.getElementById('leads');
   const poolCountEl = document.getElementById('pool-count');
 
-  // Accumulated leads across all cities this session
   let allLeads = [];
-  // Full lead data keyed by index for on-demand generation
   const leadMap = new Map();
 
   cityInput.addEventListener('keydown', e => {
@@ -577,18 +658,7 @@
     }
 
     // Render all accumulated leads
-    if (allLeads.length === 0) {
-      leadsEl.innerHTML = '<div class="empty-state">No leads matched. Try different cities.</div>';
-      poolCountEl.textContent = '';
-    } else {
-      allLeads.sort((a, b) => getScore(b) - getScore(a));
-      allLeads.forEach((lead, i) => leadMap.set(i, lead));
-      leadsEl.innerHTML = allLeads.map((lead, i) => renderCard(lead, i)).join('');
-      attachLeadListeners();
-      const waCount   = allLeads.filter(l => l.contact_type === 'whatsapp').length;
-      const callCount = allLeads.filter(l => l.contact_type === 'call').length;
-      poolCountEl.textContent = `Total: ${allLeads.length}  ·  WhatsApp: ${waCount}  ·  Call: ${callCount}`;
-    }
+    renderAllLeads();
 
     statusEl.textContent = cityResults.join('  ·  ');
     generateBtn.disabled = false;
@@ -623,15 +693,16 @@
   function renderCard(lead, i) {
     const name  = escHtml(lead.name || '');
     const phone = lead.phone ? `<span>${escHtml(lead.phone)}</span>` : '';
-    const city  = lead._city ? `<span>${escHtml(lead._city)}</span>` : '';
+    const city  = lead._city || lead.city ? `<span>${escHtml(lead._city || lead.city)}</span>` : '';
 
     const clean    = (lead.phone || '').replace(/\D/g, '');
     const isMobile = clean.startsWith('447') || clean.startsWith('07');
     const phoneIcon   = lead.phone ? (isMobile ? '📱' : '☎️') : '☎️';
     const contactType = lead.contact_type === 'whatsapp' ? 'WhatsApp' : lead.contact_type === 'call' ? 'Call' : '';
+    const contacted   = lead.status === 'contacted';
 
     return `
-      <div class="lead-row" id="row-${i}">
+      <div class="lead-row${contacted ? ' contacted' : ''}" id="row-${i}">
         <div class="lead-priority">${phoneIcon}</div>
         <div class="lead-main">
           <div class="lead-line1">
@@ -640,68 +711,76 @@
           </div>
           ${(phone || city || contactType) ? `<div class="lead-line2">${phone}${city}${contactType ? `<span>${contactType}</span>` : ''}</div>` : ''}
         </div>
-        <button class="gen-btn" data-index="${i}">Generate</button>
+        <div class="lead-actions">
+          <button class="gen-btn" data-index="${i}">Generate</button>
+          <label class="done-label"><input type="checkbox" class="done-cb" data-index="${i}"${contacted ? ' checked' : ''}> Done</label>
+        </div>
       </div>`;
   }
 
-  function expandLead(btn, i) {
+  function openModal(i) {
     const lead = leadMap.get(i);
     if (!lead) return;
 
-    btn.disabled = true;
-    btn.textContent = 'Generating…';
+    const obs     = getObservation(lead.rating, lead.reviews);
+    const waMsg   = lead.whatsapp_message || '';
+    const loomMsg = lead.loom_hook || '';
+    const cleanNum = (lead.phone || '').replace(/\D/g, '');
 
-    // Simulate brief loading state, then reveal
-    setTimeout(() => {
-      const row      = document.getElementById(`row-${i}`);
-      const obs      = getObservation(lead.rating, lead.reviews);
-      const waMsg    = lead.whatsapp_message || '';
-      const loomMsg  = lead.loom_hook || '';
-      const cleanNum = (lead.phone || '').replace(/\D/g, '');
+    document.getElementById('modal-title').textContent = lead.name || '';
 
-      const waActionBtn = cleanNum
-        ? `<button class="copy-btn wa-btn" data-phone="${cleanNum}" data-message="${escHtml(waMsg)}">Open WA ↗</button>`
-        : `<button class="copy-btn" disabled title="No phone number">No number</button>`;
-
-      const expanded = document.createElement('div');
-      expanded.className = 'lead-expanded';
-      expanded.innerHTML = `
-        <div class="lead-obs">${escHtml(obs)}</div>
-        <div class="msg-block">
-          <div class="msg-label">WhatsApp</div>
-          <div class="msg-text">${escHtml(waMsg)}</div>
-          <div class="msg-actions">
-            ${waActionBtn}
-            <button class="copy-btn loom-copy-btn" data-text="${escHtml(waMsg)}">Copy</button>
-          </div>
+    const body = document.getElementById('modal-body');
+    body.innerHTML = `
+      <div class="lead-obs" style="margin-bottom:12px">${escHtml(obs)}</div>
+      <div class="msg-block">
+        <div class="msg-label">WhatsApp Message</div>
+        <div class="msg-text">${escHtml(waMsg)}</div>
+        <div class="msg-actions" style="margin-top:6px">
+          ${cleanNum ? `<button class="copy-btn wa-open-btn" data-phone="${cleanNum}" data-message="${escHtml(waMsg)}">Open WA ↗</button>` : ''}
+          <button class="copy-btn modal-copy-btn" data-text="${escHtml(waMsg)}">Copy</button>
         </div>
-        <div class="msg-block">
-          <div class="msg-label">Loom Hook</div>
-          <div class="msg-text">${escHtml(loomMsg)}</div>
-          <div class="msg-actions">
-            <button class="copy-btn loom-copy-btn" data-text="${escHtml(loomMsg)}">Copy</button>
-          </div>
-        </div>`;
+      </div>
+      ${loomMsg ? `
+      <div class="msg-block">
+        <div class="msg-label">Loom Hook</div>
+        <div class="msg-text">${escHtml(loomMsg)}</div>
+        <div class="msg-actions" style="margin-top:6px">
+          <button class="copy-btn modal-copy-btn" data-text="${escHtml(loomMsg)}">Copy</button>
+        </div>
+      </div>` : ''}`;
 
-      // Wire up buttons inside expanded section
-      expanded.querySelectorAll('.wa-btn').forEach(b => {
-        b.addEventListener('click', () => {
-          const url = `https://api.whatsapp.com/send?phone=${b.dataset.phone}&text=${encodeURIComponent(b.dataset.message)}`;
-          window.open(url, '_blank');
-        });
+    body.querySelectorAll('.wa-open-btn').forEach(b => {
+      b.addEventListener('click', () => {
+        const url = `https://api.whatsapp.com/send?phone=${b.dataset.phone}&text=${encodeURIComponent(b.dataset.message)}`;
+        window.open(url, '_blank');
       });
-      expanded.querySelectorAll('.loom-copy-btn').forEach(b => {
-        b.addEventListener('click', () => copyText(b, b.dataset.text));
-      });
+    });
+    body.querySelectorAll('.modal-copy-btn').forEach(b => {
+      b.addEventListener('click', () => copyText(b, b.dataset.text));
+    });
 
-      // Replace generate button with expanded content
-      btn.replaceWith(expanded);
-    }, 300);
+    document.getElementById('lead-modal').style.display = 'block';
+  }
+
+  function closeModal() {
+    document.getElementById('lead-modal').style.display = 'none';
   }
 
   function attachLeadListeners() {
     leadsEl.querySelectorAll('.gen-btn').forEach(btn => {
-      btn.addEventListener('click', () => expandLead(btn, Number(btn.dataset.index)));
+      btn.addEventListener('click', () => openModal(Number(btn.dataset.index)));
+    });
+
+    leadsEl.querySelectorAll('.done-cb').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const i    = Number(cb.dataset.index);
+        const lead = leadMap.get(i);
+        if (!lead) return;
+        lead.status = cb.checked ? 'contacted' : 'new';
+        const row = document.getElementById(`row-${i}`);
+        row.classList.toggle('contacted', cb.checked);
+        saveLeads();
+      });
     });
   }
 
@@ -716,6 +795,91 @@
       }, 2000);
     });
   }
+
+  function saveLeads() {
+    localStorage.setItem('leads_data', JSON.stringify(allLeads));
+  }
+
+  function loadFromLocalStorage() {
+    try {
+      const saved = localStorage.getItem('leads_data');
+      if (!saved) return false;
+      const leads = JSON.parse(saved);
+      if (!Array.isArray(leads) || leads.length === 0) return false;
+      allLeads = leads;
+      renderAllLeads();
+      return true;
+    } catch { return false; }
+  }
+
+  function renderAllLeads() {
+    if (allLeads.length === 0) {
+      leadsEl.innerHTML = '<div class="empty-state">No leads yet. Enter a city and run the engine.</div>';
+      poolCountEl.textContent = '';
+      document.getElementById('export-bar').style.display = 'none';
+      return;
+    }
+    allLeads.sort((a, b) => getScore(b) - getScore(a));
+    leadMap.clear();
+    allLeads.forEach((lead, i) => leadMap.set(i, lead));
+    leadsEl.innerHTML = allLeads.map((lead, i) => renderCard(lead, i)).join('');
+    attachLeadListeners();
+    const waCount   = allLeads.filter(l => l.contact_type === 'whatsapp').length;
+    const callCount = allLeads.filter(l => l.contact_type === 'call').length;
+    poolCountEl.textContent = `Total: ${allLeads.length}  ·  WhatsApp: ${waCount}  ·  Call: ${callCount}`;
+    document.getElementById('export-bar').style.display = 'block';
+    saveLeads();
+  }
+
+  async function loadAllLeads() {
+    try {
+      const res  = await fetch('/api/leads');
+      const data = await res.json();
+      if (!res.ok || !data.leads) return;
+
+      const seenIds = new Set(allLeads.map(l => l.id));
+      const incoming = data.leads.map(l => ({
+        ...l,
+        id:           l.place_id,
+        _city:        l.city,
+        contact_type: l.contact_type || ((() => {
+          const c = (l.phone || '').replace(/\D/g, '');
+          return c.startsWith('447') || c.startsWith('07') ? 'whatsapp' : 'call';
+        })()),
+      }));
+
+      const newLeads = incoming.filter(l => !seenIds.has(l.id));
+      allLeads.push(...newLeads);
+
+      if (allLeads.length > 0) renderAllLeads();
+    } catch (err) {
+      console.error('Failed to load leads from Supabase:', err);
+    }
+  }
+
+  function exportCSV() {
+    const headers = ['name', 'rating', 'reviews', 'phone', 'contact_type', 'city', 'website', 'maps_link'];
+    const rows = allLeads.map(l =>
+      headers.map(h => `"${String(l[h] || '').replace(/"/g, '""')}"`).join(',')
+    );
+    const csv  = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `leads-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Modal close handlers
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('modal-overlay').addEventListener('click', closeModal);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // Load from localStorage instantly, then merge from Supabase
+  loadFromLocalStorage();
+  loadAllLeads();
 
   function setCity(city) {
     cityInput.value = city;
