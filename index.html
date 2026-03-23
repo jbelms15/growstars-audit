@@ -480,18 +480,22 @@
 
     .icon-btn {
       background: none;
-      border: none;
+      border: 1px solid var(--border2);
+      border-radius: 4px;
       cursor: pointer;
-      font-size: 15px;
-      padding: 2px 3px;
-      line-height: 1;
-      opacity: 0.7;
-      transition: opacity 0.15s;
+      font-size: 11px;
+      font-family: inherit;
+      font-weight: 500;
+      padding: 3px 8px;
+      line-height: 1.4;
+      color: var(--sub);
+      transition: color 0.15s, border-color 0.15s;
       text-decoration: none;
+      white-space: nowrap;
     }
 
-    .icon-btn:hover { opacity: 1; }
-    .icon-btn:disabled { opacity: 0.2; cursor: default; }
+    .icon-btn:hover { color: var(--text); border-color: var(--text); }
+    .icon-btn:disabled { opacity: 0.25; cursor: default; }
 
     .done-label {
       display: flex;
@@ -743,10 +747,10 @@
           </div>
         </div>
         <div class="lead-actions">
-          ${lead.website ? `<button class="icon-btn site-btn" data-index="${i}">🌐</button>` : ''}
-          ${clean ? `<button class="icon-btn wa-icon-btn" data-index="${i}">💬</button>` : ''}
-          ${clean ? `<a class="icon-btn call-icon-btn" href="tel:${clean}" data-index="${i}">📞</a>` : ''}
-          <button class="icon-btn" disabled>🎥</button>
+          ${lead.website ? `<button class="icon-btn site-btn" data-index="${i}">↗</button>` : ''}
+          ${clean ? `<button class="icon-btn wa-icon-btn" data-index="${i}">WA</button>` : ''}
+          ${clean ? `<a class="icon-btn call-icon-btn" href="tel:${clean}" data-index="${i}">Call</a>` : ''}
+          <button class="icon-btn" disabled>Loom</button>
           <label class="done-label" title="Mark as done"><input type="checkbox" class="done-cb" data-index="${i}"${contacted ? ' checked' : ''}>${contacted ? '☑️' : '⬜'}</label>
         </div>
       </div>`;
