@@ -111,24 +111,24 @@ function getContactType(phone) {
   return "call";
 }
 
-// Step 1.6 — Message Layer
-function generateMessages(name, observation) {
-  const obs = observation.charAt(0).toLowerCase() + observation.slice(1);
-  return {
-    whatsapp_message: `Hey — came across ${name} and noticed ${obs}\n\nWe help salons fix this exact issue and boost bookings.\n\nHappy to show you what this could look like.`,
-    loom_hook: `I was looking at ${name} and noticed ${obs}\n\nQuick idea on how you could improve this — recorded a short video for you.`,
-  };
-}
+// Step 1.5 — Observation & Message Layer
+function generateObservationAndMessage(name, rating, reviews) {
+  let implication;
 
-// Step 1.5 — Observation Layer
-function generateObservation(rating, reviews) {
-  if (reviews >= 80 && rating <= 4.4) {
-    return `You've already got strong review volume (${reviews}), but your rating sits at ${rating} — there's clear room to push this higher.`;
-  } else if (reviews <= 60 && rating >= 4.3) {
-    return `Your rating is solid (${rating}), but with only ${reviews} reviews you're likely losing trust vs nearby competitors.`;
+  if (reviews >= 200 && rating <= 4.4) {
+    implication = "that's likely costing you bookings right now";
+  } else if (reviews >= 120 && rating < 4.7) {
+    implication = "there's clear room to push this higher";
+  } else if (rating <= 4.3) {
+    implication = "that's likely costing you bookings right now";
   } else {
-    return `You're in a strong middle position (${rating} rating from ${reviews} reviews), but not yet standing out in your area.`;
+    implication = "you're probably not getting as much visibility as you could";
   }
+
+  const observation = `${name} is at ${rating} with ${reviews} reviews`;
+  const whatsapp_message = `Hey — quick one.\n\nNoticed ${name} is at ${rating} with ${reviews} reviews — ${implication}.\n\nWant me to send you a quick breakdown?`;
+
+  return { observation, whatsapp_message };
 }
 
 function formatLead(place) {
@@ -264,8 +264,7 @@ async function generateHitList({ city, limit }) {
 
   // Attach observation + messages
   for (const lead of leads) {
-    lead.observation = generateObservation(lead.rating, lead.reviews);
-    Object.assign(lead, generateMessages(lead.name, lead.observation));
+    Object.assign(lead, generateObservationAndMessage(lead.name, lead.rating, lead.reviews));
   }
 
   // Step 1.7 — Upsert enriched leads to Supabase leads table
