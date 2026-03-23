@@ -494,6 +494,7 @@
       }
 
       leadsEl.innerHTML = hits.map((lead, i) => renderCard(lead, i)).join('');
+      attachLeadListeners();
 
     } catch (err) {
       statusEl.textContent = 'Request failed: ' + err.message;
@@ -525,14 +526,13 @@
     const obs      = escHtml(getObservation(lead.rating, lead.reviews));
     const priority = getPriority(lead.rating, lead.reviews);
     const phone    = lead.phone ? `<span>${escHtml(lead.phone)}</span>` : '';
+    const cleanNumber = (lead.phone || '').replace(/\D/g, '');
 
-    const cleanNumber   = (lead.phone || '').replace(/\D/g, '');
-    const encodedMessage = encodeURIComponent(lead.whatsapp_message || '');
-    const waLink        = cleanNumber ? `https://wa.me/${cleanNumber}?text=${encodedMessage}` : null;
-
-    const waBtn = waLink
-      ? `<button class="copy-btn" onclick="window.open('${waLink}', '_blank')">WA</button>`
+    const waBtn = cleanNumber
+      ? `<button class="copy-btn wa-btn" data-phone="${cleanNumber}" data-message="${escHtml(lead.whatsapp_message || '')}">WA</button>`
       : `<button class="copy-btn" disabled title="No phone number">WA</button>`;
+
+    const loomBtn = `<button class="copy-btn loom-btn" data-text="${escHtml(lead.loom_hook || '')}">Loom</button>`;
 
     return `
       <div class="lead-row" id="row-${i}">
@@ -547,9 +547,26 @@
         </div>
         <div class="lead-actions">
           ${waBtn}
-          <button class="copy-btn" onclick="copyText(this, ${JSON.stringify(lead.loom_hook)})">Loom</button>
+          ${loomBtn}
         </div>
       </div>`;
+  }
+
+  function attachLeadListeners() {
+    leadsEl.querySelectorAll('.wa-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const phone   = btn.dataset.phone;
+        const message = btn.dataset.message;
+        const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+      });
+    });
+
+    leadsEl.querySelectorAll('.loom-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        copyText(btn, btn.dataset.text);
+      });
+    });
   }
 
   function copyText(btn, text) {
