@@ -411,12 +411,12 @@
     <span></span><span></span><span></span>
   </div>
   <div class="hero-h1">
-    <span class="h-dark">Find Your Next </span><span class="h-gold">Reputation Management</span><span class="h-dark"> Client</span>
+    <span class="h-dark">Hair Salon Leads </span><span class="h-gold">— Instantly</span>
   </div>
-  <p class="hero-sub">Instantly generate qualified local businesses with ready-to-send outreach messages.</p>
+  <p class="hero-sub">Generate qualified salons with ready-to-send outreach messages.</p>
   <div class="input-group">
     <input type="text" id="city-input" placeholder="Enter city, e.g. Leeds" />
-    <button id="generate-btn" onclick="generateLeads()">Generate Leads</button>
+    <button id="generate-btn" onclick="generateLeads()">Generate Leads →</button>
   </div>
   <div class="city-hints">
     Try · <span class="city-pill" onclick="setCity('Leeds')">Leeds</span> · <span class="city-pill" onclick="setCity('Birmingham')">Birmingham</span> · <span class="city-pill" onclick="setCity('Manchester')">Manchester</span>
@@ -482,7 +482,7 @@
       statusEl.textContent = 'Request failed: ' + err.message;
     } finally {
       generateBtn.disabled = false;
-      generateBtn.textContent = 'Generate Leads';
+      generateBtn.textContent = 'Generate Leads →';
     }
   }
 
