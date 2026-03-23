@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lead Runner — GrowStars</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: #f5f3ee;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e5e2da;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      font-family: Georgia, serif;
+      font-size: 17px;
+      font-weight: normal;
+    }
+
+    header a {
+      font-size: 13px;
+      color: #888;
+      text-decoration: none;
+      border: 1px solid #ddd;
+      padding: 5px 12px;
+      border-radius: 7px;
+      background: #fafaf8;
+      transition: background 0.15s;
+    }
+
+    header a:hover { background: #eee; }
+
+    /* ── INPUT SECTION ── */
+    .input-bar {
+      max-width: 680px;
+      margin: 32px auto 0;
+      padding: 0 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .input-bar input {
+      flex: 1;
+      padding: 11px 14px;
+      font-size: 15px;
+      border: 1px solid #ddd;
+      border-radius: 9px;
+      background: #fff;
+      color: #1a1a1a;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+
+    .input-bar input:focus { border-color: #b59a6a; }
+
+    .input-bar button {
+      padding: 11px 22px;
+      font-size: 14px;
+      font-family: inherit;
+      font-weight: 600;
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+
+    .input-bar button:hover { background: #333; }
+    .input-bar button:disabled { background: #999; cursor: not-allowed; }
+
+    /* ── STATUS ── */
+    #status {
+      max-width: 680px;
+      margin: 16px auto 0;
+      padding: 0 20px;
+      font-size: 13px;
+      color: #888;
+      min-height: 20px;
+    }
+
+    /* ── LEADS ── */
+    #leads {
+      max-width: 680px;
+      margin: 20px auto 64px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .lead-card {
+      background: #fff;
+      border: 1px solid #e5e2da;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .lead-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      gap: 12px;
+    }
+
+    .lead-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .lead-meta {
+      font-size: 13px;
+      color: #888;
+      white-space: nowrap;
+    }
+
+    .lead-observation {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.55;
+      margin-bottom: 16px;
+      padding: 10px 12px;
+      background: #f9f7f3;
+      border-left: 3px solid #b59a6a;
+      border-radius: 0 6px 6px 0;
+    }
+
+    .message-block {
+      margin-bottom: 12px;
+    }
+
+    .message-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 5px;
+    }
+
+    .message-text {
+      font-size: 13px;
+      color: #333;
+      line-height: 1.6;
+      background: #fafaf8;
+      border: 1px solid #eee;
+      border-radius: 7px;
+      padding: 10px 12px;
+      white-space: pre-wrap;
+    }
+
+    .lead-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .copy-btn {
+      font-size: 13px;
+      font-family: inherit;
+      font-weight: 500;
+      padding: 7px 14px;
+      border-radius: 7px;
+      border: 1px solid #ddd;
+      background: #fff;
+      color: #1a1a1a;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .copy-btn:hover { background: #f0ede8; border-color: #ccc; }
+    .copy-btn.copied { background: #f0faf4; border-color: #a8d8b8; color: #2a7a4a; }
+
+    .lead-footer {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #bbb;
+      display: flex;
+      gap: 14px;
+    }
+
+    .lead-footer a {
+      color: #bbb;
+      text-decoration: none;
+    }
+
+    .lead-footer a:hover { color: #888; }
+
+    /* ── EMPTY / ERROR ── */
+    .empty-state {
+      text-align: center;
+      padding: 48px 0;
+      color: #aaa;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Lead Runner</h1>
+  <a href="index.html">← Audit Tool</a>
+</header>
+
+<div class="input-bar">
+  <input type="text" id="city-input" placeholder="Enter city, e.g. Leeds" />
+  <button id="generate-btn" onclick="generateLeads()">Generate Leads</button>
+</div>
+
+<div id="status"></div>
+<div id="leads"></div>
+
+<script>
+  const ICP = {
+    search_queries: ["hair salon", "hairdresser", "barber shop"],
+    min_reviews: 30,
+    max_reviews: 400,
+  };
+
+  const cityInput   = document.getElementById('city-input');
+  const generateBtn = document.getElementById('generate-btn');
+  const statusEl    = document.getElementById('status');
+  const leadsEl     = document.getElementById('leads');
+
+  cityInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') generateLeads();
+  });
+
+  async function generateLeads() {
+    const city = cityInput.value.trim();
+    if (!city) { cityInput.focus(); return; }
+
+    generateBtn.disabled = true;
+    generateBtn.textContent = 'Generating…';
+    statusEl.textContent = 'Generating leads…';
+    leadsEl.innerHTML = '';
+
+    try {
+      const res = await fetch('/api/hitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ city, icp: ICP, limit: 20 }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        statusEl.textContent = 'Error: ' + (data.error || res.statusText);
+        return;
+      }
+
+      const hits = data.hits || [];
+      statusEl.textContent = hits.length
+        ? `${hits.length} lead${hits.length !== 1 ? 's' : ''} found in ${city}`
+        : `No leads found in ${city} matching the ICP.`;
+
+      if (hits.length === 0) {
+        leadsEl.innerHTML = '<div class="empty-state">No leads matched. Try a different city.</div>';
+        return;
+      }
+
+      leadsEl.innerHTML = hits.map((lead, i) => renderCard(lead, i)).join('');
+
+    } catch (err) {
+      statusEl.textContent = 'Request failed: ' + err.message;
+    } finally {
+      generateBtn.disabled = false;
+      generateBtn.textContent = 'Generate Leads';
+    }
+  }
+
+  function renderCard(lead, i) {
+    const wa   = escHtml(lead.whatsapp_message || '');
+    const loom = escHtml(lead.loom_hook || '');
+    const obs  = escHtml(lead.observation || '');
+    const name = escHtml(lead.name || '');
+
+    return `
+      <div class="lead-card" id="card-${i}">
+        <div class="lead-header">
+          <div class="lead-name">${name}</div>
+          <div class="lead-meta">${lead.rating} ⭐ &nbsp;•&nbsp; ${lead.reviews} reviews</div>
+        </div>
+
+        <div class="lead-observation">${obs}</div>
+
+        <div class="message-block">
+          <div class="message-label">WhatsApp</div>
+          <div class="message-text">${wa}</div>
+        </div>
+
+        <div class="message-block">
+          <div class="message-label">Loom Hook</div>
+          <div class="message-text">${loom}</div>
+        </div>
+
+        <div class="lead-actions">
+          <button class="copy-btn" onclick="copyText(this, ${JSON.stringify(lead.whatsapp_message)})">Copy WhatsApp</button>
+          <button class="copy-btn" onclick="copyText(this, ${JSON.stringify(lead.loom_hook)})">Copy Loom</button>
+        </div>
+
+        <div class="lead-footer">
+          ${lead.phone ? `<span>${escHtml(lead.phone)}</span>` : ''}
+          ${lead.website ? `<a href="${escHtml(lead.website)}" target="_blank">${escHtml(lead.website)}</a>` : ''}
+          <a href="${escHtml(lead.maps_link)}" target="_blank">Google Maps ↗</a>
+        </div>
+      </div>`;
+  }
+
+  function copyText(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied ✔';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+
+</body>
+</html>
