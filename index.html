@@ -466,7 +466,17 @@
       margin-top: 2px;
     }
 
-    .lead-row.contacted { opacity: 0.38; }
+    .lead-row.contacted  { opacity: 0.38; }
+    .lead-row.wa-sent   { opacity: 0.55; border-left: 2px solid #4caf82; }
+    .lead-row.call-made { opacity: 0.55; border-left: 2px solid #b59a6a; }
+
+    .outcome-badge {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--sub);
+      text-transform: uppercase;
+    }
 
     .icon-btn {
       background: none;
@@ -715,21 +725,27 @@
     const phoneIcon   = lead.phone ? (isMobile ? '📱' : '☎️') : '☎️';
     const contactType = lead.contact_type === 'whatsapp' ? 'WhatsApp' : lead.contact_type === 'call' ? 'Call' : '';
     const contacted   = lead.status === 'contacted';
+    const outcome     = lead.contact_outcome || 'pending';
+    const outcomeClass = outcome === 'whatsapp_sent' ? ' wa-sent' : outcome === 'call' ? ' call-made' : '';
+    const outcomeBadge = outcome === 'whatsapp_sent' ? 'WA Sent' : outcome === 'call' ? 'Call' : '';
 
     return `
-      <div class="lead-row${contacted ? ' contacted' : ''}" id="row-${i}">
+      <div class="lead-row${contacted ? ' contacted' : ''}${outcomeClass}" id="row-${i}">
         <div class="lead-priority">${phoneIcon}</div>
         <div class="lead-main">
           <div class="lead-line1">
             <span class="lead-name">${name}</span>
             <span class="lead-meta">${lead.rating} ⭐ · ${lead.reviews} reviews</span>
           </div>
-          ${(phone || city || contactType) ? `<div class="lead-line2">${phone}${city}${contactType ? `<span>${contactType}</span>` : ''}</div>` : ''}
+          <div class="lead-line2">
+            ${phone}${city}${contactType ? `<span>${contactType}</span>` : ''}
+            <span class="outcome-badge" id="outcome-${i}">${outcomeBadge}</span>
+          </div>
         </div>
         <div class="lead-actions">
           ${lead.website ? `<button class="icon-btn site-btn" data-index="${i}">🌐</button>` : ''}
           ${clean ? `<button class="icon-btn wa-icon-btn" data-index="${i}">💬</button>` : ''}
-          ${clean ? `<a class="icon-btn" href="tel:${clean}">📞</a>` : ''}
+          ${clean ? `<a class="icon-btn call-icon-btn" href="tel:${clean}" data-index="${i}">📞</a>` : ''}
           <button class="icon-btn" disabled>🎥</button>
           <label class="done-label" title="Mark as done"><input type="checkbox" class="done-cb" data-index="${i}"${contacted ? ' checked' : ''}>${contacted ? '☑️' : '⬜'}</label>
         </div>
@@ -784,15 +800,35 @@
     document.getElementById('lead-modal').style.display = 'none';
   }
 
+  function setOutcome(i, outcome) {
+    const lead = leadMap.get(i);
+    if (!lead) return;
+    lead.contact_outcome = outcome;
+    const row = document.getElementById(`row-${i}`);
+    row.classList.remove('wa-sent', 'call-made');
+    if (outcome === 'whatsapp_sent') row.classList.add('wa-sent');
+    if (outcome === 'call')          row.classList.add('call-made');
+    const badge = document.getElementById(`outcome-${i}`);
+    if (badge) badge.textContent = outcome === 'whatsapp_sent' ? 'WA Sent' : outcome === 'call' ? 'Call' : '';
+    saveLeads();
+  }
+
   function attachLeadListeners() {
     leadsEl.querySelectorAll('.wa-icon-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const lead = leadMap.get(Number(btn.dataset.index));
+        const i    = Number(btn.dataset.index);
+        const lead = leadMap.get(i);
         if (!lead) return;
         const clean = (lead.phone || '').replace(/\D/g, '');
         const msg   = lead.whatsapp_message || '';
-        const url   = `https://api.whatsapp.com/send?phone=${clean}&text=${encodeURIComponent(msg)}`;
-        window.open(url, '_blank');
+        window.open(`https://api.whatsapp.com/send?phone=${clean}&text=${encodeURIComponent(msg)}`, '_blank');
+        setOutcome(i, 'whatsapp_sent');
+      });
+    });
+
+    leadsEl.querySelectorAll('.call-icon-btn').forEach(a => {
+      a.addEventListener('click', () => {
+        setOutcome(Number(a.dataset.index), 'call');
       });
     });
 
@@ -811,7 +847,6 @@
         lead.status = cb.checked ? 'contacted' : 'new';
         const row   = document.getElementById(`row-${i}`);
         row.classList.toggle('contacted', cb.checked);
-        // Update the checkbox emoji
         const label = cb.closest('.done-label');
         label.childNodes[1].textContent = cb.checked ? '☑️' : '⬜';
         saveLeads();
