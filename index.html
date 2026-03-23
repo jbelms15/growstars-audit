@@ -282,15 +282,28 @@
 
     .city-hints .city-pill:hover { color: #D4A43A; }
 
+    /* ── POOL COUNT ── */
+    #pool-count {
+      max-width: 720px;
+      margin: 20px auto 0;
+      padding: 0 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sub);
+      letter-spacing: 0.04em;
+      transition: color 0.4s;
+    }
+
     /* ── STATUS ── */
     #status {
       max-width: 960px;
-      margin: 16px auto 0;
+      margin: 6px auto 0;
       padding: 0 20px;
       font-size: 12px;
-      color: var(--muted);
+      color: var(--sub);
       min-height: 20px;
-      text-align: center;
+      text-align: left;
+      max-width: 720px;
       transition: color 0.4s;
     }
 
@@ -428,17 +441,18 @@
   </div>
   <p class="hero-sub">Generate qualified salons with ready-to-send outreach messages.</p>
   <div class="input-group">
-    <input type="text" id="city-input" placeholder="Enter city, e.g. Leeds" />
+    <input type="text" id="city-input" placeholder="e.g. Leeds, Manchester, Birmingham" />
     <button id="generate-btn" onclick="generateLeads()">Run Lead Engine →</button>
   </div>
   <div class="input-helper">Runs multi-source search + filters high-fit salons</div>
   <div class="city-hints">
-    Try · <span class="city-pill" onclick="setCity('Leeds')">Leeds</span> · <span class="city-pill" onclick="setCity('Birmingham')">Birmingham</span> · <span class="city-pill" onclick="setCity('Manchester')">Manchester</span>
+    Try · <span class="city-pill" onclick="setCity('Leeds')">Leeds</span> · <span class="city-pill" onclick="setCity('Birmingham')">Birmingham</span> · <span class="city-pill" onclick="setCity('Manchester')">Manchester</span> · <span class="city-pill" onclick="setCity('Leeds, Manchester, Birmingham, Liverpool')">All 4</span>
   </div>
   <div class="hero-rule bottom"></div>
 </div>
 
 <div id="results">
+  <div id="pool-count"></div>
   <div id="status"></div>
   <div id="leads"></div>
 </div>
@@ -454,54 +468,74 @@
   const generateBtn = document.getElementById('generate-btn');
   const statusEl    = document.getElementById('status');
   const leadsEl     = document.getElementById('leads');
+  const poolCountEl = document.getElementById('pool-count');
+
+  // Accumulated leads across all cities this session
+  let allLeads = [];
 
   cityInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') generateLeads();
   });
 
   async function generateLeads() {
-    const city = cityInput.value.trim();
-    if (!city) { cityInput.focus(); return; }
+    const raw = cityInput.value.trim();
+    if (!raw) { cityInput.focus(); return; }
+
+    const cities = raw.split(',').map(c => c.trim()).filter(Boolean);
+    if (cities.length === 0) { cityInput.focus(); return; }
 
     generateBtn.disabled = true;
     generateBtn.textContent = 'Running…';
     statusEl.textContent = '';
-    leadsEl.innerHTML = '';
     document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-    try {
-      const res = await fetch('/api/hitlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ city, icp: ICP, limit: 20 }),
-      });
+    const seenIds = new Set(allLeads.map(l => l.id));
+    const cityResults = [];
 
-      const data = await res.json();
+    for (let ci = 0; ci < cities.length; ci++) {
+      const city = cities[ci];
+      generateBtn.textContent = `Running ${ci + 1}/${cities.length}…`;
+      statusEl.textContent = `Fetching ${city}…`;
 
-      if (!res.ok) {
-        statusEl.textContent = 'Error: ' + (data.error || res.statusText);
-        return;
+      try {
+        const res = await fetch('/api/hitlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ city, icp: ICP, limit: 20 }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          cityResults.push(`${city}: error — ${data.error || res.statusText}`);
+          continue;
+        }
+
+        const hits = (data.hits || []).map(l => ({ ...l, _city: city }));
+        const newHits = hits.filter(l => !seenIds.has(l.id));
+        newHits.forEach(l => seenIds.add(l.id));
+        allLeads.push(...newHits);
+
+        cityResults.push(`${city}: ${newHits.length} new lead${newHits.length !== 1 ? 's' : ''}`);
+
+      } catch (err) {
+        cityResults.push(`${city}: failed — ${err.message}`);
       }
-
-      const hits = data.hits || [];
-      statusEl.textContent = hits.length
-        ? `${hits.length} lead${hits.length !== 1 ? 's' : ''} found in ${city}`
-        : `No leads found in ${city} matching the ICP.`;
-
-      if (hits.length === 0) {
-        leadsEl.innerHTML = '<div class="empty-state">No leads matched. Try a different city.</div>';
-        return;
-      }
-
-      leadsEl.innerHTML = hits.map((lead, i) => renderCard(lead, i)).join('');
-      attachLeadListeners();
-
-    } catch (err) {
-      statusEl.textContent = 'Request failed: ' + err.message;
-    } finally {
-      generateBtn.disabled = false;
-      generateBtn.textContent = 'Run Lead Engine →';
     }
+
+    // Render all accumulated leads
+    if (allLeads.length === 0) {
+      leadsEl.innerHTML = '<div class="empty-state">No leads matched. Try different cities.</div>';
+      poolCountEl.textContent = '';
+    } else {
+      leadsEl.innerHTML = allLeads.map((lead, i) => renderCard(lead, i)).join('');
+      attachLeadListeners();
+      poolCountEl.textContent = `Total leads in pool: ${allLeads.length}`;
+    }
+
+    statusEl.textContent = cityResults.join('  ·  ');
+    generateBtn.disabled = false;
+    generateBtn.textContent = 'Run Lead Engine →';
   }
 
   function getPriority(rating, reviews) {
@@ -526,6 +560,7 @@
     const obs      = escHtml(getObservation(lead.rating, lead.reviews));
     const priority = getPriority(lead.rating, lead.reviews);
     const phone    = lead.phone ? `<span>${escHtml(lead.phone)}</span>` : '';
+    const city     = lead._city ? `<span>${escHtml(lead._city)}</span>` : '';
     const cleanNumber = (lead.phone || '').replace(/\D/g, '');
 
     const waBtn = cleanNumber
@@ -542,7 +577,7 @@
             <span class="lead-name">${name}</span>
             <span class="lead-meta">${lead.rating} ⭐ · ${lead.reviews} reviews</span>
           </div>
-          ${phone ? `<div class="lead-line2">${phone}</div>` : ''}
+          ${(phone || city) ? `<div class="lead-line2">${phone}${city}</div>` : ''}
           <div class="lead-obs">${obs}</div>
         </div>
         <div class="lead-actions">
