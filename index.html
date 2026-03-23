@@ -616,14 +616,17 @@
   }
 
   function renderCard(lead, i) {
-    const name     = escHtml(lead.name || '');
-    const priority = getPriority(lead.rating, lead.reviews);
-    const phone    = lead.phone ? `<span>${escHtml(lead.phone)}</span>` : '';
-    const city     = lead._city ? `<span>${escHtml(lead._city)}</span>` : '';
+    const name  = escHtml(lead.name || '');
+    const phone = lead.phone ? `<span>${escHtml(lead.phone)}</span>` : '';
+    const city  = lead._city ? `<span>${escHtml(lead._city)}</span>` : '';
+
+    const clean    = (lead.phone || '').replace(/\D/g, '');
+    const isMobile = clean.startsWith('447') || clean.startsWith('07');
+    const phoneIcon = lead.phone ? (isMobile ? '📱' : '☎️') : '☎️';
 
     return `
       <div class="lead-row" id="row-${i}">
-        <div class="lead-priority" title="Priority">${priority}</div>
+        <div class="lead-priority">${phoneIcon}</div>
         <div class="lead-main">
           <div class="lead-line1">
             <span class="lead-name">${name}</span>
