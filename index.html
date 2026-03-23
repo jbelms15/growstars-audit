@@ -408,6 +408,63 @@
 
     .copy-btn:hover { background: var(--surface); }
     .copy-btn.copied { background: #f0faf4; border-color: #a8d8b8; color: #2a7a4a; }
+    .copy-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .gen-btn {
+      font-size: 11px;
+      font-family: inherit;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid #D4A43A;
+      background: transparent;
+      color: #D4A43A;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .gen-btn:hover { background: var(--gold-dim); }
+    .gen-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .lead-expanded {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .msg-block {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .msg-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sub);
+    }
+
+    .msg-text {
+      font-size: 12px;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 8px 10px;
+      white-space: pre-wrap;
+      line-height: 1.55;
+    }
+
+    .msg-actions {
+      display: flex;
+      gap: 5px;
+      margin-top: 2px;
+    }
 
     .empty-state {
       text-align: center;
@@ -472,6 +529,8 @@
 
   // Accumulated leads across all cities this session
   let allLeads = [];
+  // Full lead data keyed by index for on-demand generation
+  const leadMap = new Map();
 
   cityInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') generateLeads();
@@ -528,6 +587,7 @@
       leadsEl.innerHTML = '<div class="empty-state">No leads matched. Try different cities.</div>';
       poolCountEl.textContent = '';
     } else {
+      allLeads.forEach((lead, i) => leadMap.set(i, lead));
       leadsEl.innerHTML = allLeads.map((lead, i) => renderCard(lead, i)).join('');
       attachLeadListeners();
       poolCountEl.textContent = `Total leads in pool: ${allLeads.length}`;
@@ -557,17 +617,9 @@
 
   function renderCard(lead, i) {
     const name     = escHtml(lead.name || '');
-    const obs      = escHtml(getObservation(lead.rating, lead.reviews));
     const priority = getPriority(lead.rating, lead.reviews);
     const phone    = lead.phone ? `<span>${escHtml(lead.phone)}</span>` : '';
     const city     = lead._city ? `<span>${escHtml(lead._city)}</span>` : '';
-    const cleanNumber = (lead.phone || '').replace(/\D/g, '');
-
-    const waBtn = cleanNumber
-      ? `<button class="copy-btn wa-btn" data-phone="${cleanNumber}" data-message="${escHtml(lead.whatsapp_message || '')}">WA</button>`
-      : `<button class="copy-btn" disabled title="No phone number">WA</button>`;
-
-    const loomBtn = `<button class="copy-btn loom-btn" data-text="${escHtml(lead.loom_hook || '')}">Loom</button>`;
 
     return `
       <div class="lead-row" id="row-${i}">
@@ -578,29 +630,69 @@
             <span class="lead-meta">${lead.rating} ⭐ · ${lead.reviews} reviews</span>
           </div>
           ${(phone || city) ? `<div class="lead-line2">${phone}${city}</div>` : ''}
-          <div class="lead-obs">${obs}</div>
         </div>
-        <div class="lead-actions">
-          ${waBtn}
-          ${loomBtn}
-        </div>
+        <button class="gen-btn" data-index="${i}">Generate</button>
       </div>`;
   }
 
-  function attachLeadListeners() {
-    leadsEl.querySelectorAll('.wa-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const phone   = btn.dataset.phone;
-        const message = btn.dataset.message;
-        const url = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
-        window.open(url, '_blank');
-      });
-    });
+  function expandLead(btn, i) {
+    const lead = leadMap.get(i);
+    if (!lead) return;
 
-    leadsEl.querySelectorAll('.loom-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        copyText(btn, btn.dataset.text);
+    btn.disabled = true;
+    btn.textContent = 'Generating…';
+
+    // Simulate brief loading state, then reveal
+    setTimeout(() => {
+      const row      = document.getElementById(`row-${i}`);
+      const obs      = getObservation(lead.rating, lead.reviews);
+      const waMsg    = lead.whatsapp_message || '';
+      const loomMsg  = lead.loom_hook || '';
+      const cleanNum = (lead.phone || '').replace(/\D/g, '');
+
+      const waActionBtn = cleanNum
+        ? `<button class="copy-btn wa-btn" data-phone="${cleanNum}" data-message="${escHtml(waMsg)}">Open WA ↗</button>`
+        : `<button class="copy-btn" disabled title="No phone number">No number</button>`;
+
+      const expanded = document.createElement('div');
+      expanded.className = 'lead-expanded';
+      expanded.innerHTML = `
+        <div class="lead-obs">${escHtml(obs)}</div>
+        <div class="msg-block">
+          <div class="msg-label">WhatsApp</div>
+          <div class="msg-text">${escHtml(waMsg)}</div>
+          <div class="msg-actions">
+            ${waActionBtn}
+            <button class="copy-btn loom-copy-btn" data-text="${escHtml(waMsg)}">Copy</button>
+          </div>
+        </div>
+        <div class="msg-block">
+          <div class="msg-label">Loom Hook</div>
+          <div class="msg-text">${escHtml(loomMsg)}</div>
+          <div class="msg-actions">
+            <button class="copy-btn loom-copy-btn" data-text="${escHtml(loomMsg)}">Copy</button>
+          </div>
+        </div>`;
+
+      // Wire up buttons inside expanded section
+      expanded.querySelectorAll('.wa-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          const url = `https://api.whatsapp.com/send?phone=${b.dataset.phone}&text=${encodeURIComponent(b.dataset.message)}`;
+          window.open(url, '_blank');
+        });
       });
+      expanded.querySelectorAll('.loom-copy-btn').forEach(b => {
+        b.addEventListener('click', () => copyText(b, b.dataset.text));
+      });
+
+      // Replace generate button with expanded content
+      btn.replaceWith(expanded);
+    }, 300);
+  }
+
+  function attachLeadListeners() {
+    leadsEl.querySelectorAll('.gen-btn').forEach(btn => {
+      btn.addEventListener('click', () => expandLead(btn, Number(btn.dataset.index)));
     });
   }
 
