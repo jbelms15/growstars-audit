@@ -307,7 +307,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { city, limit = 20 } = req.body;
+  const { city, limit = 500 } = req.body;
 
   if (!city || typeof city !== "string") {
     return res.status(400).json({ error: "city is required and must be a string" });

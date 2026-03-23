@@ -554,7 +554,7 @@
         const res = await fetch('/api/hitlist', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ city, limit: 20 }),
+          body: JSON.stringify({ city, limit: 500 }),
         });
 
         const data = await res.json();
