@@ -587,6 +587,7 @@
       leadsEl.innerHTML = '<div class="empty-state">No leads matched. Try different cities.</div>';
       poolCountEl.textContent = '';
     } else {
+      allLeads.sort((a, b) => getScore(b) - getScore(a));
       allLeads.forEach((lead, i) => leadMap.set(i, lead));
       leadsEl.innerHTML = allLeads.map((lead, i) => renderCard(lead, i)).join('');
       attachLeadListeners();
@@ -599,10 +600,18 @@
   }
 
   function getPriority(rating, reviews) {
-    if (rating <= 4.4 && reviews >= 80) return '🔴';
-    if (rating <= 4.6 && reviews >= 50 && reviews < 80) return '🟡';
-    if (rating > 4.4 && rating <= 4.6 && reviews >= 80 && reviews <= 150) return '🟡';
-    return '⚪';
+    if (rating <= 4.4 && reviews >= 80) return 'high';
+    if (rating <= 4.6 && reviews >= 50 && reviews < 80) return 'medium';
+    if (rating > 4.4 && rating <= 4.6 && reviews >= 80 && reviews <= 150) return 'medium';
+    return 'low';
+  }
+
+  function getScore(lead) {
+    const clean    = (lead.phone || '').replace(/\D/g, '');
+    const isMobile = clean.startsWith('447') || clean.startsWith('07');
+    const priority = getPriority(lead.rating, lead.reviews);
+    const pScore   = priority === 'high' ? 30 : priority === 'medium' ? 20 : 10;
+    return (isMobile ? 100 : 0) + pScore;
   }
 
   function getObservation(rating, reviews) {
