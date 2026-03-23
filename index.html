@@ -515,12 +515,6 @@
 </div>
 
 <script>
-  const ICP = {
-    search_queries: ["hair salon", "hairdresser", "barber shop"],
-    min_reviews: 30,
-    max_reviews: 400,
-  };
-
   const cityInput   = document.getElementById('city-input');
   const generateBtn = document.getElementById('generate-btn');
   const statusEl    = document.getElementById('status');
@@ -560,7 +554,7 @@
         const res = await fetch('/api/hitlist', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ city, icp: ICP, limit: 20 }),
+          body: JSON.stringify({ city, limit: 20 }),
         });
 
         const data = await res.json();

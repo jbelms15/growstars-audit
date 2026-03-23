@@ -5,7 +5,7 @@
  * based on a provided ICP (Ideal Customer Profile).
  *
  * POST /api/hitlist
- * Body: { city, icp, limit }
+ * Body: { city, limit }
  */
 
 const CHAIN_BLACKLIST = [
@@ -84,21 +84,28 @@ async function getPlaceDetails(placeId, apiKey) {
   return data.result || {};
 }
 
-// Pre-filter using Text Search data (no extra API calls needed)
-function meetsICP(place, icp) {
+// Post-scrape ICP filter — applied after full dataset is built
+function meetsICP(place) {
   const { rating, user_ratings_total, business_status } = place;
 
   if (rating === undefined || rating === null) return false;
   if (user_ratings_total === undefined || user_ratings_total === null) return false;
 
-  if (rating < 4.0 || rating > 4.6) return false;
-  if (user_ratings_total < icp.min_reviews) return false;
-  if (user_ratings_total > icp.max_reviews) return false;
+  if (rating < 3.8 || rating > 4.7) return false;
+  if (user_ratings_total < 20) return false;
   // business_status may be absent from Text Search — treat missing as OPERATIONAL
   if (business_status && business_status !== "OPERATIONAL") return false;
   if (isChain(place.name)) return false;
 
   return true;
+}
+
+// Channel classification based on phone number format
+function getContactType(phone) {
+  if (!phone) return null;
+  const clean = phone.replace(/\D/g, "");
+  if (clean.startsWith("447") || clean.startsWith("07")) return "whatsapp";
+  return "call";
 }
 
 // Step 1.6 — Message Layer
@@ -122,38 +129,48 @@ function generateObservation(rating, reviews) {
 }
 
 function formatLead(place) {
+  const phone = place.international_phone_number || "";
   return {
-    id: place.place_id,
-    name: place.name,
-    rating: place.rating,
-    reviews: place.user_ratings_total,
-    phone: place.international_phone_number || "",
-    website: place.website || "",
-    address: place.formatted_address || "",
-    place_id: place.place_id,
-    maps_link: `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
+    id:           place.place_id,
+    place_id:     place.place_id,
+    name:         place.name,
+    rating:       place.rating,
+    reviews:      place.user_ratings_total,
+    phone,
+    website:      place.website || "",
+    address:      place.formatted_address || "",
+    city:         place._city || "",
+    maps_link:    `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
+    contact_type: getContactType(phone),
   };
 }
 
-async function generateHitList({ city, icp, limit }) {
+// Area suffixes — each generates an independent search to maximise coverage
+const SEARCH_QUERIES = ["hair salon", "barber shop", "hairdresser"];
+const AREA_PREFIXES  = ["", "North ", "South ", "East ", "West "];
+
+async function generateHitList({ city, limit }) {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
   if (!apiKey) throw new Error("GOOGLE_PLACES_API_KEY is not set");
 
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  // Collect raw candidates from all search queries
-  const seenIds = new Set();
+  // Collect raw candidates across all areas × queries — no pre-filtering
+  const seenIds  = new Set();
   const candidates = [];
 
-  for (const query of icp.search_queries) {
-    const fullQuery = `${query} in ${city}`;
-    const results = await searchPlaces(fullQuery, apiKey);
+  for (const prefix of AREA_PREFIXES) {
+    const area = `${prefix}${city}`;
+    for (const query of SEARCH_QUERIES) {
+      const fullQuery = `${query} in ${area}`;
+      const results   = await searchPlaces(fullQuery, apiKey);
 
-    for (const place of results) {
-      if (seenIds.has(place.place_id)) continue;
-      seenIds.add(place.place_id);
-      candidates.push({ ...place, _query: query });
+      for (const place of results) {
+        if (seenIds.has(place.place_id)) continue;
+        seenIds.add(place.place_id);
+        candidates.push({ ...place, _query: query, _city: city });
+      }
     }
   }
 
@@ -191,19 +208,55 @@ async function generateHitList({ city, icp, limit }) {
     }
   }
 
-  // Pre-filter using Text Search data (fast, no extra API calls)
-  const passing = candidates.filter((c) => meetsICP(c, icp)).slice(0, limit);
+  // Post-scrape filter — applied after full dataset is built
+  const passing = candidates.filter((c) => meetsICP(c)).slice(0, limit);
 
   // Fetch phone + website only for the filtered set (parallel)
-  const leads = await Promise.all(
+  const enriched = await Promise.all(
     passing.map(async (candidate) => {
       const details = await getPlaceDetails(candidate.place_id, apiKey);
-      const lead = formatLead({ ...candidate, ...details });
-      lead.observation = generateObservation(lead.rating, lead.reviews);
-      Object.assign(lead, generateMessages(lead.name, lead.observation));
-      return lead;
+      return formatLead({ ...candidate, ...details });
     })
   );
+
+  // Exclude leads with no phone number
+  const leads = enriched.filter((l) => l.phone);
+
+  // Attach observation + messages
+  for (const lead of leads) {
+    lead.observation = generateObservation(lead.rating, lead.reviews);
+    Object.assign(lead, generateMessages(lead.name, lead.observation));
+  }
+
+  // Step 1.7 — Upsert enriched leads to Supabase leads table
+  if (SUPABASE_URL && SUPABASE_KEY && leads.length > 0) {
+    const rows = leads.map((l) => ({
+      place_id:  l.place_id,
+      city,
+      name:      l.name,
+      rating:    l.rating,
+      reviews:   l.reviews,
+      phone:     l.phone || "",
+      website:   l.website || "",
+      address:   l.address || "",
+      maps_link: l.maps_link || "",
+    }));
+
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/leads?on_conflict=place_id,city`, {
+        method: "POST",
+        headers: {
+          apikey:         SUPABASE_KEY,
+          Authorization:  `Bearer ${SUPABASE_KEY}`,
+          "Content-Type": "application/json",
+          Prefer:         "resolution=merge-duplicates",
+        },
+        body: JSON.stringify(rows),
+      });
+    } catch (err) {
+      console.error("[hitlist] leads upsert failed:", err.message);
+    }
+  }
 
   return leads;
 }
@@ -214,20 +267,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { city, icp, limit = 20 } = req.body;
+  const { city, limit = 20 } = req.body;
 
   if (!city || typeof city !== "string") {
     return res.status(400).json({ error: "city is required and must be a string" });
   }
-  if (!icp || !Array.isArray(icp.search_queries) || icp.search_queries.length === 0) {
-    return res.status(400).json({ error: "icp must include a non-empty search_queries array" });
-  }
-  if (typeof icp.min_reviews !== "number" || typeof icp.max_reviews !== "number") {
-    return res.status(400).json({ error: "icp must include numeric min_reviews and max_reviews" });
-  }
 
   try {
-    const hits = await generateHitList({ city, icp, limit: Number(limit) });
+    const hits = await generateHitList({ city, limit: Number(limit) });
     return res.status(200).json({ hits, count: hits.length });
   } catch (err) {
     console.error("[hitlist]", err.message);
