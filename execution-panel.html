@@ -298,6 +298,14 @@
   </div>
 </section>
 
+<!-- FUTURE FEATURES -->
+<section>
+  <div class="textarea-field">
+    <label>Future Features (Do Not Build Yet)</label>
+    <textarea id="future-features" rows="18"></textarea>
+  </div>
+</section>
+
 <!-- ACTIVE MARKETS -->
 <section>
   <div class="textarea-field">
@@ -338,20 +346,39 @@
     'sel-step4': 'NOT STARTED',
     roadmap: `SYSTEM ROADMAP
 
-Step 1 — Hit List Engine (LOCKED)
-ICP:
+ACTIVE:
 
-  Rating: 4.0 – 4.6
-  Reviews: 30 – 400
-  Niches: Hair salons / Barbershops
+- Step 1 — Hit List Engine (LOCKED)
+  ICP:
+    Rating: 4.0 – 4.6
+    Reviews: 30 – 400
+    Niches: Hair salons / Barbershops
 
-Step 1.5 — Observation Layer
-Step 2 — Message Generator
-Step 3 — Outreach Tracker
-Step 4 — Optimization
+- Step 1.5 — Observation Layer
+- Step 2 — Message Generator
+- Step 3 — Outreach Tracker
+- Step 4 — Optimization
 
 RULE:
-Do not modify Step 1 unless there is a critical bug`,
+Do not modify Step 1 unless critical bug`,
+    'future-features': `FUTURE FEATURES — Do NOT implement until core workflow is validated
+
+- Segmentation Layer:
+  - Low rating businesses (3.5–3.9)
+  - Low review businesses (<30)
+
+- Comparison Mode:
+  - Find nearby competitors
+  - Compare rating and review gaps
+  - Generate opportunity score
+
+- Advanced Targeting:
+  - Adjust ICP based on city size
+  - Detect market density
+
+- Outreach Optimization:
+  - Track which hooks perform best
+  - Analyze response patterns`,
     markets: `Leeds → working\nManchester → working\nBirmingham → low yield`,
     notes: '',
     insights: `Mid-tier (4.3–4.5) responds best\nCompetitor gap angle works better\nLeeds has best density`,
@@ -421,7 +448,7 @@ Do not modify Step 1 unless there is a critical bug`,
   }
 
   // Textareas
-  ['roadmap', 'markets', 'notes', 'insights'].forEach(id => {
+  ['roadmap', 'future-features', 'markets', 'notes', 'insights'].forEach(id => {
     const el = document.getElementById(id);
     el.value = load(id) ?? DEFAULTS[id];
     el.addEventListener('input', () => save(id, el.value));
