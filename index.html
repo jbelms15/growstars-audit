@@ -521,13 +521,18 @@
   }
 
   function renderCard(lead, i) {
-    const name = escHtml(lead.name || '');
-    const obs  = escHtml(getObservation(lead.rating, lead.reviews));
+    const name     = escHtml(lead.name || '');
+    const obs      = escHtml(getObservation(lead.rating, lead.reviews));
     const priority = getPriority(lead.rating, lead.reviews);
-    const phone = lead.phone ? `<span>${escHtml(lead.phone)}</span>` : '';
-    const website = lead.website
-      ? `<a href="${escHtml(lead.website)}" target="_blank">${escHtml(lead.website)}</a>` : '';
-    const sep = phone && website ? '<span>·</span>' : '';
+    const phone    = lead.phone ? `<span>${escHtml(lead.phone)}</span>` : '';
+
+    const cleanNumber   = (lead.phone || '').replace(/\D/g, '');
+    const encodedMessage = encodeURIComponent(lead.whatsapp_message || '');
+    const waLink        = cleanNumber ? `https://wa.me/${cleanNumber}?text=${encodedMessage}` : null;
+
+    const waBtn = waLink
+      ? `<button class="copy-btn" onclick="window.open('${waLink}', '_blank')">WA</button>`
+      : `<button class="copy-btn" disabled title="No phone number">WA</button>`;
 
     return `
       <div class="lead-row" id="row-${i}">
@@ -537,11 +542,11 @@
             <span class="lead-name">${name}</span>
             <span class="lead-meta">${lead.rating} ⭐ · ${lead.reviews} reviews</span>
           </div>
-          ${(phone || website) ? `<div class="lead-line2">${phone}${sep}${website}</div>` : ''}
+          ${phone ? `<div class="lead-line2">${phone}</div>` : ''}
           <div class="lead-obs">${obs}</div>
         </div>
         <div class="lead-actions">
-          <button class="copy-btn" onclick="copyText(this, ${JSON.stringify(lead.whatsapp_message)})">WA</button>
+          ${waBtn}
           <button class="copy-btn" onclick="copyText(this, ${JSON.stringify(lead.loom_hook)})">Loom</button>
         </div>
       </div>`;
