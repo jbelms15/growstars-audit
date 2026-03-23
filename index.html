@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GrowStars — Lead Runner</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@1,900&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -15,14 +15,14 @@
       --surface: #f7f5f0;
       --border: rgba(0,0,0,0.09);
       --border2: rgba(0,0,0,0.16);
-      --text: #1a1a1a;
-      --muted: #6b6560;
-      --gold: #c8a96e;
-      --gold-dim: rgba(200,169,110,0.15);
+      --text: #120f0a;
+      --muted: #9a8e80;
+      --gold: #C9963A;
+      --gold-dim: rgba(201,150,58,0.12);
       --gold-dark: #a8863e;
     }
 
-    html { background: #f7f7f7; color: var(--text); font-family: 'DM Sans', Arial, sans-serif; font-size: 16px; line-height: 1.6; }
+    html { background: #f7f4ef; color: var(--text); font-family: 'Inter', 'DM Sans', Arial, sans-serif; font-size: 16px; line-height: 1.6; }
     body { min-height: 100vh; display: flex; flex-direction: column; }
 
     /* ── NAV ── */
@@ -57,32 +57,63 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      padding: 80px 20px 40px;
+      padding: 90px 20px 48px;
     }
 
-    .hero-brand {
-      font-family: Georgia, serif;
-      font-size: 13px;
-      color: var(--gold);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
+    .hero-top-line {
+      width: 48px;
+      height: 1px;
+      background: var(--gold);
       margin-bottom: 20px;
     }
 
-    .hero h1 {
-      font-family: Georgia, serif;
-      font-size: 32px;
-      font-weight: normal;
-      color: var(--text);
-      line-height: 1.25;
-      margin-bottom: 14px;
-      max-width: 520px;
+    .hero-brand {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-weight: 900;
+      font-size: 18px;
+      margin-bottom: 20px;
+      line-height: 1;
     }
 
+    .hero-brand .black { color: #120f0a; }
+    .hero-brand .gold  { color: var(--gold); }
+
+    .hero-ornament {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .hero-ornament span {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--gold);
+      display: block;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-weight: 900;
+      font-size: 72px;
+      color: #120f0a;
+      line-height: 1.0;
+      letter-spacing: -1.5px;
+      margin-bottom: 20px;
+      max-width: 700px;
+    }
+
+    .hero h1 .accent { color: var(--gold); }
+
     .hero p {
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
       font-size: 15px;
       color: var(--muted);
-      max-width: 440px;
+      max-width: 420px;
       line-height: 1.6;
       margin-bottom: 32px;
     }
@@ -90,38 +121,41 @@
     /* ── INPUT GROUP ── */
     .input-group {
       width: 100%;
-      max-width: 560px;
+      max-width: 520px;
       display: flex;
-      gap: 8px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      border-radius: 12px;
-      background: var(--white);
-      padding: 6px 6px 6px 14px;
-      border: 1px solid #e0e0e0;
+      gap: 10px;
+      align-items: stretch;
+      margin-bottom: 32px;
     }
 
     .input-group input {
       flex: 1;
-      border: none;
+      border: 0.5px solid #ddd5c4;
+      border-radius: 2px;
       outline: none;
-      font-size: 15px;
-      font-family: inherit;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
       color: var(--text);
-      background: transparent;
-      padding: 6px 0;
+      background: #ffffff;
+      padding: 14px 16px;
+      transition: border-color 0.15s;
     }
 
-    .input-group input::placeholder { color: #b0b0b0; }
+    .input-group input:focus { border-color: var(--gold); }
+    .input-group input::placeholder { color: #c0b8ad; }
 
     .input-group button {
-      padding: 10px 20px;
-      font-size: 14px;
-      font-family: inherit;
-      font-weight: 600;
-      background: #111;
-      color: #fff;
+      padding: 16px 28px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: #120f0a;
+      color: var(--gold);
       border: none;
-      border-radius: 8px;
+      border-radius: 2px;
       cursor: pointer;
       white-space: nowrap;
       transition: opacity 0.15s;
@@ -130,6 +164,12 @@
 
     .input-group button:hover { opacity: 0.82; }
     .input-group button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .hero-bottom-line {
+      width: 48px;
+      height: 1px;
+      background: var(--gold);
+    }
 
     /* ── STATUS ── */
     #status {
@@ -261,13 +301,20 @@
 </nav>
 
 <div class="hero">
-  <div class="hero-brand">GrowStars</div>
-  <h1>Find High-Intent Hair Salon Leads</h1>
+  <div class="hero-top-line"></div>
+  <div class="hero-brand">
+    <span class="black">Grow</span><span class="gold">Stars</span>
+  </div>
+  <div class="hero-ornament">
+    <span></span><span></span><span></span>
+  </div>
+  <h1>Find High-Intent <span class="accent">Reputation Management</span> Leads</h1>
   <p>Instantly generate qualified local businesses with ready-to-send outreach messages.</p>
   <div class="input-group">
     <input type="text" id="city-input" placeholder="Enter city, e.g. Leeds" />
     <button id="generate-btn" onclick="generateLeads()">Generate Leads</button>
   </div>
+  <div class="hero-bottom-line"></div>
 </div>
 
 <div id="status"></div>
