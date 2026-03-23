@@ -51,11 +51,14 @@ async function fetchPage(url) {
   return data;
 }
 
-async function searchPlaces(query, apiKey) {
+async function searchPlaces(query, apiKey, lat = null, lng = null) {
   const results = [];
   const baseUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json`;
 
   let url = `${baseUrl}?query=${encodeURIComponent(query)}&key=${apiKey}`;
+  if (lat !== null && lng !== null) {
+    url += `&location=${lat},${lng}&radius=2500`;
+  }
 
   for (let page = 0; page < MAX_PAGES; page++) {
     const data = await fetchPage(url);
@@ -145,9 +148,40 @@ function formatLead(place) {
   };
 }
 
-// Area suffixes — each generates an independent search to maximise coverage
 const SEARCH_QUERIES = ["hair salon", "barber shop", "hairdresser"];
-const AREA_PREFIXES  = ["", "North ", "South ", "East ", "West "];
+
+// Coordinates for major UK cities
+const CITY_COORDS = {
+  london:      { lat: 51.5074, lng: -0.1278 },
+  manchester:  { lat: 53.4808, lng: -2.2426 },
+  birmingham:  { lat: 52.4862, lng: -1.8904 },
+  leeds:       { lat: 53.8008, lng: -1.5491 },
+  liverpool:   { lat: 53.4084, lng: -2.9916 },
+  sheffield:   { lat: 53.3811, lng: -1.4701 },
+  bristol:     { lat: 51.4545, lng: -2.5879 },
+  glasgow:     { lat: 55.8642, lng: -4.2518 },
+  edinburgh:   { lat: 55.9533, lng: -3.1883 },
+  leicester:   { lat: 52.6369, lng: -1.1398 },
+  coventry:    { lat: 52.4068, lng: -1.5197 },
+  nottingham:  { lat: 52.9548, lng: -1.1581 },
+  newcastle:   { lat: 54.9783, lng: -1.6178 },
+  bradford:    { lat: 53.7960, lng: -1.7594 },
+  cardiff:     { lat: 51.4816, lng: -3.1791 },
+};
+
+// Generate a 4×5 grid of coordinate points centred on a city (~20 points)
+// Offsets in degrees: ~0.045° lat ≈ 5km, ~0.065° lng ≈ 5km at UK latitudes
+function getCityGrid(lat, lng) {
+  const latOffsets = [-0.09, -0.045, 0, 0.045, 0.09];
+  const lngOffsets = [-0.098, -0.033, 0.033, 0.098];
+  const points = [];
+  for (const dLat of latOffsets) {
+    for (const dLng of lngOffsets) {
+      points.push({ lat: lat + dLat, lng: lng + dLng });
+    }
+  }
+  return points; // 20 points
+}
 
 async function generateHitList({ city, limit }) {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
@@ -156,15 +190,21 @@ async function generateHitList({ city, limit }) {
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  // Collect raw candidates across all areas × queries — no pre-filtering
-  const seenIds  = new Set();
+  // Collect raw candidates across all grid points × queries — no pre-filtering
+  const seenIds    = new Set();
   const candidates = [];
 
-  for (const prefix of AREA_PREFIXES) {
-    const area = `${prefix}${city}`;
+  const coords = CITY_COORDS[city.toLowerCase().trim()];
+  const points  = coords
+    ? getCityGrid(coords.lat, coords.lng)
+    : [null]; // fallback: single text-only search for unknown cities
+
+  for (const point of points) {
     for (const query of SEARCH_QUERIES) {
-      const fullQuery = `${query} in ${area}`;
-      const results   = await searchPlaces(fullQuery, apiKey);
+      const fullQuery = `${query} in ${city}`;
+      const results   = point
+        ? await searchPlaces(fullQuery, apiKey, point.lat, point.lng)
+        : await searchPlaces(fullQuery, apiKey);
 
       for (const place of results) {
         if (seenIds.has(place.place_id)) continue;
