@@ -22,7 +22,7 @@
       --gold-dark: #a8863e;
     }
 
-    html { background: #f7f4ef; color: var(--text); font-family: 'Inter', 'DM Sans', Arial, sans-serif; font-size: 16px; line-height: 1.6; }
+    html { background: #f5f1ea; color: var(--text); font-family: 'Inter', 'DM Sans', Arial, sans-serif; font-size: 16px; line-height: 1.6; }
     body { min-height: 100vh; display: flex; flex-direction: column; }
 
     /* ── NAV ── */
@@ -57,118 +57,150 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      padding: 90px 20px 48px;
+      padding: 80px 20px 52px;
     }
 
-    .hero-top-line {
-      width: 48px;
+    .hero-rule {
+      width: 36px;
       height: 1px;
-      background: var(--gold);
-      margin-bottom: 20px;
+      background: #C9963A;
     }
+
+    .hero-rule.top { margin-bottom: 18px; }
+    .hero-rule.bottom { margin-top: 32px; }
 
     .hero-brand {
       font-family: 'Playfair Display', Georgia, serif;
       font-style: italic;
       font-weight: 900;
-      font-size: 18px;
-      margin-bottom: 20px;
+      font-size: 15px;
       line-height: 1;
+      margin-bottom: 14px;
     }
 
-    .hero-brand .black { color: #120f0a; }
-    .hero-brand .gold  { color: var(--gold); }
+    .hero-brand .black { color: #1a1208; }
+    .hero-brand .gold  { color: #C9963A; }
 
     .hero-ornament {
       display: flex;
-      gap: 6px;
+      gap: 7px;
       align-items: center;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }
 
     .hero-ornament span {
+      display: block;
       width: 4px;
       height: 4px;
       border-radius: 50%;
-      background: var(--gold);
-      display: block;
+      background: #C9963A;
     }
 
-    .hero h1 {
+    .hero-headline {
+      margin-bottom: 18px;
+    }
+
+    .hero-headline div {
       font-family: 'Playfair Display', Georgia, serif;
       font-style: italic;
       font-weight: 900;
-      font-size: 72px;
-      color: #120f0a;
-      line-height: 1.0;
-      letter-spacing: -1.5px;
-      margin-bottom: 20px;
-      max-width: 700px;
+      font-size: 38px;
+      line-height: 1.05;
     }
 
-    .hero h1 .accent { color: var(--gold); }
+    .hero-headline .line-dark   { color: #1a1208; }
+    .hero-headline .line-gold   { color: #C9963A; }
 
     .hero p {
       font-family: 'Inter', sans-serif;
       font-weight: 300;
-      font-size: 15px;
-      color: var(--muted);
-      max-width: 420px;
-      line-height: 1.6;
-      margin-bottom: 32px;
+      font-size: 13px;
+      color: #9a8e7a;
+      max-width: 320px;
+      line-height: 1.65;
+      margin-bottom: 28px;
     }
 
     /* ── INPUT GROUP ── */
     .input-group {
       width: 100%;
-      max-width: 520px;
+      max-width: 460px;
       display: flex;
-      gap: 10px;
+      gap: 8px;
       align-items: stretch;
-      margin-bottom: 32px;
+      margin-bottom: 20px;
     }
 
     .input-group input {
       flex: 1;
-      border: 0.5px solid #ddd5c4;
-      border-radius: 2px;
+      border: 0.5px solid #d4c9b0;
+      border-radius: 3px;
       outline: none;
-      font-size: 14px;
+      font-size: 13px;
       font-family: 'Inter', sans-serif;
       font-weight: 300;
-      color: var(--text);
+      color: #1a1208;
       background: #ffffff;
-      padding: 14px 16px;
+      padding: 13px 14px;
       transition: border-color 0.15s;
     }
 
-    .input-group input:focus { border-color: var(--gold); }
-    .input-group input::placeholder { color: #c0b8ad; }
+    .input-group input:focus { border-color: #C9963A; }
+    .input-group input::placeholder { color: #c5bdb0; }
 
     .input-group button {
-      padding: 16px 28px;
+      padding: 13px 22px;
       font-family: 'Inter', sans-serif;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 500;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      background: #120f0a;
-      color: var(--gold);
+      background: #1a1208;
+      color: #C9963A;
       border: none;
-      border-radius: 2px;
+      border-radius: 3px;
       cursor: pointer;
       white-space: nowrap;
       transition: opacity 0.15s;
       flex-shrink: 0;
     }
 
-    .input-group button:hover { opacity: 0.82; }
+    .input-group button:hover { opacity: 0.80; }
     .input-group button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .hero-bottom-line {
-      width: 48px;
-      height: 1px;
-      background: var(--gold);
+    /* ── CITY HINTS ── */
+    .city-hints {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .city-hints-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 300;
+      color: #b0a898;
+      letter-spacing: 0.04em;
+    }
+
+    .city-pill {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      color: #8a7e6e;
+      background: rgba(201,150,58,0.08);
+      border: 0.5px solid rgba(201,150,58,0.3);
+      border-radius: 20px;
+      padding: 4px 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .city-pill:hover {
+      background: rgba(201,150,58,0.16);
+      color: #1a1208;
     }
 
     /* ── STATUS ── */
@@ -301,20 +333,30 @@
 </nav>
 
 <div class="hero">
-  <div class="hero-top-line"></div>
+  <div class="hero-rule top"></div>
   <div class="hero-brand">
     <span class="black">Grow</span><span class="gold">Stars</span>
   </div>
   <div class="hero-ornament">
     <span></span><span></span><span></span>
   </div>
-  <h1>Find High-Intent <span class="accent">Reputation Management</span> Leads</h1>
+  <div class="hero-headline">
+    <div class="line-dark">Find High-Intent</div>
+    <div class="line-gold">Reputation Management</div>
+    <div class="line-dark">Leads</div>
+  </div>
   <p>Instantly generate qualified local businesses with ready-to-send outreach messages.</p>
   <div class="input-group">
     <input type="text" id="city-input" placeholder="Enter city, e.g. Leeds" />
     <button id="generate-btn" onclick="generateLeads()">Generate Leads</button>
   </div>
-  <div class="hero-bottom-line"></div>
+  <div class="city-hints">
+    <span class="city-hints-label">Try a city —</span>
+    <span class="city-pill" onclick="setCity('Leeds')">Leeds</span>
+    <span class="city-pill" onclick="setCity('Birmingham')">Birmingham</span>
+    <span class="city-pill" onclick="setCity('Manchester')">Manchester</span>
+  </div>
+  <div class="hero-rule bottom"></div>
 </div>
 
 <div id="status"></div>
@@ -422,6 +464,11 @@
         btn.classList.remove('copied');
       }, 2000);
     });
+  }
+
+  function setCity(city) {
+    cityInput.value = city;
+    cityInput.focus();
   }
 
   function escHtml(str) {
