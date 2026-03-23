@@ -221,13 +221,16 @@
       display: flex;
       align-items: stretch;
       margin-bottom: 16px;
+      border-radius: 3px;
+      overflow: hidden;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
     }
 
     .input-group input {
       flex: 1;
       border: 0.5px solid var(--border-i);
       border-right: none;
-      border-radius: 2px 0 0 2px;
+      border-radius: 0;
       outline: none;
       font-size: 13px;
       font-family: 'Inter', sans-serif;
@@ -251,7 +254,7 @@
       background: var(--btn-bg);
       color: var(--btn-color);
       border: none;
-      border-radius: 0 2px 2px 0;
+      border-radius: 0;
       cursor: pointer;
       white-space: nowrap;
       transition: opacity 0.15s, background 0.4s, color 0.4s;
@@ -259,7 +262,7 @@
     }
 
     .input-group button:hover { opacity: 0.82; }
-    .input-group button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .input-group button:disabled { opacity: 0.45; cursor: not-allowed; }
 
     /* ── CITY HINTS ── */
     .city-hints {
@@ -437,8 +440,10 @@
   <div class="hero-rule bottom"></div>
 </div>
 
-<div id="status"></div>
-<div id="leads"></div>
+<div id="results">
+  <div id="status"></div>
+  <div id="leads"></div>
+</div>
 
 <script>
   const ICP = {
@@ -461,9 +466,10 @@
     if (!city) { cityInput.focus(); return; }
 
     generateBtn.disabled = true;
-    generateBtn.textContent = 'Generating…';
-    statusEl.textContent = 'Generating leads…';
+    generateBtn.textContent = 'Running…';
+    statusEl.textContent = '';
     leadsEl.innerHTML = '';
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     try {
       const res = await fetch('/api/hitlist', {
