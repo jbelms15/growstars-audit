@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Execution Panel — GrowStars</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: #f5f3ee;
+      color: #1a1a1a;
+      padding: 32px 24px 64px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-family: Georgia, serif;
+      font-size: 22px;
+      font-weight: normal;
+      margin-bottom: 32px;
+      color: #1a1a1a;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    h1 a {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 13px;
+      color: #888;
+      text-decoration: none;
+      border: 1px solid #ddd;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    h1 a:hover { background: #eee; }
+
+    section {
+      background: #fff;
+      border: 1px solid #e5e2da;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    section h2 {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 18px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 7px;
+      font-size: 14px;
+      background: #fafaf8;
+      color: #1a1a1a;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .field input:focus { border-color: #b59a6a; }
+
+    .checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .checklist label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checklist input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #b59a6a;
+      cursor: pointer;
+    }
+
+    .checklist label.checked {
+      color: #888;
+      text-decoration: line-through;
+    }
+
+    /* Step Status */
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .step-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      background: #fafaf8;
+    }
+
+    .step-name {
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-icon { font-size: 16px; min-width: 20px; }
+
+    .step-select {
+      font-size: 13px;
+      padding: 5px 8px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background: #fff;
+      color: #1a1a1a;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .step-select:focus { border-color: #b59a6a; }
+
+    .step-row[data-status="LOCKED"]       { background: #f5f3ee; }
+    .step-row[data-status="NOT STARTED"]  { background: #fafaf8; }
+    .step-row[data-status="IN PROGRESS"]  { background: #fffbf0; border-color: #e8d9a8; }
+    .step-row[data-status="DONE"]         { background: #f0faf4; border-color: #a8d8b8; }
+
+    /* Textareas */
+    .textarea-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .textarea-field label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #888;
+    }
+
+    .textarea-field textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: 'DM Mono', 'Courier New', monospace;
+      line-height: 1.6;
+      background: #fafaf8;
+      color: #1a1a1a;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .textarea-field textarea:focus { border-color: #b59a6a; }
+  </style>
+</head>
+<body>
+
+<h1>
+  Execution Panel
+  <a href="index.html">← Audit Tool</a>
+</h1>
+
+<!-- TODAY SECTION -->
+<section>
+  <h2>Today</h2>
+  <div class="field-row">
+    <div class="field">
+      <label for="city">City</label>
+      <input type="text" id="city" placeholder="e.g. Leeds" />
+    </div>
+    <div class="field">
+      <label for="niche">Niche</label>
+      <input type="text" id="niche" placeholder="hair salon" />
+    </div>
+    <div class="field">
+      <label for="leads-target">Leads Target</label>
+      <input type="number" id="leads-target" placeholder="e.g. 20" min="1" />
+    </div>
+  </div>
+  <div class="checklist">
+    <label id="lbl-hitlist"><input type="checkbox" id="chk-hitlist" /> Hit list generated</label>
+    <label id="lbl-selected"><input type="checkbox" id="chk-selected" /> Leads selected</label>
+    <label id="lbl-messages"><input type="checkbox" id="chk-messages" /> Messages sent</label>
+    <label id="lbl-looms"><input type="checkbox" id="chk-looms" /> Looms recorded</label>
+  </div>
+</section>
+
+<!-- STEP STATUS TRACKER -->
+<section>
+  <h2>Step Status</h2>
+  <div class="step-list">
+    <div class="step-row" id="row-step1" data-status="LOCKED">
+      <div class="step-name">
+        <span class="step-icon" id="icon-step1">🔒</span>
+        Step 1 — Hit List Engine
+      </div>
+      <select class="step-select" id="sel-step1">
+        <option value="LOCKED">LOCKED</option>
+        <option value="NOT STARTED">NOT STARTED</option>
+        <option value="IN PROGRESS">IN PROGRESS</option>
+        <option value="DONE">DONE</option>
+      </select>
+    </div>
+    <div class="step-row" id="row-step15" data-status="NOT STARTED">
+      <div class="step-name">
+        <span class="step-icon" id="icon-step15">⬜</span>
+        Step 1.5 — Observation Layer
+      </div>
+      <select class="step-select" id="sel-step15">
+        <option value="LOCKED">LOCKED</option>
+        <option value="NOT STARTED">NOT STARTED</option>
+        <option value="IN PROGRESS">IN PROGRESS</option>
+        <option value="DONE">DONE</option>
+      </select>
+    </div>
+    <div class="step-row" id="row-step2" data-status="NOT STARTED">
+      <div class="step-name">
+        <span class="step-icon" id="icon-step2">⬜</span>
+        Step 2 — Message Generator
+      </div>
+      <select class="step-select" id="sel-step2">
+        <option value="LOCKED">LOCKED</option>
+        <option value="NOT STARTED">NOT STARTED</option>
+        <option value="IN PROGRESS">IN PROGRESS</option>
+        <option value="DONE">DONE</option>
+      </select>
+    </div>
+    <div class="step-row" id="row-step3" data-status="NOT STARTED">
+      <div class="step-name">
+        <span class="step-icon" id="icon-step3">⬜</span>
+        Step 3 — Outreach Tracker
+      </div>
+      <select class="step-select" id="sel-step3">
+        <option value="LOCKED">LOCKED</option>
+        <option value="NOT STARTED">NOT STARTED</option>
+        <option value="IN PROGRESS">IN PROGRESS</option>
+        <option value="DONE">DONE</option>
+      </select>
+    </div>
+    <div class="step-row" id="row-step4" data-status="NOT STARTED">
+      <div class="step-name">
+        <span class="step-icon" id="icon-step4">⬜</span>
+        Step 4 — Optimization
+      </div>
+      <select class="step-select" id="sel-step4">
+        <option value="LOCKED">LOCKED</option>
+        <option value="NOT STARTED">NOT STARTED</option>
+        <option value="IN PROGRESS">IN PROGRESS</option>
+        <option value="DONE">DONE</option>
+      </select>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEM ROADMAP -->
+<section>
+  <div class="textarea-field">
+    <label>System Roadmap</label>
+    <textarea id="roadmap" rows="14"></textarea>
+  </div>
+</section>
+
+<!-- ACTIVE MARKETS -->
+<section>
+  <div class="textarea-field">
+    <label>Active Markets</label>
+    <textarea id="markets" rows="5"></textarea>
+  </div>
+</section>
+
+<!-- NOTES -->
+<section>
+  <div class="textarea-field">
+    <label>Notes</label>
+    <textarea id="notes" rows="5" placeholder="Today's notes..."></textarea>
+  </div>
+</section>
+
+<!-- WINNING INSIGHTS -->
+<section>
+  <div class="textarea-field">
+    <label>Winning Insights</label>
+    <textarea id="insights" rows="6"></textarea>
+  </div>
+</section>
+
+<script>
+  const DEFAULTS = {
+    city: '',
+    niche: 'hair salon',
+    'leads-target': '',
+    'chk-hitlist': false,
+    'chk-selected': false,
+    'chk-messages': false,
+    'chk-looms': false,
+    'sel-step1': 'LOCKED',
+    'sel-step15': 'NOT STARTED',
+    'sel-step2': 'NOT STARTED',
+    'sel-step3': 'NOT STARTED',
+    'sel-step4': 'NOT STARTED',
+    roadmap: `SYSTEM ROADMAP
+
+Step 1 — Hit List Engine (LOCKED)
+ICP:
+
+  Rating: 4.0 – 4.6
+  Reviews: 30 – 400
+  Niches: Hair salons / Barbershops
+
+Step 1.5 — Observation Layer
+Step 2 — Message Generator
+Step 3 — Outreach Tracker
+Step 4 — Optimization
+
+RULE:
+Do not modify Step 1 unless there is a critical bug`,
+    markets: `Leeds → working\nManchester → working\nBirmingham → low yield`,
+    notes: '',
+    insights: `Mid-tier (4.3–4.5) responds best\nCompetitor gap angle works better\nLeeds has best density`,
+  };
+
+  const STATUS_ICONS = {
+    'LOCKED': '🔒',
+    'NOT STARTED': '⬜',
+    'IN PROGRESS': '🔄',
+    'DONE': '✔',
+  };
+
+  function save(key, value) {
+    localStorage.setItem('ep_' + key, JSON.stringify(value));
+  }
+
+  function load(key) {
+    const raw = localStorage.getItem('ep_' + key);
+    if (raw === null) return DEFAULTS[key];
+    try { return JSON.parse(raw); } catch { return DEFAULTS[key]; }
+  }
+
+  // Text inputs
+  ['city', 'niche', 'leads-target'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = load(id) ?? DEFAULTS[id];
+    el.addEventListener('input', () => save(id, el.value));
+  });
+
+  // Checkboxes
+  ['chk-hitlist', 'chk-selected', 'chk-messages', 'chk-looms'].forEach(id => {
+    const el = document.getElementById(id);
+    el.checked = load(id);
+    updateCheckLabel(id);
+    el.addEventListener('change', () => {
+      save(id, el.checked);
+      updateCheckLabel(id);
+    });
+  });
+
+  function updateCheckLabel(id) {
+    const el = document.getElementById(id);
+    const lbl = el.closest('label');
+    lbl.classList.toggle('checked', el.checked);
+  }
+
+  // Step selects
+  ['sel-step1', 'sel-step15', 'sel-step2', 'sel-step3', 'sel-step4'].forEach(id => {
+    const el = document.getElementById(id);
+    const status = load(id);
+    el.value = status;
+    updateStepRow(id, status);
+    el.addEventListener('change', () => {
+      save(id, el.value);
+      updateStepRow(id, el.value);
+    });
+  });
+
+  function updateStepRow(selId, status) {
+    const suffix = selId.replace('sel-', '');
+    const row = document.getElementById('row-' + suffix);
+    const icon = document.getElementById('icon-' + suffix);
+    row.dataset.status = status;
+    icon.textContent = STATUS_ICONS[status] || '⬜';
+    // sync select value in case called from load
+    document.getElementById(selId).value = status;
+  }
+
+  // Textareas
+  ['roadmap', 'markets', 'notes', 'insights'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = load(id) ?? DEFAULTS[id];
+    el.addEventListener('input', () => save(id, el.value));
+  });
+</script>
+
+</body>
+</html>

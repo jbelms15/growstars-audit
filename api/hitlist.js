@@ -103,9 +103,10 @@ function meetsICP(place, icp) {
 
 // Step 1.6 — Message Layer
 function generateMessages(name, observation) {
+  const obs = observation.charAt(0).toLowerCase() + observation.slice(1);
   return {
-    whatsapp_message: `Hey — came across ${name} and noticed ${observation}\n\nWe help salons fix this exact issue and boost bookings.\n\nHappy to show you what this could look like.`,
-    loom_hook: `I was looking at ${name} and noticed ${observation}\n\nQuick idea on how you could improve this — recorded a short video for you.`,
+    whatsapp_message: `Hey — came across ${name} and noticed ${obs}\n\nWe help salons fix this exact issue and boost bookings.\n\nHappy to show you what this could look like.`,
+    loom_hook: `I was looking at ${name} and noticed ${obs}\n\nQuick idea on how you could improve this — recorded a short video for you.`,
   };
 }
 
