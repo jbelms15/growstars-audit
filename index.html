@@ -5,41 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GrowStars — Lead Runner</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     /* ── THEME TOKENS ── */
     :root {
-      --bg:        #f5f1ea;
-      --bg-input:  #ffffff;
-      --logo-main: #1a1208;
-      --gold:      #C9963A;
-      --gold-dim:  rgba(201,150,58,0.12);
-      --text:      #1a1208;
-      --muted:     #a09080;
-      --border-i:  #d4c9b0;
-      --btn-bg:    #1a1208;
-      --btn-color: #C9963A;
-      --surface:   #f0ece4;
-      --border:    rgba(0,0,0,0.09);
-      --border2:   rgba(0,0,0,0.16);
-      --white:     #ffffff;
+      --bg:          #f5f1ea;
+      --bg-input:    #ffffff;
+      --logo-main:   #1a1208;
+      --gold:        #D4A43A;
+      --gold-dim:    rgba(212,164,58,0.12);
+      --text:        #1a1208;
+      --sub:         #7a6e62;
+      --ph:          #b0a492;
+      --border-i:    #d4c9b0;
+      --btn-bg:      #1a1208;
+      --btn-color:   #D4A43A;
+      --surface:     #ede9e0;
+      --border:      rgba(0,0,0,0.08);
+      --border2:     rgba(0,0,0,0.15);
+      --white:       #ffffff;
+      --toggle-track:#d4c9b0;
     }
 
     body.dark {
-      --bg:        #120d08;
-      --bg-input:  #1e1610;
-      --logo-main: #f5ede0;
-      --text:      #f5ede0;
-      --muted:     #5a4e40;
-      --border-i:  #2e2218;
-      --btn-bg:    #C9963A;
-      --btn-color: #120d08;
-      --surface:   #1a1410;
-      --border:    rgba(255,255,255,0.06);
-      --border2:   rgba(255,255,255,0.12);
-      --white:     #1e1610;
+      --bg:          #120d08;
+      --bg-input:    #2a1e14;
+      --logo-main:   #f5ede0;
+      --text:        #f5ede0;
+      --sub:         #a09080;
+      --ph:          #8a7060;
+      --border-i:    #3e3228;
+      --btn-bg:      #D4A43A;
+      --btn-color:   #120d08;
+      --surface:     #1c1410;
+      --border:      rgba(255,255,255,0.06);
+      --border2:     rgba(255,255,255,0.11);
+      --white:       #1e1610;
+      --toggle-track:#D4A43A;
     }
 
     html { font-family: 'Inter', Arial, sans-serif; font-size: 16px; line-height: 1.6; }
@@ -57,7 +61,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 24px;
+      padding: 16px 24px;
       position: relative;
       z-index: 20;
     }
@@ -66,14 +70,14 @@
       font-family: 'Inter', sans-serif;
       font-size: 11px;
       font-weight: 500;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--sub);
       text-decoration: none;
       padding: 5px 12px;
       border: 0.5px solid var(--border-i);
-      border-radius: 4px;
-      transition: all 0.4s;
+      border-radius: 3px;
+      transition: color 0.4s, border-color 0.4s;
     }
 
     .nav-link:hover { color: var(--text); }
@@ -90,9 +94,9 @@
       font-family: 'Inter', sans-serif;
       font-size: 11px;
       font-weight: 500;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--sub);
       transition: color 0.4s;
       user-select: none;
     }
@@ -101,13 +105,10 @@
       width: 36px;
       height: 18px;
       border-radius: 9px;
-      background: var(--border-i);
+      background: var(--toggle-track);
       position: relative;
       transition: background 0.4s;
-      cursor: pointer;
     }
-
-    body.dark .toggle-track { background: #C9963A; }
 
     .toggle-thumb {
       width: 12px;
@@ -124,22 +125,24 @@
 
     /* ── HERO ── */
     .hero {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       text-align: center;
-      padding: 48px 20px 52px;
+      padding: 60px 24px;
+      min-height: calc(100vh - 56px);
     }
 
     .hero-rule {
       width: 32px;
       height: 1px;
-      background: #C9963A;
-      transition: opacity 0.4s;
+      background: #D4A43A;
     }
 
     .hero-rule.top    { margin-bottom: 16px; }
-    .hero-rule.bottom { margin-top: 28px; }
+    .hero-rule.bottom { margin-top: 40px; }
 
     .hero-brand {
       font-family: 'Inter', sans-serif;
@@ -149,23 +152,22 @@
       text-transform: uppercase;
       line-height: 1;
       margin-bottom: 14px;
-      transition: color 0.4s;
     }
 
     .hero-brand .b-main { color: var(--logo-main); transition: color 0.4s; }
-    .hero-brand .b-gold { color: #C9963A; }
+    .hero-brand .b-gold { color: #D4A43A; }
 
     .hero-ornament {
       display: flex;
       gap: 5px;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 22px;
     }
 
     .hero-ornament span {
       display: block;
       border-radius: 50%;
-      background: #C9963A;
+      background: #D4A43A;
     }
 
     .hero-ornament span:nth-child(1),
@@ -173,30 +175,32 @@
     .hero-ornament span:nth-child(2) { width: 5px; height: 5px; }
 
     .hero-h1 {
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .hero-h1 div {
-      font-family: 'Rozha One', Georgia, serif;
-      font-size: 48px;
-      line-height: 1.05;
+      font-family: 'Yanone Kaffeesatz', sans-serif;
+      font-weight: 700;
+      font-size: 64px;
+      line-height: 1.0;
       transition: color 0.4s;
     }
 
     @media (max-width: 600px) {
-      .hero-h1 div { font-size: 32px; }
+      .hero-h1 div { font-size: 40px; }
     }
 
     .hero-h1 .h-dark { color: var(--logo-main); }
-    .hero-h1 .h-gold { color: #C9963A; }
+    .hero-h1 .h-gold { color: #D4A43A; }
 
     .hero-sub {
       font-family: 'Inter', sans-serif;
       font-weight: 300;
       font-size: 13px;
-      color: var(--muted);
+      color: var(--sub);
       max-width: 300px;
       line-height: 1.9;
+      letter-spacing: 0.02em;
       margin-bottom: 28px;
       transition: color 0.4s;
     }
@@ -206,7 +210,6 @@
       width: 100%;
       max-width: 440px;
       display: flex;
-      gap: 8px;
       align-items: stretch;
       margin-bottom: 16px;
     }
@@ -214,38 +217,39 @@
     .input-group input {
       flex: 1;
       border: 0.5px solid var(--border-i);
-      border-radius: 2px;
+      border-right: none;
+      border-radius: 2px 0 0 2px;
       outline: none;
       font-size: 13px;
       font-family: 'Inter', sans-serif;
       font-weight: 300;
       color: var(--text);
       background: var(--bg-input);
-      padding: 13px 14px;
+      padding: 14px 18px;
       transition: border-color 0.15s, background 0.4s, color 0.4s;
     }
 
-    .input-group input:focus { border-color: #C9963A; }
-    .input-group input::placeholder { color: var(--border-i); }
+    .input-group input:focus { border-color: #D4A43A; }
+    .input-group input::placeholder { color: var(--ph); transition: color 0.4s; }
 
     .input-group button {
-      padding: 13px 20px;
+      padding: 14px 22px;
       font-family: 'Inter', sans-serif;
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.12em;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       background: var(--btn-bg);
       color: var(--btn-color);
       border: none;
-      border-radius: 2px;
+      border-radius: 0 2px 2px 0;
       cursor: pointer;
       white-space: nowrap;
       transition: opacity 0.15s, background 0.4s, color 0.4s;
       flex-shrink: 0;
     }
 
-    .input-group button:hover { opacity: 0.80; }
+    .input-group button:hover { opacity: 0.82; }
     .input-group button:disabled { opacity: 0.4; cursor: not-allowed; }
 
     /* ── CITY HINTS ── */
@@ -253,20 +257,18 @@
       font-family: 'Inter', sans-serif;
       font-size: 11px;
       font-weight: 300;
-      color: var(--muted);
-      letter-spacing: 0.03em;
+      color: var(--sub);
+      letter-spacing: 0.02em;
       transition: color 0.4s;
     }
 
     .city-hints .city-pill {
       cursor: pointer;
-      color: #C9963A;
-      text-decoration: underline;
-      text-underline-offset: 2px;
-      text-decoration-color: rgba(201,150,58,0.4);
+      color: var(--sub);
+      transition: color 0.4s;
     }
 
-    .city-hints .city-pill:hover { text-decoration-color: #C9963A; }
+    .city-hints .city-pill:hover { color: #D4A43A; }
 
     /* ── STATUS ── */
     #status {
@@ -412,8 +414,9 @@
     <span></span><span></span><span></span>
   </div>
   <div class="hero-h1">
-    <div class="h-dark">Find High-Intent Leads in</div>
+    <div class="h-dark">Find Your Next</div>
     <div class="h-gold">Reputation Management</div>
+    <div class="h-dark">Client</div>
   </div>
   <p class="hero-sub">Instantly generate qualified local businesses with ready-to-send outreach messages.</p>
   <div class="input-group">
@@ -421,9 +424,7 @@
     <button id="generate-btn" onclick="generateLeads()">Generate Leads</button>
   </div>
   <div class="city-hints">
-    Try · <span class="city-pill" onclick="setCity('Leeds')">Leeds</span>
-    · <span class="city-pill" onclick="setCity('Birmingham')">Birmingham</span>
-    · <span class="city-pill" onclick="setCity('Manchester')">Manchester</span>
+    Try · <span class="city-pill" onclick="setCity('Leeds')">Leeds</span> · <span class="city-pill" onclick="setCity('Birmingham')">Birmingham</span> · <span class="city-pill" onclick="setCity('Manchester')">Manchester</span>
   </div>
   <div class="hero-rule bottom"></div>
 </div>
