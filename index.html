@@ -361,9 +361,18 @@
       color: var(--text);
       border-left: 2px solid #D4A43A;
       padding-left: 6px;
-      white-space: nowrap;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
       overflow: hidden;
-      text-overflow: ellipsis;
+    }
+
+    .lead-priority {
+      font-size: 13px;
+      flex-shrink: 0;
+      line-height: 1;
+      margin-top: 1px;
     }
 
     .lead-actions {
@@ -496,9 +505,27 @@
     }
   }
 
+  function getPriority(rating, reviews) {
+    if (rating <= 4.4 && reviews >= 80) return '🔴';
+    if (rating <= 4.6 && reviews >= 50 && reviews < 80) return '🟡';
+    if (rating > 4.4 && rating <= 4.6 && reviews >= 80 && reviews <= 150) return '🟡';
+    return '⚪';
+  }
+
+  function getObservation(rating, reviews) {
+    if (reviews >= 80 && rating <= 4.4) {
+      return `Strong review volume (${reviews}) but rating at ${rating} → clear improvement opportunity`;
+    } else if (reviews <= 60 && rating >= 4.3) {
+      return `Solid rating (${rating}) but only ${reviews} reviews → low trust vs nearby competitors`;
+    } else {
+      return `${rating} rating · ${reviews} reviews → mid-range profile, not yet dominant`;
+    }
+  }
+
   function renderCard(lead, i) {
-    const obs  = escHtml(lead.observation || '');
     const name = escHtml(lead.name || '');
+    const obs  = escHtml(getObservation(lead.rating, lead.reviews));
+    const priority = getPriority(lead.rating, lead.reviews);
     const phone = lead.phone ? `<span>${escHtml(lead.phone)}</span>` : '';
     const website = lead.website
       ? `<a href="${escHtml(lead.website)}" target="_blank">${escHtml(lead.website)}</a>` : '';
@@ -506,6 +533,7 @@
 
     return `
       <div class="lead-row" id="row-${i}">
+        <div class="lead-priority" title="Priority">${priority}</div>
         <div class="lead-main">
           <div class="lead-line1">
             <span class="lead-name">${name}</span>
