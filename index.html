@@ -284,114 +284,149 @@
 
     /* ── STATUS ── */
     #status {
-      max-width: 600px;
+      max-width: 960px;
       margin: 16px auto 0;
       padding: 0 20px;
-      font-size: 13px;
+      font-size: 12px;
       color: var(--muted);
       min-height: 20px;
       text-align: center;
       transition: color 0.4s;
     }
 
-    /* ── LEADS ── */
+    /* ── LEADS GRID ── */
     #leads {
-      max-width: 620px;
-      margin: 24px auto 64px;
+      max-width: 960px;
+      margin: 16px auto 64px;
       padding: 0 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
     }
+
+    @media (min-width: 680px)  { #leads { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { #leads { grid-template-columns: repeat(3, 1fr); } }
 
     .lead-card {
       background: var(--white);
-      border: 1px solid rgba(0,0,0,0.09);
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: background 0.4s, border-color 0.4s;
     }
 
+    /* header row: name+meta left, copy buttons right */
     .lead-header {
       display: flex;
-      align-items: baseline;
+      align-items: flex-start;
       justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 10px;
+      gap: 8px;
     }
 
+    .lead-header-left { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+
     .lead-name {
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text);
     }
 
     .lead-meta {
-      font-size: 13px;
-      color: var(--muted);
-      white-space: nowrap;
-    }
-
-    .lead-observation {
-      font-size: 13px;
-      color: #444;
-      line-height: 1.55;
-      margin-bottom: 16px;
-      padding: 10px 12px;
-      background: var(--gold-dim);
-      border-left: 3px solid var(--gold);
-      border-radius: 0 6px 6px 0;
-    }
-
-    .message-block { margin-bottom: 12px; }
-
-    .message-label {
       font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: #aaa;
-      margin-bottom: 5px;
+      color: var(--muted);
     }
 
-    .message-text {
-      font-size: 13px;
-      color: #333;
-      line-height: 1.6;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: 10px 12px;
-      white-space: pre-wrap;
-    }
-
-    .lead-actions {
+    .lead-copy-btns {
       display: flex;
-      gap: 8px;
-      margin-top: 14px;
+      gap: 4px;
+      flex-shrink: 0;
     }
 
     .copy-btn {
-      font-size: 13px;
+      font-size: 11px;
       font-family: inherit;
       font-weight: 500;
-      padding: 7px 14px;
-      border-radius: 7px;
+      padding: 4px 9px;
+      border-radius: 4px;
       border: 1px solid var(--border2);
       background: var(--white);
       color: var(--text);
       cursor: pointer;
       transition: all 0.15s;
+      white-space: nowrap;
     }
 
     .copy-btn:hover { background: var(--surface); }
     .copy-btn.copied { background: #f0faf4; border-color: #a8d8b8; color: #2a7a4a; }
 
-    .lead-footer {
-      margin-top: 12px;
+    /* observation — most prominent */
+    .lead-observation {
       font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.45;
+      padding-left: 8px;
+      border-left: 3px solid #D4A43A;
+    }
+
+    /* whatsapp — compact, shown by default */
+    .wa-text {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+      background: var(--surface);
+      border-radius: 4px;
+      padding: 6px 8px;
+      white-space: pre-wrap;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      transition: background 0.4s;
+    }
+
+    /* loom toggle */
+    .loom-toggle {
+      font-size: 11px;
+      font-family: inherit;
+      font-weight: 500;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      text-align: left;
+      transition: color 0.15s;
+    }
+
+    .loom-toggle:hover { color: #D4A43A; }
+
+    .loom-text {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+      background: var(--surface);
+      border-radius: 4px;
+      padding: 6px 8px;
+      white-space: pre-wrap;
+      display: none;
+      transition: background 0.4s;
+    }
+
+    .loom-text.open { display: block; }
+
+    /* footer */
+    .lead-footer {
+      font-size: 11px;
       color: #bbb;
       display: flex;
-      gap: 14px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
@@ -514,28 +549,31 @@
     return `
       <div class="lead-card" id="card-${i}">
         <div class="lead-header">
-          <div class="lead-name">${name}</div>
-          <div class="lead-meta">${lead.rating} ⭐ &nbsp;•&nbsp; ${lead.reviews} reviews</div>
+          <div class="lead-header-left">
+            <div class="lead-name">${name}</div>
+            <div class="lead-meta">${lead.rating} ⭐ · ${lead.reviews} reviews</div>
+          </div>
+          <div class="lead-copy-btns">
+            <button class="copy-btn" onclick="copyText(this, ${JSON.stringify(lead.whatsapp_message)})">WA</button>
+            <button class="copy-btn" onclick="copyText(this, ${JSON.stringify(lead.loom_hook)})">Loom</button>
+          </div>
         </div>
         <div class="lead-observation">${obs}</div>
-        <div class="message-block">
-          <div class="message-label">WhatsApp</div>
-          <div class="message-text">${wa}</div>
-        </div>
-        <div class="message-block">
-          <div class="message-label">Loom Hook</div>
-          <div class="message-text">${loom}</div>
-        </div>
-        <div class="lead-actions">
-          <button class="copy-btn" onclick="copyText(this, ${JSON.stringify(lead.whatsapp_message)})">Copy WhatsApp</button>
-          <button class="copy-btn" onclick="copyText(this, ${JSON.stringify(lead.loom_hook)})">Copy Loom</button>
-        </div>
+        <div class="wa-text">${wa}</div>
+        <button class="loom-toggle" onclick="toggleLoom(this)">▶ Loom Hook</button>
+        <div class="loom-text">${loom}</div>
         <div class="lead-footer">
           ${lead.phone ? `<span>${escHtml(lead.phone)}</span>` : ''}
           ${lead.website ? `<a href="${escHtml(lead.website)}" target="_blank">${escHtml(lead.website)}</a>` : ''}
-          <a href="${escHtml(lead.maps_link)}" target="_blank">Google Maps ↗</a>
+          <a href="${escHtml(lead.maps_link)}" target="_blank">Maps ↗</a>
         </div>
       </div>`;
+  }
+
+  function toggleLoom(btn) {
+    const loomEl = btn.nextElementSibling;
+    const open = loomEl.classList.toggle('open');
+    btn.textContent = open ? '▼ Loom Hook' : '▶ Loom Hook';
   }
 
   function copyText(btn, text) {
