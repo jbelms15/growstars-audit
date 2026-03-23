@@ -175,22 +175,19 @@
     .hero-ornament span:nth-child(2) { width: 5px; height: 5px; }
 
     .hero-h1 {
-      margin-bottom: 18px;
-    }
-
-    .hero-h1 div {
       font-family: 'Yanone Kaffeesatz', sans-serif;
       font-weight: 700;
-      font-size: 64px;
+      font-size: 56px;
       line-height: 1.0;
-      transition: color 0.4s;
+      margin-bottom: 18px;
+      max-width: 820px;
     }
 
     @media (max-width: 600px) {
-      .hero-h1 div { font-size: 40px; }
+      .hero-h1 { font-size: 36px; }
     }
 
-    .hero-h1 .h-dark { color: var(--logo-main); }
+    .hero-h1 .h-dark { color: var(--logo-main); transition: color 0.4s; }
     .hero-h1 .h-gold { color: #D4A43A; }
 
     .hero-sub {
@@ -414,9 +411,7 @@
     <span></span><span></span><span></span>
   </div>
   <div class="hero-h1">
-    <div class="h-dark">Find Your Next</div>
-    <div class="h-gold">Reputation Management</div>
-    <div class="h-dark">Client</div>
+    <span class="h-dark">Find Your Next </span><span class="h-gold">Reputation Management</span><span class="h-dark"> Client</span>
   </div>
   <p class="hero-sub">Instantly generate qualified local businesses with ready-to-send outreach messages.</p>
   <div class="input-group">
