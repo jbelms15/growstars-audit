@@ -468,18 +468,33 @@
 
     .lead-row.contacted { opacity: 0.38; }
 
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      padding: 2px 3px;
+      line-height: 1;
+      opacity: 0.7;
+      transition: opacity 0.15s;
+      text-decoration: none;
+    }
+
+    .icon-btn:hover { opacity: 1; }
+    .icon-btn:disabled { opacity: 0.2; cursor: default; }
+
     .done-label {
       display: flex;
       align-items: center;
-      gap: 4px;
-      font-size: 11px;
-      color: var(--sub);
+      font-size: 15px;
       cursor: pointer;
-      white-space: nowrap;
       user-select: none;
+      opacity: 0.7;
+      transition: opacity 0.15s;
     }
 
-    .done-label input { cursor: pointer; accent-color: #D4A43A; }
+    .done-label:hover { opacity: 1; }
+    .done-label input { display: none; }
 
     /* ── MODAL ── */
     .modal-overlay {
@@ -712,8 +727,11 @@
           ${(phone || city || contactType) ? `<div class="lead-line2">${phone}${city}${contactType ? `<span>${contactType}</span>` : ''}</div>` : ''}
         </div>
         <div class="lead-actions">
-          <button class="gen-btn" data-index="${i}">Generate</button>
-          <label class="done-label"><input type="checkbox" class="done-cb" data-index="${i}"${contacted ? ' checked' : ''}> Done</label>
+          ${lead.website ? `<button class="icon-btn site-btn" data-index="${i}">🌐</button>` : ''}
+          ${clean ? `<button class="icon-btn wa-icon-btn" data-index="${i}">💬</button>` : ''}
+          ${clean ? `<a class="icon-btn" href="tel:${clean}">📞</a>` : ''}
+          <button class="icon-btn" disabled>🎥</button>
+          <label class="done-label" title="Mark as done"><input type="checkbox" class="done-cb" data-index="${i}"${contacted ? ' checked' : ''}>${contacted ? '☑️' : '⬜'}</label>
         </div>
       </div>`;
   }
@@ -767,8 +785,22 @@
   }
 
   function attachLeadListeners() {
-    leadsEl.querySelectorAll('.gen-btn').forEach(btn => {
-      btn.addEventListener('click', () => openModal(Number(btn.dataset.index)));
+    leadsEl.querySelectorAll('.wa-icon-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const lead = leadMap.get(Number(btn.dataset.index));
+        if (!lead) return;
+        const clean = (lead.phone || '').replace(/\D/g, '');
+        const msg   = lead.whatsapp_message || '';
+        const url   = `https://api.whatsapp.com/send?phone=${clean}&text=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank');
+      });
+    });
+
+    leadsEl.querySelectorAll('.site-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const lead = leadMap.get(Number(btn.dataset.index));
+        if (lead?.website) window.open(lead.website, '_blank');
+      });
     });
 
     leadsEl.querySelectorAll('.done-cb').forEach(cb => {
@@ -777,8 +809,11 @@
         const lead = leadMap.get(i);
         if (!lead) return;
         lead.status = cb.checked ? 'contacted' : 'new';
-        const row = document.getElementById(`row-${i}`);
+        const row   = document.getElementById(`row-${i}`);
         row.classList.toggle('contacted', cb.checked);
+        // Update the checkbox emoji
+        const label = cb.closest('.done-label');
+        label.childNodes[1].textContent = cb.checked ? '☑️' : '⬜';
         saveLeads();
       });
     });
