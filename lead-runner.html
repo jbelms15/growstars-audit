@@ -746,7 +746,7 @@
 </div>
 
 <div id="results">
-  <div id="pool-count"><span id="pool-text"></span><button id="hide-toggle" style="display:none" onclick="toggleHideContacted()">Hide Done</button></div>
+  <div id="pool-count"><span id="pool-text"></span><button id="hide-toggle" style="display:none" onclick="toggleHideContacted()">Hide Done</button><button id="enrich-all-btn" style="display:none" onclick="enrichAll()">⚡ Enrich All</button></div>
   <div id="status"></div>
   <div id="leads"></div>
 </div>
@@ -980,11 +980,14 @@
         <td style="color:var(--sub)">${city}</td>
         <td style="color:var(--sub);font-size:11px">${phone}${isMobile ? ' 📱' : ''}</td>
         <td style="font-size:11px">${lead.website ? `<a href="${escHtml(lead.website)}" target="_blank" rel="noopener" style="color:var(--sub);text-decoration:none;overflow:hidden;text-overflow:ellipsis;display:block" title="${escHtml(lead.website)}">${escHtml(lead.website.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : ''}</td>
+        <td style="font-size:11px;color:var(--text)" id="owner-${i}">${lead.owner ? escHtml(lead.owner) : ''}</td>
+        <td style="font-size:11px" id="email-${i}">${lead.email ? `<a href="mailto:${escHtml(lead.email)}" style="color:var(--sub);text-decoration:none">${escHtml(lead.email)}</a>` : ''}</td>
         <td>
           <div style="display:flex;gap:4px;align-items:center" id="actions-${i}">
             ${outcomeDot}
             ${clean ? `<button class="icon-btn wa-icon-btn" data-index="${i}">WA</button>` : ''}
             ${clean ? `<a class="icon-btn call-icon-btn" href="tel:${clean}" data-index="${i}">Call</a>` : ''}
+            ${lead.website && !lead._enriched ? `<button class="icon-btn enrich-btn" data-index="${i}" title="Enrich: find email &amp; owner">⚡</button>` : ''}
           </div>
         </td>
       </tr>`;
@@ -1056,6 +1059,55 @@
     saveLeads();
   }
 
+  async function enrichLead(i) {
+    const lead = leadMap.get(i);
+    if (!lead?.website) return;
+
+    const btn = leadsEl.querySelector(`.enrich-btn[data-index="${i}"]`);
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+
+    try {
+      const res  = await fetch('/api/enrich', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ website: lead.website }),
+      });
+      const data = await res.json();
+
+      lead._enriched = true;
+      if (data.email) lead.email = data.email;
+      if (data.owner) lead.owner = data.owner;
+
+      const ownerCell = document.getElementById(`owner-${i}`);
+      const emailCell = document.getElementById(`email-${i}`);
+
+      if (ownerCell) ownerCell.textContent = data.owner || '';
+      if (emailCell) emailCell.innerHTML = data.email
+        ? `<a href="mailto:${escHtml(data.email)}" style="color:var(--sub);text-decoration:none">${escHtml(data.email)}</a>`
+        : '';
+
+      if (btn) btn.remove();
+      saveLeads();
+    } catch {
+      if (btn) { btn.disabled = false; btn.textContent = '⚡'; }
+    }
+  }
+
+  async function enrichAll() {
+    const enrichAllBtn = document.getElementById('enrich-all-btn');
+    const targets = allLeads.map((l, i) => ({ l, i })).filter(({ l }) => l.website && !l._enriched);
+    if (!targets.length) return;
+
+    if (enrichAllBtn) { enrichAllBtn.disabled = true; enrichAllBtn.textContent = `Enriching 0/${targets.length}…`; }
+
+    for (let t = 0; t < targets.length; t++) {
+      if (enrichAllBtn) enrichAllBtn.textContent = `Enriching ${t + 1}/${targets.length}…`;
+      await enrichLead(targets[t].i);
+    }
+
+    if (enrichAllBtn) { enrichAllBtn.disabled = false; enrichAllBtn.textContent = '⚡ Enrich All'; }
+  }
+
   function attachLeadListeners() {
     leadsEl.querySelectorAll('.open-modal-btn').forEach(btn => {
       btn.addEventListener('click', () => openModal(Number(btn.dataset.index)));
@@ -1077,6 +1129,10 @@
       a.addEventListener('click', () => {
         setOutcome(Number(a.dataset.index), 'call');
       });
+    });
+
+    leadsEl.querySelectorAll('.enrich-btn').forEach(btn => {
+      btn.addEventListener('click', () => enrichLead(Number(btn.dataset.index)));
     });
 
     leadsEl.querySelectorAll('.done-cb').forEach(cb => {
@@ -1136,6 +1192,7 @@
       document.getElementById('pool-text').textContent = '';
       document.getElementById('hide-toggle').style.display = 'none';
       document.getElementById('export-btn').style.display = 'none';
+      document.getElementById('enrich-all-btn').style.display = 'none';
       document.querySelector('.hero').classList.remove('compact');
       return;
     }
@@ -1169,14 +1226,16 @@
       <table class="leads-table">
         <colgroup>
           <col style="width:36px">
-          <col style="width:40px">
-          <col style="width:19%">
-          <col style="width:15%">
-          <col style="width:64px">
-          <col style="width:74px">
-          <col style="width:90px">
-          <col style="width:145px">
-          <col style="width:15%">
+          <col style="width:36px">
+          <col style="width:16%">
+          <col style="width:14%">
+          <col style="width:58px">
+          <col style="width:68px">
+          <col style="width:80px">
+          <col style="width:130px">
+          <col style="width:13%">
+          <col style="width:12%">
+          <col style="width:13%">
           <col>
         </colgroup>
         <thead>
@@ -1190,6 +1249,8 @@
             <th class="sortable${sortCol==='city'?' sort-active':''}" data-col="city">City <span class="sort-arrow">${sortCol==='city'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
             <th>Phone</th>
             <th>Website</th>
+            <th>Owner</th>
+            <th>Email</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -1214,6 +1275,7 @@
       `New · ${newCount}  ·  Contacted · ${contactedCount}  ·  Total · ${allLeads.length}`;
     document.getElementById('hide-toggle').style.display = 'inline-block';
     document.getElementById('export-btn').style.display = 'inline-block';
+    document.getElementById('enrich-all-btn').style.display = 'inline-block';
     document.querySelector('.hero').classList.add('compact');
     saveLeads();
   }
@@ -1245,7 +1307,7 @@
   }
 
   function exportCSV() {
-    const headers = ['name', 'rating', 'reviews', 'phone', 'contact_type', 'city', 'website', 'maps_link'];
+    const headers = ['name', 'rating', 'reviews', 'phone', 'contact_type', 'city', 'website', 'owner', 'email', 'maps_link'];
     const rows = allLeads.map(l =>
       headers.map(h => `"${String(l[h] || '').replace(/"/g, '""')}"`).join(',')
     );
