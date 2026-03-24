@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tracker — GrowStars</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f1ea;
+      color: #1a1208;
+      min-height: 100vh;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      background: #f5f1ea;
+    }
+
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+
+    .brand {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1208;
+      text-decoration: none;
+    }
+
+    .brand span { color: #D4A43A; }
+
+    .page-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: #7a6e62;
+      letter-spacing: 0.04em;
+    }
+
+    .nav-link {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #7a6e62;
+      text-decoration: none;
+      padding: 4px 10px;
+      border: 0.5px solid #d4c9b0;
+      border-radius: 3px;
+    }
+
+    .nav-link:hover { color: #1a1208; }
+
+    /* MAIN */
+    .main {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 24px 80px;
+    }
+
+    .main-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .main-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1208;
+      letter-spacing: 0.04em;
+    }
+
+    .count-label {
+      font-size: 11px;
+      color: #b0a492;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: #b0a492;
+      font-size: 13px;
+    }
+
+    /* TABLE */
+    .tracker-wrap {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .tracker-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .tracker-table th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #b0a492;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      background: #faf8f4;
+      white-space: nowrap;
+    }
+
+    .tracker-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      vertical-align: middle;
+      color: #1a1208;
+    }
+
+    .tracker-table tr:last-child td { border-bottom: none; }
+
+    /* ROW STATES */
+    tr.row-overdue  td { background: rgba(220,53,69,0.04); }
+    tr.row-followup td { background: rgba(212,164,58,0.06); }
+
+    /* BUSINESS + CONTACT */
+    .biz-name {
+      font-weight: 500;
+      font-size: 12px;
+    }
+
+    .contact-name {
+      font-size: 11px;
+      color: #7a6e62;
+    }
+
+    /* CHANNEL BADGE */
+    .channel-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: rgba(10,102,194,0.1);
+      color: #0a66c2;
+      letter-spacing: 0.03em;
+    }
+
+    /* DATE */
+    .sent-date {
+      font-size: 11px;
+      color: #7a6e62;
+      white-space: nowrap;
+    }
+
+    /* STATUS DROPDOWN */
+    .status-select {
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 6px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      outline: none;
+    }
+
+    .status-waiting      { background: rgba(0,0,0,0.06);      color: #7a6e62; }
+    .status-replied      { background: rgba(10,102,194,0.1);  color: #0a66c2; }
+    .status-loom         { background: rgba(107,70,193,0.1);  color: #6b46c1; }
+    .status-call         { background: rgba(40,167,69,0.1);   color: #1e7e34; }
+    .status-closed-won   { background: rgba(40,167,69,0.15);  color: #155724; }
+    .status-not-interested { background: rgba(220,53,69,0.08); color: #c82333; }
+
+    /* FOLLOW-UP BADGE */
+    .followup-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .followup-overdue  { background: rgba(220,53,69,0.1);  color: #c82333; }
+    .followup-due      { background: rgba(212,164,58,0.15); color: #9a7520; }
+    .followup-ok       { color: #b0a492; font-size: 10px; font-weight: 400; }
+
+    /* LAST ACTION */
+    .last-action {
+      font-size: 11px;
+      color: #7a6e62;
+    }
+
+    /* NOTES INPUT */
+    .notes-input {
+      font-family: inherit;
+      font-size: 11px;
+      color: #1a1208;
+      background: transparent;
+      border: none;
+      outline: none;
+      width: 140px;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+
+    .notes-input:focus {
+      background: rgba(0,0,0,0.04);
+    }
+
+    .notes-input::placeholder { color: #c4bdb5; }
+
+    /* DELETE */
+    .delete-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #c4bdb5;
+      font-size: 14px;
+      padding: 2px 4px;
+      line-height: 1;
+      border-radius: 3px;
+    }
+
+    .delete-btn:hover { color: #c82333; background: rgba(220,53,69,0.08); }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="brand" href="lead-runner.html">Grow<span>Stars</span></a>
+    <span class="page-title">Tracker</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <a class="nav-link" href="index.html">LinkedIn Assist</a>
+    <a class="nav-link" href="lead-runner.html">Lead Runner</a>
+  </div>
+</div>
+
+<div class="main">
+  <div class="main-header">
+    <span class="main-title">Outreach Tracker</span>
+    <span class="count-label" id="count-label"></span>
+  </div>
+
+  <div id="empty-state" class="empty-state" style="display:none;">
+    No prospects tracked yet. Add one from LinkedIn Assist.
+  </div>
+
+  <div class="tracker-wrap" id="tracker-wrap" style="display:none;">
+    <table class="tracker-table">
+      <thead>
+        <tr>
+          <th>Business</th>
+          <th>Contact</th>
+          <th>Channel</th>
+          <th>Sent Date</th>
+          <th>Status</th>
+          <th>Follow-up</th>
+          <th>Last Action</th>
+          <th>Notes</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tracker-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const TRACKER_KEY = 'growstars_tracker';
+
+  const STATUS_META = {
+    'Waiting':        { cls: 'status-waiting',       label: 'Waiting' },
+    'Replied':        { cls: 'status-replied',        label: 'Replied' },
+    'Loom Sent':      { cls: 'status-loom',           label: 'Loom Sent' },
+    'Call Booked':    { cls: 'status-call',           label: 'Call Booked' },
+    'Closed Won':     { cls: 'status-closed-won',     label: 'Closed Won' },
+    'Not Interested': { cls: 'status-not-interested', label: 'Not Interested' },
+  };
+
+  const STATUS_OPTIONS = Object.keys(STATUS_META);
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(TRACKER_KEY) || '[]'); }
+    catch { return []; }
+  }
+
+  function save(data) {
+    localStorage.setItem(TRACKER_KEY, JSON.stringify(data));
+  }
+
+  function daysSince(dateStr) {
+    const sent = new Date(dateStr);
+    const now  = new Date();
+    return Math.floor((now - sent) / 86400000);
+  }
+
+  function followupBadge(entry) {
+    if (entry.status !== 'Waiting') return `<span class="followup-ok">–</span>`;
+    const days = daysSince(entry.sent_date);
+    if (days >= 7) return `<span class="followup-badge followup-overdue">Overdue</span>`;
+    if (days >= 2) return `<span class="followup-badge followup-due">Follow up</span>`;
+    return `<span class="followup-ok">–</span>`;
+  }
+
+  function rowClass(entry) {
+    if (entry.status !== 'Waiting') return '';
+    const days = daysSince(entry.sent_date);
+    if (days >= 7) return 'row-overdue';
+    if (days >= 2) return 'row-followup';
+    return '';
+  }
+
+  function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function statusSelectHTML(currentStatus) {
+    const meta = STATUS_META[currentStatus] || STATUS_META['Waiting'];
+    const options = STATUS_OPTIONS.map(s =>
+      `<option value="${s}"${s === currentStatus ? ' selected' : ''}>${s}</option>`
+    ).join('');
+    return `<select class="status-select ${meta.cls}" onchange="updateStatus(this)">${options}</select>`;
+  }
+
+  function render() {
+    const data  = load();
+    const tbody = document.getElementById('tracker-tbody');
+    const empty = document.getElementById('empty-state');
+    const wrap  = document.getElementById('tracker-wrap');
+    const count = document.getElementById('count-label');
+
+    if (!data.length) {
+      empty.style.display = 'block';
+      wrap.style.display  = 'none';
+      count.textContent   = '';
+      return;
+    }
+
+    empty.style.display = 'none';
+    wrap.style.display  = 'block';
+    count.textContent   = `${data.length} prospect${data.length !== 1 ? 's' : ''}`;
+
+    tbody.innerHTML = data.map((entry, i) => `
+      <tr class="${rowClass(entry)}" data-index="${i}">
+        <td><div class="biz-name">${entry.business}</div></td>
+        <td><div class="contact-name">${entry.contact || '–'}</div></td>
+        <td><span class="channel-badge">${entry.channel}</span></td>
+        <td><span class="sent-date">${formatDate(entry.sent_date)}</span></td>
+        <td>${statusSelectHTML(entry.status)}</td>
+        <td>${followupBadge(entry)}</td>
+        <td><span class="last-action">${entry.last_action || '–'}</span></td>
+        <td><input class="notes-input" type="text" placeholder="Add a note..." value="${entry.notes || ''}" onchange="updateNotes(this)" data-index="${i}" /></td>
+        <td><button class="delete-btn" onclick="deleteEntry(${i})" title="Remove">×</button></td>
+      </tr>
+    `).join('');
+  }
+
+  function updateStatus(select) {
+    const row   = select.closest('tr');
+    const index = parseInt(row.dataset.index);
+    const data  = load();
+    data[index].status      = select.value;
+    data[index].last_action = `Status set to ${select.value}`;
+    save(data);
+    render();
+  }
+
+  function updateNotes(input) {
+    const index = parseInt(input.dataset.index);
+    const data  = load();
+    data[index].notes = input.value;
+    save(data);
+  }
+
+  function deleteEntry(index) {
+    const data = load();
+    data.splice(index, 1);
+    save(data);
+    render();
+  }
+
+  render();
+</script>
+
+</body>
+</html>

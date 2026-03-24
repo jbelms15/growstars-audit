@@ -461,6 +461,7 @@
     <span class="page-title">LinkedIn Assist</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
+    <a class="nav-link" href="tracker.html">Tracker</a>
     <a class="nav-link" href="lead-runner.html">← Lead Runner</a>
     <button class="nav-link" style="cursor:pointer;background:none;" onclick="openGuide()">Guide</button>
   </div>
@@ -555,6 +556,7 @@
           <button class="copy-btn" onclick="copyBlock(this, 'li-message')">Copy</button>
           <button class="copy-btn" id="regen-btn" onclick="regenerate()">Try another angle</button>
           <span id="angle-indicator" style="font-size:10px;color:#b0a492;align-self:center;margin-left:2px"></span>
+          <button class="copy-btn" id="tracker-btn" onclick="addToTracker(this)" style="margin-left:auto;">+ Add to Tracker</button>
         </div>
       </div>
     </div>
@@ -801,6 +803,26 @@
     currentAngle = (currentAngle + 1) % TOTAL_ANGLES;
     document.getElementById('li-message').textContent = buildMessage(currentAngle, lastCtx);
     document.getElementById('angle-indicator').textContent = `${currentAngle + 1} / ${TOTAL_ANGLES}`;
+  }
+
+  function addToTracker(btn) {
+    if (!lastCtx) return;
+    const TRACKER_KEY = 'growstars_tracker';
+    const data = (() => { try { return JSON.parse(localStorage.getItem(TRACKER_KEY) || '[]'); } catch { return []; } })();
+    data.unshift({
+      id:          Date.now(),
+      business:    lastCtx.bizName,
+      contact:     lastCtx.firstName !== '{{first_name}}' ? lastCtx.firstName : '',
+      channel:     'LinkedIn',
+      sent_date:   new Date().toISOString().slice(0, 10),
+      status:      'Waiting',
+      last_action: 'Message sent',
+      notes:       '',
+    });
+    localStorage.setItem(TRACKER_KEY, JSON.stringify(data));
+    btn.textContent = 'Added';
+    btn.disabled = true;
+    setTimeout(() => { btn.textContent = '+ Add to Tracker'; btn.disabled = false; }, 2000);
   }
 
   async function analyze() {
