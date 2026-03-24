@@ -710,22 +710,41 @@
     return 3;                                                               // Visibility
   }
 
-  const SIGNATURE = '\n\nJoanna @ GrowStars';
-
-  function buildMessage(angle, { firstName, bizName, rating, reviews, lastReviewDays, velocity }) {
+  function buildMessage(angle, { firstName, bizName, rating, reviews, lastReviewDays, velocity, hasStronger }) {
     switch (angle) {
       case 1:
         // Competition
-        return `Hey ${firstName} — quick one.\n\nNoticed ${bizName} is at ${rating} with ${reviews} reviews — that's a solid spot to be in. A few nearby spots are building up more reviews though.\n\nThat can influence how people decide which salon to go to.\n\nI made a quick breakdown on how to get more reviews coming in — want me to send it?${SIGNATURE}`;
+        return `Hey ${firstName}, quick one.\n\nNoticed ${bizName} is at ${rating} with ${reviews} reviews, that's a solid spot to be in. A few nearby spots are building up more reviews though.\n\nThat can influence how people decide which salon to go to.\n\nI made a quick breakdown on how to stay ahead, want me to send it?`;
       case 2:
         // Opportunity
-        return `Hey ${firstName} — quick one.\n\n${bizName} is at ${rating} with ${reviews} reviews — that's a solid spot to be in.\n\nWith a bit more consistent review flow, you could stand out even more locally.\n\nI made a quick breakdown on how to do that — want me to send it?${SIGNATURE}`;
+        return `Hey ${firstName}, quick one.\n\n${bizName} is at ${rating} with ${reviews} reviews, that's a solid spot to be in.\n\nWith a bit more consistent review flow, you could stand out even more locally.\n\nI made a quick breakdown on how to do that, want me to send it?`;
       case 3:
         // Visibility
-        return `Hey ${firstName}, quick one.\n\nNoticed when people search nearby, ${bizName} isn't always showing as prominently as it could.\n\nThat usually comes down to how often new reviews are coming in.\n\nI made a quick breakdown of what affects that, want me to send it?${SIGNATURE}`;
-      default:
-        // Velocity (angle 0 — default/priority)
-        return `Hey ${firstName}, quick one.\n\nNoticed review activity has slowed down a bit for ${bizName} recently.\n\nA few nearby spots are getting reviews more consistently, which can affect how people decide which salon to go to.\n\nI made a quick breakdown on how to get reviews coming in more consistently, want me to send it?${SIGNATURE}`;
+        return `Hey ${firstName}, quick one.\n\nNoticed when people search nearby, ${bizName} isn't always showing as prominently as it could.\n\nThat usually comes down to how often new reviews are coming in.\n\nI made a quick breakdown of what affects that, want me to send it?`;
+      default: {
+        // Angle 0 — context-aware based on scenario
+        let contextLine, impactLine, cta;
+
+        if (lastReviewDays !== null && lastReviewDays > 60) {
+          contextLine = `Noticed ${bizName} is at ${rating} with ${reviews} reviews, that's a solid spot to be in. Reviews seem to have slowed down a bit recently.`;
+          impactLine  = `That can influence how people decide which salon to go to.`;
+          cta         = `I made a quick breakdown on how to get reviews coming in more consistently, want me to send it?`;
+        } else if (hasStronger) {
+          contextLine = `Noticed ${bizName} is at ${rating} with ${reviews} reviews, that's a solid spot to be in. A few nearby spots are building up more reviews though.`;
+          impactLine  = `That can influence how people decide which salon to go to.`;
+          cta         = `I made a quick breakdown on how to stay ahead, want me to send it?`;
+        } else if (rating <= 4.3) {
+          contextLine = `Noticed ${bizName} is at ${rating} with ${reviews} reviews, looks like there's some room to push that higher.`;
+          impactLine  = `That can affect how new customers decide where to go.`;
+          cta         = `I made a quick breakdown of what might be holding your rating back, want me to send it?`;
+        } else {
+          contextLine = `Noticed ${bizName} is at ${rating} with ${reviews} reviews, that's a solid spot to be in.`;
+          impactLine  = `That can influence how people decide which salon to go to.`;
+          cta         = `I made a quick breakdown on how to get more reviews coming in, want me to send it?`;
+        }
+
+        return `Hey ${firstName}, quick one.\n\n${contextLine}\n\n${impactLine}\n\n${cta}`;
+      }
     }
   }
 
