@@ -878,7 +878,122 @@
     .done-label:hover { opacity: 1; }
     .done-label input { display: none; }
 
-    /* ── MODAL ── */
+    /* ── SNAPSHOT DRAWER ── */
+    .snap-drawer {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: 400px;
+      background: var(--bg);
+      border-left: 1px solid var(--border2);
+      box-shadow: -6px 0 32px rgba(0,0,0,0.14);
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.22s ease;
+      overflow: hidden;
+    }
+
+    .snap-drawer.open { transform: translateX(0); }
+
+    .snap-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.18);
+      z-index: 499;
+      display: none;
+    }
+    .snap-overlay.active { display: block; }
+
+    .snap-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .snap-header-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 300px;
+    }
+
+    .snap-close {
+      background: none;
+      border: none;
+      color: var(--sub);
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      padding: 0 2px;
+      flex-shrink: 0;
+    }
+
+    .snap-close:hover { color: var(--text); }
+
+    .snap-body {
+      overflow-y: auto;
+      flex: 1;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .snap-stat-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .snap-rating {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .snap-reviews {
+      font-size: 12px;
+      color: var(--sub);
+    }
+
+    .snap-meta-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      color: var(--sub);
+      align-items: center;
+    }
+
+    .snap-meta-row a { color: var(--sub); text-decoration: none; }
+    .snap-meta-row a:hover { color: #D4A43A; }
+
+    .snap-divider { height: 1px; background: var(--border); }
+
+    .snap-section-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--sub);
+      margin-bottom: 8px;
+    }
+
+    .snap-stale-note {
+      font-size: 10px;
+      color: var(--sub);
+      font-style: italic;
+    }
+
+    /* ── GUIDE MODAL (kept for guide only) ── */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -911,24 +1026,8 @@
       gap: 12px;
     }
 
-    .modal-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text);
-      line-height: 1.4;
-    }
-
-    .modal-close {
-      font-size: 16px;
-      background: none;
-      border: none;
-      color: var(--sub);
-      cursor: pointer;
-      padding: 0 4px;
-      line-height: 1;
-      flex-shrink: 0;
-    }
-
+    .modal-title { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.4; }
+    .modal-close { font-size: 16px; background: none; border: none; color: var(--sub); cursor: pointer; padding: 0 4px; line-height: 1; flex-shrink: 0; }
     .modal-close:hover { color: var(--text); }
 
     /* ── GUIDE CONTENT ── */
@@ -1088,16 +1187,14 @@
   </div>
 </div>
 
-<!-- Single modal instance, reused for all leads -->
-<div id="lead-modal" style="display:none">
-  <div class="modal-overlay" id="modal-overlay"></div>
-  <div class="modal-box">
-    <div class="modal-header">
-      <div class="modal-title" id="modal-title"></div>
-      <button class="modal-close" id="modal-close">✕</button>
-    </div>
-    <div id="modal-body"></div>
+<!-- Snapshot drawer -->
+<div id="snap-overlay" class="snap-overlay" onclick="closeSnapshot()"></div>
+<div id="snap-drawer" class="snap-drawer">
+  <div class="snap-header">
+    <div class="snap-header-title" id="snap-title"></div>
+    <button class="snap-close" onclick="closeSnapshot()">✕</button>
   </div>
+  <div class="snap-body" id="snap-body"></div>
 </div>
 
 <script>
@@ -1168,6 +1265,23 @@
     statusEl.textContent = cityResults.join('  ·  ');
     generateBtn.disabled = false;
     generateBtn.textContent = 'Run Lead Engine →';
+  }
+
+  function getCompSummary(lead) {
+    const comps = lead._competitors;
+    if (!comps) return '<span class="stale">–</span>';
+    if (!comps.length) return '<span style="font-size:11px;color:var(--sub)">none nearby</span>';
+    let ahead = 0, similar = 0;
+    comps.forEach(c => {
+      if (c.rating > lead.rating || c.reviews > lead.reviews * 1.2) ahead++;
+      else if (c.rating >= lead.rating && c.reviews >= lead.reviews * 0.8) similar++;
+    });
+    const parts = [];
+    if (ahead)   parts.push(`<span style="color:#c0392b;font-weight:600">${ahead} ahead</span>`);
+    if (similar) parts.push(`<span style="color:var(--sub)">${similar} similar</span>`);
+    const behind = comps.length - ahead - similar;
+    if (behind)  parts.push(`<span style="color:#2a7a4a">${behind} behind</span>`);
+    return `<span style="font-size:11px">${parts.join(' · ')}</span>`;
   }
 
   function getSignal(rating, reviews) {
@@ -1241,6 +1355,7 @@
         <td style="text-align:center">${lead.maps_link ? `<a href="${escHtml(lead.maps_link)}" target="_blank" rel="noopener" class="icon-btn" style="text-decoration:none;display:inline-block" title="Open in Google Maps">↗</a>` : ''}</td>
         <td style="font-size:11px;color:var(--text)" id="owner-${i}">${lead.owner ? escHtml(lead.owner) : ''}</td>
         <td style="font-size:11px" id="email-${i}">${lead.email ? `<a href="mailto:${escHtml(lead.email)}" style="color:var(--sub);text-decoration:none">${escHtml(lead.email)}</a>` : ''}</td>
+        <td id="comp-${i}" style="font-size:11px">${getCompSummary(lead)}</td>
         <td>
           <div style="display:flex;gap:4px;align-items:center" id="actions-${i}">
             ${outcomeDot}
@@ -1308,9 +1423,8 @@
     const placeId = lead.id || lead.place_id;
     if (!placeId) return;
 
-    const btn     = document.getElementById('comp-load-btn');
-    const section = document.getElementById('modal-comp-section');
-    if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+    const section = document.getElementById('snap-comp-section');
+    if (section) section.innerHTML = `<p style="font-size:11px;color:var(--sub);font-style:italic">Loading competition…</p>`;
 
     try {
       const res  = await fetch('/api/competitors', {
@@ -1325,69 +1439,90 @@
       saveLeads();
 
       if (section) section.innerHTML = renderCompTable(lead, competitors);
+
+      // Update competition summary cell in table
+      const compCell = document.getElementById(`comp-${i}`);
+      if (compCell) compCell.innerHTML = getCompSummary(lead);
     } catch {
-      if (btn) { btn.disabled = false; btn.textContent = 'Retry competition ↓'; }
+      if (section) section.innerHTML = `<p style="font-size:11px;color:var(--sub)">Could not load competition data.</p>`;
     }
   }
 
-  function openModal(i) {
+  let _snapIndex = null;
+
+  function openSnapshot(i) {
     const lead = leadMap.get(i);
     if (!lead) return;
+    _snapIndex = i;
 
-    const obs      = lead.observation || '';
     const waMsg    = buildMessage(lead.name, lead.rating, lead.reviews);
     const cleanNum = (lead.phone || '').replace(/\D/g, '');
     const signal   = getSignal(lead.rating, lead.reviews);
+    const obs      = lead.observation || '';
 
     const liveStamp = lead._live_at
       ? `<span style="font-size:10px;color:#2a7a4a;font-weight:600">● LIVE</span> <span style="font-size:10px;color:var(--sub)">fetched ${Math.round((Date.now()-lead._live_at)/60000)}m ago</span>`
-      : `<span style="font-size:10px;color:var(--sub);font-style:italic">Snapshot data — click ↻ to fetch live before outreach</span>`;
+      : `<span style="font-size:10px;color:var(--sub);font-style:italic">Snapshot — click ↻ in table to fetch live</span>`;
 
-    document.getElementById('modal-title').textContent = lead.name || '';
+    document.getElementById('snap-title').textContent = lead.name || '';
 
-    const body = document.getElementById('modal-body');
+    const body = document.getElementById('snap-body');
     body.innerHTML = `
-      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;font-size:12px">
-        <span><strong>${lead.rating}</strong> ★ &nbsp;·&nbsp; <strong>${lead.reviews}</strong> reviews</span>
+      <div class="snap-stat-row">
+        <span class="snap-rating">${lead.rating} ★</span>
+        <span class="snap-reviews">${lead.reviews} reviews</span>
         ${lead.velocity ? `<span class="vel-badge vel-${lead.velocity}">${lead.velocity}</span>` : ''}
-        ${lead.last_review_days != null ? `<span style="color:var(--sub)">last review ${lead.last_review_days}d ago</span>` : ''}
         <span class="signal-pill ${signal.cls}" style="font-size:11px"><span class="signal-dot"></span>${signal.label}</span>
       </div>
-      <div style="margin-bottom:10px">${liveStamp}</div>
-      ${obs ? `<div class="lead-obs" style="margin-bottom:12px">${escHtml(obs)}</div>` : ''}
+      <div class="snap-meta-row">
+        ${lead.last_review_days != null ? `<span>Last review ${lead.last_review_days}d ago</span>` : ''}
+        ${lead._city || lead.city ? `<span>· ${escHtml(lead._city || lead.city)}</span>` : ''}
+        ${lead.phone ? `<span>· ${escHtml(lead.phone)}</span>` : ''}
+        ${lead.website ? `<span>· <a href="${escHtml(lead.website)}" target="_blank" rel="noopener">${escHtml(lead.website.replace(/^https?:\/\/(www\.)?/,''))}</a></span>` : ''}
+        ${lead.maps_link ? `<span>· <a href="${escHtml(lead.maps_link)}" target="_blank" rel="noopener">Maps ↗</a></span>` : ''}
+      </div>
+      <div>${liveStamp}</div>
+      ${obs ? `<div class="snap-divider"></div><div class="lead-obs">${escHtml(obs)}</div>` : ''}
+      <div class="snap-divider"></div>
       <div class="msg-block">
         <div class="msg-label">WhatsApp Message</div>
         <div class="msg-text">${escHtml(waMsg)}</div>
         <div class="msg-actions" style="margin-top:6px">
           ${cleanNum ? `<button class="copy-btn wa-open-btn" data-phone="${cleanNum}" data-message="${escHtml(waMsg)}">Open WA ↗</button>` : ''}
-          <button class="copy-btn modal-copy-btn" data-text="${escHtml(waMsg)}">Copy</button>
+          <button class="copy-btn snap-copy-btn" data-text="${escHtml(waMsg)}">Copy</button>
         </div>
       </div>
-      <div id="modal-comp-section">
-        ${lead._competitors
-          ? renderCompTable(lead, lead._competitors)
-          : `<button class="comp-load-btn" id="comp-load-btn">Show local competition ↓</button>`}
+      <div class="snap-divider"></div>
+      <div>
+        <div class="snap-section-label">Local Competition</div>
+        <div id="snap-comp-section">
+          ${lead._competitors
+            ? renderCompTable(lead, lead._competitors)
+            : `<p style="font-size:11px;color:var(--sub);font-style:italic">Loading…</p>`}
+        </div>
       </div>
     `;
 
     body.querySelectorAll('.wa-open-btn').forEach(b => {
       b.addEventListener('click', () => {
-        const url = `https://api.whatsapp.com/send?phone=${b.dataset.phone}&text=${encodeURIComponent(b.dataset.message)}`;
-        window.open(url, '_blank');
+        window.open(`https://api.whatsapp.com/send?phone=${b.dataset.phone}&text=${encodeURIComponent(b.dataset.message)}`, '_blank');
       });
     });
-    body.querySelectorAll('.modal-copy-btn').forEach(b => {
+    body.querySelectorAll('.snap-copy-btn').forEach(b => {
       b.addEventListener('click', () => copyText(b, b.dataset.text));
     });
 
-    const compBtn = document.getElementById('comp-load-btn');
-    if (compBtn) compBtn.addEventListener('click', () => loadCompetitors(i));
+    document.getElementById('snap-drawer').classList.add('open');
+    document.getElementById('snap-overlay').classList.add('active');
 
-    document.getElementById('lead-modal').style.display = 'block';
+    // Auto-load competition if not cached
+    if (!lead._competitors) loadCompetitors(i);
   }
 
-  function closeModal() {
-    document.getElementById('lead-modal').style.display = 'none';
+  function closeSnapshot() {
+    document.getElementById('snap-drawer').classList.remove('open');
+    document.getElementById('snap-overlay').classList.remove('active');
+    _snapIndex = null;
   }
 
   function openGuide()  { document.getElementById('guide-modal').style.display = 'block'; }
@@ -1419,7 +1554,7 @@
   // ── COLUMN MENU ──
   const SORTABLE_COLS   = new Set(['name','signal','rating','reviews','city']);
   const FILTERABLE_COLS = new Set(['name','signal','city','phone','owner','email']);
-  const COL_LABELS      = {name:'Name',signal:'Signal',rating:'Rating',reviews:'Reviews',velocity:'Velocity',lastrev:'Last Review',city:'City',phone:'Phone',website:'Website',maps:'Maps',owner:'Owner',email:'Email'};
+  const COL_LABELS      = {name:'Name',signal:'Signal',rating:'Rating',reviews:'Reviews',velocity:'Velocity',lastrev:'Last Review',city:'City',phone:'Phone',website:'Website',maps:'Maps',owner:'Owner',email:'Email',competition:'Competition'};
 
   let activeMenuCol = null;
 
@@ -1679,7 +1814,7 @@
 
   function attachLeadListeners() {
     leadsEl.querySelectorAll('.open-modal-btn').forEach(btn => {
-      btn.addEventListener('click', () => openModal(Number(btn.dataset.index)));
+      btn.addEventListener('click', () => openSnapshot(Number(btn.dataset.index)));
     });
 
     leadsEl.querySelectorAll('.wa-icon-btn').forEach(btn => {
@@ -1813,13 +1948,14 @@
           <col style="min-width:110px;width:125px">
           <col style="min-width:140px;width:160px">
           <col style="min-width:100px;width:110px">
+          <col style="min-width:110px;width:120px">
         </colgroup>
         <thead>
           <tr>
             <th class="cell-num"></th>
             <th class="cell-cb"></th>
-            ${['name','signal','rating','reviews','velocity','lastrev','city','phone','website','maps','owner','email','actions'].map((col,ci) => {
-              const labels = {name:'Name',signal:'Signal',rating:'Rating',reviews:'Reviews',velocity:'Velocity',lastrev:'Last Review',city:'City',phone:'Phone',website:'Website',maps:'',owner:'Owner',email:'Email',actions:''};
+            ${['name','signal','rating','reviews','velocity','lastrev','city','phone','website','maps','owner','email','competition','actions'].map((col,ci) => {
+              const labels = {name:'Name',signal:'Signal',rating:'Rating',reviews:'Reviews',velocity:'Velocity',lastrev:'Last Review',city:'City',phone:'Phone',website:'Website',maps:'',owner:'Owner',email:'Email',competition:'Competition',actions:''};
               const ra = ['rating','reviews'].includes(col) ? ' style="text-align:right"' : '';
               const sortInd   = sortCol===col ? `<span class="col-sort-ind">${sortDir===1?'↑':'↓'}</span>` : '';
               const filterInd = colFilters[col] ? `<span class="col-filter-ind"></span>` : '';
@@ -1897,10 +2033,7 @@
     URL.revokeObjectURL(url);
   }
 
-  // Modal close handlers
-  document.getElementById('modal-close').addEventListener('click', closeModal);
-  document.getElementById('modal-overlay').addEventListener('click', closeModal);
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeGuide(); } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeSnapshot(); closeGuide(); } });
 
   // Load from localStorage instantly, then merge from Supabase
   loadFromLocalStorage();
