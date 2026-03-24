@@ -380,7 +380,7 @@
     .leads-table th, .leads-table td {
       border-right: 1px solid var(--grid-line);
       border-bottom: 1px solid var(--grid-line);
-      padding: 0 10px;
+      padding: 0 7px;
       vertical-align: middle;
       white-space: nowrap;
       overflow: hidden;
@@ -388,7 +388,7 @@
     }
 
     .leads-table thead th {
-      height: 34px;
+      height: 28px;
       font-size: 11px;
       font-weight: 500;
       color: var(--sub);
@@ -414,8 +414,8 @@
     th.sort-active .sort-arrow { opacity: 1; }
 
     .leads-table tbody td {
-      height: 36px;
-      font-size: 12px;
+      height: 28px;
+      font-size: 11px;
       color: var(--text);
       background: var(--bg);
       transition: background 0.05s;
@@ -428,9 +428,9 @@
     /* row number cell */
     .cell-num {
       color: var(--sub);
-      font-size: 11px;
+      font-size: 10px;
       text-align: right;
-      padding-right: 12px;
+      padding-right: 8px;
       user-select: none;
     }
 
@@ -445,10 +445,10 @@
     .signal-pill {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      font-size: 11px;
+      gap: 4px;
+      font-size: 10px;
       font-weight: 500;
-      padding: 2px 8px 2px 6px;
+      padding: 1px 6px 1px 5px;
       border-radius: 3px;
       white-space: nowrap;
     }
@@ -476,7 +476,7 @@
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 500;
       color: var(--text);
       font-family: inherit;
@@ -849,12 +849,12 @@
     .icon-btn {
       background: none;
       border: 1px solid var(--border2);
-      border-radius: 4px;
+      border-radius: 3px;
       cursor: pointer;
-      font-size: 11px;
+      font-size: 10px;
       font-family: inherit;
       font-weight: 500;
-      padding: 3px 8px;
+      padding: 2px 6px;
       line-height: 1.4;
       color: var(--sub);
       transition: color 0.15s, border-color 0.15s;
@@ -1348,14 +1348,12 @@
         <td class="${ratingClass}" style="text-align:right" id="rating-${i}">${lead.rating}${lead._live ? '<span class="live-tag">live</span>' : ''}</td>
         <td style="color:var(--sub);text-align:right" id="reviews-${i}">${lead.reviews}</td>
         <td id="velocity-${i}">${lead.velocity ? `<span class="vel-badge vel-${lead.velocity}">${lead.velocity}</span>` : '<span class="stale">–</span>'}</td>
-        <td style="color:var(--sub);font-size:11px" id="lastrev-${i}">${lead.last_review_days != null ? `${lead.last_review_days}d ago` : '<span class="stale">–</span>'}</td>
+        <td style="color:var(--sub)" id="lastrev-${i}">${lead.last_review_days != null ? `${lead.last_review_days}d ago` : '<span class="stale">–</span>'}</td>
         <td style="color:var(--sub)">${city}</td>
-        <td style="color:var(--sub);font-size:11px">${phone}${isMobile ? ' 📱' : ''}</td>
-        <td style="font-size:11px">${lead.website ? `<a href="${escHtml(lead.website)}" target="_blank" rel="noopener" style="color:var(--sub);text-decoration:none;overflow:hidden;text-overflow:ellipsis;display:block" title="${escHtml(lead.website)}">${escHtml(lead.website.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : ''}</td>
-        <td style="text-align:center">${lead.maps_link ? `<a href="${escHtml(lead.maps_link)}" target="_blank" rel="noopener" class="icon-btn" style="text-decoration:none;display:inline-block" title="Open in Google Maps">↗</a>` : ''}</td>
-        <td style="font-size:11px;color:var(--text)" id="owner-${i}">${lead.owner ? escHtml(lead.owner) : ''}</td>
-        <td style="font-size:11px" id="email-${i}">${lead.email ? `<a href="mailto:${escHtml(lead.email)}" style="color:var(--sub);text-decoration:none">${escHtml(lead.email)}</a>` : ''}</td>
-        <td id="comp-${i}" style="font-size:11px">${getCompSummary(lead)}</td>
+        <td style="color:var(--sub)">${phone}${isMobile ? ' 📱' : ''}</td>
+        <td id="owner-${i}">${lead.owner ? escHtml(lead.owner) : ''}</td>
+        <td id="email-${i}">${lead.email ? `<a href="mailto:${escHtml(lead.email)}" style="color:var(--sub);text-decoration:none">${escHtml(lead.email)}</a>` : ''}</td>
+        <td id="comp-${i}">${getCompSummary(lead)}</td>
         <td>
           <div style="display:flex;gap:4px;align-items:center" id="actions-${i}">
             ${outcomeDot}
@@ -1933,29 +1931,27 @@
     leadsEl.innerHTML = `
       <table class="leads-table">
         <colgroup id="tbl-cols">
-          <col style="width:36px">
-          <col style="width:36px">
+          <col style="width:32px">
+          <col style="width:32px">
           <col style="min-width:160px;width:180px">
           <col style="min-width:130px;width:150px">
-          <col style="min-width:58px;width:62px">
-          <col style="min-width:68px;width:74px">
-          <col style="min-width:72px;width:80px">
-          <col style="min-width:82px;width:90px">
-          <col style="min-width:70px;width:80px">
-          <col style="min-width:120px;width:135px">
-          <col style="min-width:120px;width:145px">
-          <col style="min-width:44px;width:48px">
+          <col style="min-width:54px;width:58px">
+          <col style="min-width:64px;width:70px">
+          <col style="min-width:68px;width:76px">
+          <col style="min-width:78px;width:86px">
+          <col style="min-width:66px;width:76px">
           <col style="min-width:110px;width:125px">
-          <col style="min-width:140px;width:160px">
+          <col style="min-width:110px;width:125px">
+          <col style="min-width:140px;width:155px">
           <col style="min-width:100px;width:110px">
-          <col style="min-width:110px;width:120px">
+          <col style="min-width:100px;width:108px">
         </colgroup>
         <thead>
           <tr>
             <th class="cell-num"></th>
             <th class="cell-cb"></th>
-            ${['name','signal','rating','reviews','velocity','lastrev','city','phone','website','maps','owner','email','competition','actions'].map((col,ci) => {
-              const labels = {name:'Name',signal:'Signal',rating:'Rating',reviews:'Reviews',velocity:'Velocity',lastrev:'Last Review',city:'City',phone:'Phone',website:'Website',maps:'',owner:'Owner',email:'Email',competition:'Competition',actions:''};
+            ${['name','signal','rating','reviews','velocity','lastrev','city','phone','owner','email','competition','actions'].map((col,ci) => {
+              const labels = {name:'Name',signal:'Signal',rating:'Rating',reviews:'Reviews',velocity:'Velocity',lastrev:'Last Review',city:'City',phone:'Phone',owner:'Owner',email:'Email',competition:'Competition',actions:''};
               const ra = ['rating','reviews'].includes(col) ? ' style="text-align:right"' : '';
               const sortInd   = sortCol===col ? `<span class="col-sort-ind">${sortDir===1?'↑':'↓'}</span>` : '';
               const filterInd = colFilters[col] ? `<span class="col-filter-ind"></span>` : '';
