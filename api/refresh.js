@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     const url =
       `https://maps.googleapis.com/maps/api/place/details/json` +
       `?place_id=${encodeURIComponent(place_id)}` +
-      `&fields=rating,user_ratings_total,reviews` +
+      `&fields=rating,user_ratings_total,reviews,opening_hours,photos,editorial_summary,price_level,reservable,website` +
       `&reviews_sort=newest&key=${apiKey}`;
 
     const r    = await fetch(url);
@@ -60,6 +60,16 @@ export default async function handler(req, res) {
     const responds_count = reviews.filter(r => !!(r.author_reply?.text)).length;
     const responds_total = reviews.length;
 
+    // GBP completeness audit
+    const gbp = {
+      photos:      (result.photos || []).length,
+      hours_set:   !!(result.opening_hours),
+      description: !!(result.editorial_summary?.overview || result.editorial_summary),
+      website:     !!(result.website),
+      price_set:   result.price_level !== undefined && result.price_level !== null,
+      reservable:  !!(result.reservable),
+    };
+
     return res.status(200).json({
       rating:           result.rating             ?? null,
       reviews:          result.user_ratings_total ?? null,
@@ -69,6 +79,7 @@ export default async function handler(req, res) {
       neg_snippet,
       responds_count,
       responds_total,
+      gbp,
     });
   } catch (err) {
     return res.status(500).json({ error: err.message });

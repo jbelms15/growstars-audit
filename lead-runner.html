@@ -587,7 +587,7 @@
 
     .icon-btn.live-fetched { color: #2a7a4a; border-color: #2a7a4a; opacity: 0.7; }
 
-    /* ── COMPETITOR TABLE (modal) ── */
+    /* ── COMPETITOR TABLE ── */
     .comp-section-title {
       font-size: 10px;
       font-weight: 600;
@@ -1024,6 +1024,69 @@
       font-style: italic;
     }
 
+    /* ── SNAPSHOT OBSERVATION BLOCK ── */
+    .snap-obs-block {
+      background: var(--surface);
+      border-radius: 6px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .snap-obs-reason {
+      font-size: 11px;
+      color: var(--sub);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    /* ── SNAPSHOT SECTION HEADER ── */
+    .snap-section-header {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-bottom: 8px;
+    }
+    .snap-section-desc {
+      font-size: 10px;
+      color: var(--sub);
+      font-style: italic;
+      margin: 0;
+    }
+
+    /* ── GBP AUDIT ── */
+    .gbp-audit-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--sub);
+      cursor: pointer;
+      font-family: inherit;
+      width: 100%;
+      text-align: left;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .gbp-audit-toggle:hover { color: var(--text); border-color: var(--text); }
+    .gbp-audit-body { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .gbp-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+    }
+    .gbp-item-icon { width: 14px; text-align: center; flex-shrink: 0; font-size: 12px; }
+    .gbp-item-label { color: var(--sub); flex: 1; }
+    .gbp-item-val { font-weight: 600; }
+    .gbp-ok   { color: #2a7a4a; }
+    .gbp-warn { color: #b07820; }
+    .gbp-bad  { color: #c0392b; }
+
     /* ── GUIDE MODAL (kept for guide only) ── */
     .modal-overlay {
       position: fixed;
@@ -1408,6 +1471,21 @@
     return                               { label: 'Plateaued',    cls: 'maturity-plateaued' };
   }
 
+  function getSignalExplanation(signal) {
+    switch (signal.label) {
+      case 'costing bookings':
+        return 'Rating below 4.4 — enough for Google to filter them from top results and for customers to scroll past before calling.';
+      case 'high vol, not optimised':
+        return 'High traffic but rating is dragging. At this volume even 0.1 matters — stronger competitors are pulling bookings they should be getting.';
+      case 'room to improve':
+        return 'Established presence, not at the ceiling. Nearby spots with better ratings are winning bookings they could be getting.';
+      case 'low visibility':
+        return 'Good reputation, not enough volume to rank consistently. More reviews = more search appearances = more bookings.';
+      default:
+        return 'No major red flags, but no clear edge either. Growth and staying ahead of local competition is the pitch.';
+    }
+  }
+
   function getSignal(rating, reviews) {
     if (reviews >= 200 && rating <= 4.4) return { label: 'high vol, not optimised', cls: 'signal-purple' };
     if (rating <= 4.3)                   return { label: 'costing bookings',         cls: 'signal-red'    };
@@ -1458,7 +1536,7 @@
 
   function renderCompTable(lead, competitors) {
     if (!competitors.length) {
-      return `<p class="comp-section-title" style="margin-top:16px">No nearby competitors found</p>`;
+      return `<p style="font-size:11px;color:var(--sub);font-style:italic">No nearby competitors found.</p>`;
     }
 
     const rows = competitors.map(c => {
@@ -1475,15 +1553,18 @@
         : '#';
       return `
         <tr>
-          <td><a href="${escHtml(mapsHref)}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">${escHtml(c.name)}</a></td>
-          <td style="text-align:right;font-weight:600">${c.rating} ⭐</td>
-          <td style="text-align:right;color:var(--sub)">${c.reviews}</td>
-          <td style="text-align:right"><span class="delta-badge ${cls}">${label}</span></td>
+          <td>
+            <a href="${escHtml(mapsHref)}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none;font-weight:500">${escHtml(c.name)}</a>
+            ${c.vicinity ? `<div style="font-size:10px;color:var(--sub);margin-top:1px">${escHtml(c.vicinity)}</div>` : ''}
+          </td>
+          <td style="text-align:right;font-weight:600;vertical-align:top">${c.rating} ⭐</td>
+          <td style="text-align:right;color:var(--sub);vertical-align:top">${c.reviews}</td>
+          <td style="text-align:right;vertical-align:top"><span class="delta-badge ${cls}">${label}</span></td>
         </tr>`;
     }).join('');
 
+    const leadMapsHref = lead.maps_link || '#';
     return `
-      <div class="comp-section-title">Local Competition</div>
       <table class="comp-table">
         <thead>
           <tr>
@@ -1495,7 +1576,7 @@
         </thead>
         <tbody>
           <tr class="target-row">
-            <td>${escHtml(lead.name)}<span class="you-badge">you</span></td>
+            <td><a href="${escHtml(leadMapsHref)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;font-weight:500">${escHtml(lead.name)}</a><span class="you-badge">you</span></td>
             <td style="text-align:right">${lead.rating} ⭐</td>
             <td style="text-align:right">${lead.reviews}</td>
             <td></td>
@@ -1538,6 +1619,25 @@
 
   let _snapIndex = null;
 
+  function renderGbpAudit(gbp, lead) {
+    const item = (icon, label, val, cls) =>
+      `<div class="gbp-item"><span class="gbp-item-icon">${icon}</span><span class="gbp-item-label">${label}</span><span class="gbp-item-val ${cls}">${val}</span></div>`;
+
+    const photosCls = gbp.photos >= 5 ? 'gbp-ok' : gbp.photos >= 3 ? 'gbp-warn' : 'gbp-bad';
+    const photosVal = gbp.photos === 0 ? 'None' : `${gbp.photos} photo${gbp.photos !== 1 ? 's' : ''}`;
+
+    return `
+      <div class="gbp-audit-body" id="gbp-audit-body" style="display:none">
+        ${item('📷', 'Photos', photosVal, photosCls)}
+        ${item('🕐', 'Hours', gbp.hours_set ? 'Set' : 'Not set', gbp.hours_set ? 'gbp-ok' : 'gbp-bad')}
+        ${item('📝', 'Description', gbp.description ? 'Added' : 'Missing', gbp.description ? 'gbp-ok' : 'gbp-bad')}
+        ${item('🌐', 'Website', (lead.website || gbp.website) ? 'Linked' : 'Missing', (lead.website || gbp.website) ? 'gbp-ok' : 'gbp-bad')}
+        ${item('💷', 'Price range', gbp.price_set ? 'Set' : 'Not set', gbp.price_set ? 'gbp-ok' : 'gbp-warn')}
+        ${item('📅', 'Booking', gbp.reservable ? 'Enabled' : 'Not enabled', gbp.reservable ? 'gbp-ok' : 'gbp-warn')}
+        <p class="snap-section-desc" style="margin-top:4px">Based on 5 most recent reviews sample. Photos, hours, description and website directly affect GBP ranking.</p>
+      </div>`;
+  }
+
   function openSnapshot(i) {
     const lead = leadMap.get(i);
     if (!lead) return;
@@ -1546,80 +1646,106 @@
     const waMsg    = buildMessage(lead.name, lead.rating, lead.reviews);
     const cleanNum = (lead.phone || '').replace(/\D/g, '');
     const signal   = getSignal(lead.rating, lead.reviews);
-    const obs      = lead.observation || '';
+    const maturity = (lead.last_review_days != null || lead.velocity) ? getMaturity(lead) : null;
+
+    // Name as GBP link in header
+    const titleEl = document.getElementById('snap-title');
+    if (lead.maps_link) {
+      titleEl.innerHTML = `<a href="${escHtml(lead.maps_link)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;border-bottom:1px solid var(--border2)">${escHtml(lead.name || '')}</a>`;
+    } else {
+      titleEl.textContent = lead.name || '';
+    }
 
     const liveStamp = lead._live_at
       ? `<span style="font-size:10px;color:#2a7a4a;font-weight:600">● LIVE</span> <span style="font-size:10px;color:var(--sub)">fetched ${Math.round((Date.now()-lead._live_at)/60000)}m ago</span>`
-      : `<span style="font-size:10px;color:var(--sub);font-style:italic">Snapshot — click ↻ in table to fetch live</span>`;
+      : `<span style="font-size:10px;color:var(--sub);font-style:italic">Snapshot data — click ↻ in the table to fetch live signals</span>`;
 
-    document.getElementById('snap-title').textContent = lead.name || '';
-
-    const maturity = (lead.last_review_days !== undefined && lead.last_review_days !== null) || lead.velocity
-      ? getMaturity(lead)
-      : null;
-
-    // Review signals block (only after live fetch)
+    // Review signals (after live fetch)
     let reviewSignalsHtml = '';
     if (lead._live) {
       const negHtml = lead.neg_count > 0
-        ? `<div style="font-size:11px;color:#c82333;font-weight:500">⚠ ${lead.neg_count} of ${Math.min(5, lead.reviews || 5)} recent reviews are 1–2 ★</div>
+        ? `<div style="font-size:11px;color:#c82333;font-weight:500">⚠ ${lead.neg_count} of ${lead.responds_total || 5} recent reviews are 1–2 ★</div>
            ${lead.neg_snippet ? `<div class="neg-snippet">"${escHtml(lead.neg_snippet)}${lead.neg_snippet.length >= 160 ? '…' : ''}"</div>` : ''}`
-        : `<div style="font-size:11px;color:#1e7e34">✓ No 1–2 ★ reviews in recent sample</div>`;
+        : `<div style="font-size:11px;color:#2a7a4a">✓ No 1–2 ★ reviews in recent sample</div>`;
 
       const respondsHtml = lead.responds_total
         ? (() => {
             const n = lead.responds_count, t = lead.responds_total;
             const cls = n === 0 ? 'responds-no' : n === t ? 'responds-yes' : '';
             const label = n === 0 ? `✗ None of ${t}` : n === t ? `✓ All ${t} of ${t}` : `${n} of ${t}`;
-            return `<div style="margin-top:6px;font-size:11px">Replied to reviews: <span class="${cls}" style="font-weight:600">${label}</span></div>`;
+            return `<div style="margin-top:5px;font-size:11px;color:var(--sub)">Replied to reviews: <span class="${cls}" style="font-weight:600">${label}</span></div>`;
           })()
         : '';
 
       reviewSignalsHtml = `
         <div class="snap-divider"></div>
         <div>
-          <div class="snap-section-label">Review Signals</div>
+          <div class="snap-section-header">
+            <div class="snap-section-label">Review Signals</div>
+            <p class="snap-section-desc">From ${lead.responds_total || 5} most recent Google reviews</p>
+          </div>
           ${negHtml}${respondsHtml}
         </div>`;
     }
 
+    // GBP Audit (after live fetch)
+    const gbpHtml = lead._live && lead._gbp ? `
+      <div class="snap-divider"></div>
+      <div>
+        <button class="gbp-audit-toggle" id="gbp-toggle">GBP Audit ▾</button>
+        ${renderGbpAudit(lead._gbp, lead)}
+      </div>` : '';
+
     const body = document.getElementById('snap-body');
     body.innerHTML = `
-      <div class="snap-stat-row">
+      <div class="snap-obs-block">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <span class="signal-pill ${signal.cls}"><span class="signal-dot"></span>${signal.label}</span>
+          ${maturity ? `<span class="maturity-badge ${maturity.cls}">${maturity.label}</span>` : ''}
+        </div>
+        <p class="snap-obs-reason">${getSignalExplanation(signal)}</p>
+      </div>
+      <div class="snap-stat-row" style="margin-top:2px">
         <span class="snap-rating">${lead.rating} ★</span>
         <span class="snap-reviews">${lead.reviews} reviews</span>
         ${lead.velocity ? `<span class="vel-badge vel-${lead.velocity}">${lead.velocity}</span>` : ''}
-        <span class="signal-pill ${signal.cls}" style="font-size:11px"><span class="signal-dot"></span>${signal.label}</span>
-        ${maturity ? `<span class="maturity-badge ${maturity.cls}">${maturity.label}</span>` : ''}
       </div>
       <div class="snap-meta-row">
-        ${lead.last_review_days != null ? `<span>Last review ${lead.last_review_days}d ago</span>` : ''}
+        ${lead.last_review_days != null ? `<span>${lead.last_review_days}d since last review</span>` : ''}
         ${lead._city || lead.city ? `<span>· ${escHtml(lead._city || lead.city)}</span>` : ''}
         ${lead.phone ? `<span>· ${escHtml(lead.phone)}</span>` : ''}
         ${lead.website ? `<span>· <a href="${escHtml(lead.website)}" target="_blank" rel="noopener">${escHtml(lead.website.replace(/^https?:\/\/(www\.)?/,''))}</a></span>` : ''}
         ${lead.maps_link ? `<span>· <a href="${escHtml(lead.maps_link)}" target="_blank" rel="noopener">Maps ↗</a></span>` : ''}
       </div>
       <div>${liveStamp}</div>
-      ${obs ? `<div class="snap-divider"></div><div class="lead-obs">${escHtml(obs)}</div>` : ''}
       ${reviewSignalsHtml}
       <div class="snap-divider"></div>
-      <div class="msg-block">
-        <div class="msg-label">WhatsApp Message</div>
-        <div class="msg-text">${escHtml(waMsg)}</div>
-        <div class="msg-actions" style="margin-top:6px">
-          ${cleanNum ? `<button class="copy-btn wa-open-btn" data-phone="${cleanNum}" data-message="${escHtml(waMsg)}">Open WA ↗</button>` : ''}
-          <button class="copy-btn snap-copy-btn" data-text="${escHtml(waMsg)}">Copy</button>
+      <div>
+        <div class="snap-section-header">
+          <div class="snap-section-label">WhatsApp Message</div>
+          <p class="snap-section-desc">Personalised to their rating and signal</p>
+        </div>
+        <div class="msg-block" style="margin-top:0">
+          <div class="msg-text">${escHtml(waMsg)}</div>
+          <div class="msg-actions" style="margin-top:6px">
+            ${cleanNum ? `<button class="copy-btn wa-open-btn" data-phone="${cleanNum}" data-message="${escHtml(waMsg)}">Open WA ↗</button>` : ''}
+            <button class="copy-btn snap-copy-btn" data-text="${escHtml(waMsg)}">Copy</button>
+          </div>
         </div>
       </div>
       <div class="snap-divider"></div>
       <div>
-        <div class="snap-section-label">Local Competition</div>
+        <div class="snap-section-header">
+          <div class="snap-section-label">Local Competition</div>
+          <p class="snap-section-desc">5 nearest hair businesses on Google</p>
+        </div>
         <div id="snap-comp-section">
           ${lead._competitors
             ? renderCompTable(lead, lead._competitors)
             : `<p style="font-size:11px;color:var(--sub);font-style:italic">Loading…</p>`}
         </div>
       </div>
+      ${gbpHtml}
     `;
 
     body.querySelectorAll('.wa-open-btn').forEach(b => {
@@ -1630,6 +1756,17 @@
     body.querySelectorAll('.snap-copy-btn').forEach(b => {
       b.addEventListener('click', () => copyText(b, b.dataset.text));
     });
+
+    const gbpToggle = document.getElementById('gbp-toggle');
+    if (gbpToggle) {
+      gbpToggle.addEventListener('click', () => {
+        const auditBody = document.getElementById('gbp-audit-body');
+        const open = auditBody.style.display !== 'flex';
+        auditBody.style.display = open ? 'flex' : 'none';
+        auditBody.style.flexDirection = 'column';
+        gbpToggle.textContent = open ? 'GBP Audit ▸' : 'GBP Audit ▾';
+      });
+    }
 
     document.getElementById('snap-drawer').classList.add('open');
     document.getElementById('snap-overlay').classList.add('active');
@@ -1800,10 +1937,11 @@
       if (data.reviews != null) lead.reviews = data.reviews;
       lead.velocity         = data.velocity;
       lead.last_review_days = data.last_review_days;
-      lead.neg_count        = data.neg_count     ?? null;
-      lead.neg_snippet      = data.neg_snippet   ?? null;
+      lead.neg_count        = data.neg_count      ?? null;
+      lead.neg_snippet      = data.neg_snippet    ?? null;
       lead.responds_count   = data.responds_count ?? null;
       lead.responds_total   = data.responds_total ?? null;
+      lead._gbp             = data.gbp            ?? null;
       lead._live            = true;
       lead._live_at         = Date.now();
 
