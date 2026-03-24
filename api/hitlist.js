@@ -113,19 +113,26 @@ function getContactType(phone) {
 
 // Step 1.5 — Observation & Message Layer
 function generateObservationAndMessage(name, rating, reviews) {
+  let observation;
   let implication;
 
   if (reviews >= 200 && rating <= 4.4) {
+    observation = "high volume, not optimized";
     implication = "that's likely costing you bookings right now";
   } else if (reviews >= 120 && rating < 4.7) {
+    observation = "room to improve rating";
     implication = "there's clear room to push this higher";
   } else if (rating <= 4.3) {
+    observation = "costing bookings";
     implication = "that's likely costing you bookings right now";
-  } else {
+  } else if (reviews <= 80 && rating >= 4.4) {
+    observation = "low visibility";
     implication = "you're probably not getting as much visibility as you could";
+  } else {
+    observation = "room to improve";
+    implication = "there's clear room to push this higher";
   }
 
-  const observation = `${name} is at ${rating} with ${reviews} reviews`;
   const whatsapp_message = `Hey — quick one.\n\nNoticed ${name} is at ${rating} with ${reviews} reviews — ${implication}.\n\nWant me to send you a quick breakdown?`;
 
   return { observation, whatsapp_message };
