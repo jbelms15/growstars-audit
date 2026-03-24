@@ -979,12 +979,12 @@
         <td style="color:var(--sub);text-align:right">${lead.reviews}</td>
         <td style="color:var(--sub)">${city}</td>
         <td style="color:var(--sub);font-size:11px">${phone}${isMobile ? ' 📱' : ''}</td>
+        <td style="font-size:11px">${lead.website ? `<a href="${escHtml(lead.website)}" target="_blank" rel="noopener" style="color:var(--sub);text-decoration:none;overflow:hidden;text-overflow:ellipsis;display:block" title="${escHtml(lead.website)}">${escHtml(lead.website.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : ''}</td>
         <td>
           <div style="display:flex;gap:4px;align-items:center" id="actions-${i}">
             ${outcomeDot}
             ${clean ? `<button class="icon-btn wa-icon-btn" data-index="${i}">WA</button>` : ''}
             ${clean ? `<a class="icon-btn call-icon-btn" href="tel:${clean}" data-index="${i}">Call</a>` : ''}
-            ${lead.website ? `<button class="icon-btn site-btn" data-index="${i}">↗</button>` : ''}
           </div>
         </td>
       </tr>`;
@@ -1079,13 +1079,6 @@
       });
     });
 
-    leadsEl.querySelectorAll('.site-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const lead = leadMap.get(Number(btn.dataset.index));
-        if (lead?.website) window.open(lead.website, '_blank');
-      });
-    });
-
     leadsEl.querySelectorAll('.done-cb').forEach(cb => {
       cb.addEventListener('change', () => {
         const i    = Number(cb.dataset.index);
@@ -1177,12 +1170,13 @@
         <colgroup>
           <col style="width:36px">
           <col style="width:40px">
-          <col style="width:21%">
-          <col style="width:17%">
+          <col style="width:19%">
+          <col style="width:15%">
           <col style="width:64px">
           <col style="width:74px">
-          <col style="width:96px">
-          <col style="width:152px">
+          <col style="width:90px">
+          <col style="width:145px">
+          <col style="width:15%">
           <col>
         </colgroup>
         <thead>
@@ -1195,6 +1189,7 @@
             <th class="sortable${sortCol==='reviews'?' sort-active':''}" data-col="reviews" style="text-align:right">Reviews <span class="sort-arrow">${sortCol==='reviews'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
             <th class="sortable${sortCol==='city'?' sort-active':''}" data-col="city">City <span class="sort-arrow">${sortCol==='city'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
             <th>Phone</th>
+            <th>Website</th>
             <th>Actions</th>
           </tr>
         </thead>
