@@ -938,11 +938,20 @@
 
     .snap-header {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
-      padding: 14px 18px;
+      padding: 13px 18px;
       border-bottom: 1px solid var(--border);
       flex-shrink: 0;
+      gap: 8px;
+    }
+
+    .snap-header-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow: hidden;
+      min-width: 0;
     }
 
     .snap-header-title {
@@ -952,8 +961,18 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 380px;
     }
+
+    .snap-header-sub {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      font-size: 11px;
+      color: var(--sub);
+    }
+    .snap-header-sub a { color: var(--sub); text-decoration: none; }
+    .snap-header-sub a:hover { color: var(--gold); }
 
     .snap-close {
       background: none;
@@ -1406,7 +1425,10 @@
 <div id="snap-overlay" class="snap-overlay" onclick="closeSnapshot()"></div>
 <div id="snap-drawer" class="snap-drawer">
   <div class="snap-header">
-    <div class="snap-header-title" id="snap-title"></div>
+    <div class="snap-header-info">
+      <div class="snap-header-title" id="snap-title"></div>
+      <div class="snap-header-sub" id="snap-sub"></div>
+    </div>
     <button class="snap-close" onclick="closeSnapshot()">✕</button>
   </div>
   <div class="snap-body" id="snap-body"></div>
@@ -1663,6 +1685,7 @@
     }).join('');
 
     const leadMapsHref = lead.maps_link || '#';
+    const youAddr = lead.address || lead.vicinity || null;
     return `
       <table class="comp-table">
         <thead>
@@ -1675,7 +1698,10 @@
         </thead>
         <tbody>
           <tr class="target-row">
-            <td><a href="${escHtml(leadMapsHref)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;font-weight:500">${escHtml(lead.name)}</a><span class="you-badge">you</span></td>
+            <td>
+              <a href="${escHtml(leadMapsHref)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;font-weight:500">${escHtml(lead.name)}</a><span class="you-badge">you</span>
+              ${youAddr ? `<div style="font-size:10px;color:var(--sub);margin-top:1px">${escHtml(youAddr)}</div>` : ''}
+            </td>
             <td style="text-align:right">${lead.rating} ⭐</td>
             <td style="text-align:right">${lead.reviews}</td>
             <td></td>
@@ -1856,6 +1882,15 @@
       titleEl.textContent = lead.name || '';
     }
 
+    // Header subtitle: phone · Website
+    const subEl = document.getElementById('snap-sub');
+    if (subEl) {
+      const subParts = [];
+      if (lead.phone) subParts.push(`<span>${escHtml(lead.phone)}</span>`);
+      if (lead.website) subParts.push(`<a href="${escHtml(lead.website)}" target="_blank" rel="noopener">Website ↗</a>`);
+      subEl.innerHTML = subParts.join('<span style="color:var(--border2)"> · </span>');
+    }
+
     const liveStamp = lead._live_at
       ? `<span style="font-size:10px;color:#2a7a4a;font-weight:600">● LIVE</span> <span style="font-size:10px;color:var(--sub)">fetched ${Math.round((Date.now()-lead._live_at)/60000)}m ago</span>`
       : `<span style="font-size:10px;color:var(--sub);font-style:italic">Snapshot data — fetch live ↻ for full signals</span>`;
@@ -1895,7 +1930,6 @@
 
     // GBP Audit (after live fetch only)
     const gbpHtml = lead._live && lead._gbp ? `
-      <div class="snap-divider"></div>
       <div>
         <button class="gbp-audit-toggle" id="gbp-toggle">GBP Audit ▾</button>
         ${renderGbpAudit(lead._gbp, lead)}
@@ -1906,14 +1940,7 @@
 
     const body = document.getElementById('snap-body');
     body.innerHTML = `
-      <div class="snap-info-block">
-        ${(lead._city || lead.city) ? `<div class="snap-info-location">${escHtml(lead._city || lead.city)}</div>` : ''}
-        <div class="snap-info-meta">
-          ${lead.phone ? `<span>${escHtml(lead.phone)}</span>` : ''}
-          ${lead.website ? `<a href="${escHtml(lead.website)}" target="_blank" rel="noopener">Website</a>` : ''}
-        </div>
-        <div class="snap-live-row">${liveStamp}</div>
-      </div>
+      <div class="snap-live-row">${liveStamp}</div>
 
       <div class="snap-rating-hero">
         <span class="snap-rating-num">${lead.rating} ★</span>
@@ -1949,16 +1976,14 @@
       ${reviewSignalsHtml}
 
       <div class="snap-card snap-card-inner">
-        <div class="snap-section-label" style="margin-bottom:8px">Observation & Messages</div>
+        <div class="snap-section-label" style="margin-bottom:6px">Observation & Messages</div>
         <p class="snap-obs-reason">${getObservationText(lead, signal)}</p>
-        <div class="snap-angle-bar">
-          <div class="snap-angle-left">
-            <span class="msg-label" id="snap-angle-label">${SNAP_ANGLE_LABELS[_snapAngle]}</span>
-            <span class="snap-angle-reason-txt" id="snap-angle-reason">${escHtml(angleReason)}</span>
-          </div>
-          <button class="snap-next-btn snap-next-angle">Try another →</button>
+        <div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="msg-label" id="snap-angle-label">${SNAP_ANGLE_LABELS[_snapAngle]}</span>
+          <span class="snap-angle-reason-txt" id="snap-angle-reason">${escHtml(angleReason)}</span>
+          <button class="snap-next-btn snap-next-angle" style="margin-left:auto">Try another →</button>
         </div>
-        <div class="snap-msg-body">
+        <div class="snap-msg-body" style="margin-top:8px">
           <div class="msg-text" id="snap-msg-text">${escHtml(initMsg)}</div>
           <div class="snap-msg-actions">
             ${cleanNum ? `<button class="copy-btn wa-open-btn" data-phone="${cleanNum}" data-message="${escHtml(initMsg)}">Open WA ↗</button>` : ''}
