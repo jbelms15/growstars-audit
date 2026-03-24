@@ -362,6 +362,66 @@
       white-space: nowrap;
     }
 
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+    }
+
+    .modal-box {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 101;
+      background: #f5f1ea;
+      border: 1px solid rgba(0,0,0,0.15);
+      border-radius: 10px;
+      padding: 24px;
+      width: min(520px, 92vw);
+      max-height: 80vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .modal-title { font-size: 14px; font-weight: 600; color: #1a1208; }
+
+    .modal-close {
+      font-size: 16px;
+      background: none;
+      border: none;
+      color: #7a6e62;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .modal-close:hover { color: #1a1208; }
+
+    .guide-content h1 { font-size: 16px; font-weight: 700; margin: 20px 0 6px; color: #1a1208; }
+    .guide-content h2 { font-size: 14px; font-weight: 600; margin: 16px 0 4px; color: #1a1208; }
+    .guide-content h3 { font-size: 12px; font-weight: 600; margin: 12px 0 4px; color: #7a6e62; text-transform: uppercase; letter-spacing: 0.06em; }
+    .guide-content p  { font-size: 13px; color: #1a1208; line-height: 1.65; margin: 6px 0; }
+    .guide-content ul, .guide-content ol { font-size: 13px; color: #1a1208; line-height: 1.65; padding-left: 18px; margin: 6px 0; }
+    .guide-content hr { border: none; border-top: 1px solid rgba(0,0,0,0.08); margin: 16px 0; }
+    .guide-content blockquote { border-left: 3px solid #D4A43A; padding-left: 10px; margin: 10px 0; color: #7a6e62; font-style: italic; font-size: 13px; }
+    .guide-content table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 10px 0; }
+    .guide-content th { text-align: left; padding: 6px 8px; background: #ede9e0; color: #7a6e62; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .guide-content td { padding: 6px 8px; border-top: 1px solid rgba(0,0,0,0.06); color: #1a1208; }
+    .guide-content .guide-first-h1 { margin-top: 0; }
+
     .maturity-new       { background: rgba(99,179,237,0.12); color: #2b6cb0; }
     .maturity-building  { background: rgba(40,167,69,0.1);   color: #1e7e34; }
     .maturity-plateaued { background: rgba(212,164,58,0.12); color: #b59a3a; }
@@ -401,6 +461,7 @@
     <span class="page-title">LinkedIn Assist</span>
   </div>
   <a class="nav-link" href="lead-runner.html">← Lead Runner</a>
+  <button class="nav-link" style="cursor:pointer;background:none;" onclick="openGuide()">Guide</button>
 </div>
 
 <div class="main">
@@ -879,6 +940,9 @@
     }
   }
 
+  function openGuide()  { document.getElementById('guide-modal').style.display = 'block'; }
+  function closeGuide() { document.getElementById('guide-modal').style.display = 'none'; }
+
   function copyBlock(btn, id) {
     const text = document.getElementById(id).textContent;
     navigator.clipboard.writeText(text).then(() => {
@@ -889,6 +953,77 @@
     });
   }
 </script>
+
+<div id="guide-modal" style="display:none">
+  <div class="modal-overlay" onclick="closeGuide()"></div>
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Reputation Signals Playbook</div>
+      <button class="modal-close" onclick="closeGuide()">✕</button>
+    </div>
+    <div class="guide-content">
+      <h1 class="guide-first-h1">How Google Maps Actually Works</h1>
+      <p>Google Maps ranking is driven by 3 core factors:</p>
+      <h3>1. Relevance</h3><p>How well the business matches the search query.</p>
+      <h3>2. Distance</h3><p>How close the business is to the user.</p>
+      <h3>3. Prominence (Most Important)</h3>
+      <p>This is where reviews matter. Prominence includes: rating, number of reviews, review velocity, keywords in reviews, and overall engagement.</p>
+      <hr>
+      <h1>User Behavior</h1>
+      <p>When someone searches "barber near me" or "hair salon" they typically:</p>
+      <ol><li>Look at top 3 results</li><li>Compare rating and number of reviews</li><li>Click 1–2 options max</li></ol>
+      <blockquote>You don't need to be #1 — but you must be competitive.</blockquote>
+      <hr>
+      <h1>Core Metrics</h1>
+      <h2>Rating (Stars)</h2>
+      <p>First filter for trust. Anything below ~4.4 starts losing clicks.</p>
+      <table>
+        <tr><th>Rating</th><th>Perception</th></tr>
+        <tr><td>4.8–5.0</td><td>Premium / top choice</td></tr>
+        <tr><td>4.5–4.7</td><td>Strong</td></tr>
+        <tr><td>4.2–4.4</td><td>Risky</td></tr>
+        <tr><td>&lt;4.2</td><td>Avoided</td></tr>
+      </table>
+      <h2>Review Count</h2>
+      <p>Social proof and confidence signal. 4.6 with 300 reviews beats 4.6 with 50 reviews almost every time.</p>
+      <h2>Review Velocity</h2>
+      <p>How often new reviews are added. Signals the business is active and keeps ranking fresh. Old or inconsistent reviews cause ranking to drop over time.</p>
+      <hr>
+      <h1>Observation Labels</h1>
+      <h2>🔴 "costing bookings"</h2>
+      <p><strong>Condition:</strong> Rating ≤ 4.3<br>Customers see better-rated competitors nearby and skip this business during comparison. A few bad reviews dragging the average down with no system to recover unhappy clients.</p>
+      <h2>🟡 "room to improve rating"</h2>
+      <p><strong>Condition:</strong> High reviews (120+) but rating &lt; 4.7<br>Strong base but not optimised. Not asking happy customers for reviews. Negative reviews not managed.</p>
+      <h2>🔵 "low visibility"</h2>
+      <p><strong>Condition:</strong> Reviews ≤ 80 and rating ≥ 4.4<br>Good quality, low volume. No review generation system. Not appearing in top results.</p>
+      <h2>🟣 "high volume, not optimised"</h2>
+      <p><strong>Condition:</strong> Reviews ≥ 200 and rating ≤ 4.4<br>High traffic but poor consistency. Scaling without quality control. Massive lost potential.</p>
+      <hr>
+      <h1>Profile Maturity Badges</h1>
+      <p>Shown in the snapshot after analysis. Tells you how long a business has been building their Google presence and whether momentum is still active.</p>
+      <table>
+        <tr><th>Badge</th><th>Condition</th><th>What it means</th></tr>
+        <tr><td>🔵 New presence</td><td>Under 50 reviews, recently active</td><td>Just started building on Google. May not feel the pain yet.</td></tr>
+        <tr><td>🟢 Building</td><td>Growing reviews, active velocity</td><td>Actively collecting reviews. A system is working, even if informal.</td></tr>
+        <tr><td>🟡 Plateaued</td><td>50+ reviews, growth has stalled</td><td>Had momentum, lost it. No system keeping it going.</td></tr>
+        <tr><td>🔴 Gone quiet</td><td>Reviews dried up, last review 90+ days ago</td><td>Established business, completely neglecting their GBP. Highest priority prospect.</td></tr>
+      </table>
+      <blockquote>🔴 Gone quiet = the best prospect. They have a real business and a real gap. That combination is easy to sell into.</blockquote>
+      <hr>
+      <h1>Why Your Messaging Works</h1>
+      <p>You are not saying "we help you get more reviews".</p>
+      <blockquote>You are saying: "this is what's costing you bookings"</blockquote>
+      <p>This aligns with how customers behave and how Google ranks businesses.</p>
+      <hr>
+      <h1>Mental Model</h1>
+      <p>Google Maps = Competition. Every search is: <em>"Who looks best right now?"</em></p>
+      <ul><li>Looks worse → loses</li><li>Looks equal → ignored</li><li>Looks better → wins</li></ul>
+      <hr>
+      <h2>Final Takeaway</h2>
+      <p>You are not selling a service. You are pointing out where they are losing customers right now. That's why this works.</p>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
