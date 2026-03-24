@@ -292,6 +292,28 @@
       color: #D4A43A;
       margin-left: 6px;
     }
+
+    .snapshot-activity {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+      font-size: 12px;
+      color: #7a6e62;
+    }
+
+    .velocity-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .velocity-fast   { background: rgba(40,167,69,0.1);  color: #1e7e34; }
+    .velocity-medium { background: rgba(212,164,58,0.12); color: #b59a3a; }
+    .velocity-slow   { background: rgba(220,53,69,0.1);  color: #c82333; }
   </style>
 </head>
 <body>
@@ -340,6 +362,10 @@
         </div>
         <div class="obs-badge" id="snap-obs"></div>
         <a id="snap-link" class="maps-link" href="#" target="_blank">View on Maps ↗</a>
+        <div class="snapshot-activity" id="snap-activity" style="display:none">
+          <span id="snap-last-review"></span>
+          <span class="velocity-badge" id="snap-velocity"></span>
+        </div>
       </div>
     </div>
 
@@ -385,7 +411,18 @@
   // Persists last analysis result so regenerate() can re-use it
   let lastCtx = null;
   let currentAngle = 0;
-  const TOTAL_ANGLES = 3;
+  const TOTAL_ANGLES = 4;
+
+  function formatDaysAgo(days) {
+    if (days === null) return null;
+    if (days === 0)    return 'today';
+    if (days === 1)    return '1 day ago';
+    if (days < 7)     return `${days} days ago`;
+    if (days < 14)    return '1 week ago';
+    if (days < 30)    return `${Math.floor(days / 7)} weeks ago`;
+    if (days < 60)    return '1 month ago';
+    return `${Math.floor(days / 30)} months ago`;
+  }
 
   [nameInput, cityInput, firstInput].forEach(el => {
     el.addEventListener('keydown', e => { if (e.key === 'Enter') analyze(); });
@@ -458,7 +495,7 @@
     return hasStrongerCompetitors ? bucket.stronger : bucket.clear;
   }
 
-  function buildMessage(angle, { firstName, bizName, rating, reviews, implicationLine, trustLine }) {
+  function buildMessage(angle, { firstName, bizName, rating, reviews, implicationLine, trustLine, lastReviewDays, velocity }) {
     switch (angle) {
       case 1:
         // Question-led
@@ -466,6 +503,17 @@
       case 2:
         // Warm/curious
         return `Hey ${firstName}, came across ${bizName} while doing some research on local spots in the area.\n\nNoticed ${implicationLine}. ${trustLine}\n\nHappy to share a quick breakdown if it's useful.`;
+      case 3: {
+        // Activity-led
+        const isSlowing = velocity === 'slow' || (lastReviewDays !== null && lastReviewDays > 60);
+        const open  = isSlowing
+          ? `noticed review activity has gone pretty quiet at ${bizName} lately`
+          : `noticed ${bizName} has been picking up reviews recently`;
+        const close = isSlowing
+          ? 'When review momentum drops off, it can be tough to get it back without something actively working in the background.'
+          : 'Keeping that consistent is usually what pulls a spot ahead in local search over time.';
+        return `Hey ${firstName}, ${open}.\n\n${implicationLine}.\n\n${close}\n\nWant me to send over a quick breakdown?`;
+      }
       default:
         // Stats-led (angle 0)
         return `Hey ${firstName}, spotted ${bizName} online and noticed you're sitting at ${rating} with ${reviews} reviews. ${implicationLine}.\n\n${trustLine}\n\nWant me to send over a quick breakdown?`;
@@ -503,7 +551,7 @@
       }
 
       const { business, competitors } = data;
-      const { name: bizName, rating, reviews, maps_link } = business;
+      const { name: bizName, rating, reviews, maps_link, last_review_days, review_velocity } = business;
       const firstName = firstInput.value.trim() || '{{first_name}}';
       const obsLabel  = getObservationLabel(rating, reviews);
 
@@ -513,6 +561,25 @@
       document.getElementById('snap-reviews').textContent = reviews;
       document.getElementById('snap-obs').textContent     = obsLabel;
       document.getElementById('snap-link').href           = maps_link;
+
+      // Activity row
+      const lastReviewLabel = formatDaysAgo(last_review_days);
+      if (lastReviewLabel) {
+        const velocityLabels = { fast: 'Active', medium: 'Steady', slow: 'Slowing' };
+        const velocityClass  = { fast: 'velocity-fast', medium: 'velocity-medium', slow: 'velocity-slow' };
+        document.getElementById('snap-last-review').textContent  = `Last review ${lastReviewLabel}`;
+        const velEl = document.getElementById('snap-velocity');
+        if (velocityLabels[review_velocity]) {
+          velEl.textContent  = velocityLabels[review_velocity];
+          velEl.className    = `velocity-badge ${velocityClass[review_velocity]}`;
+          velEl.style.display = '';
+        } else {
+          velEl.style.display = 'none';
+        }
+        document.getElementById('snap-activity').style.display = '';
+      } else {
+        document.getElementById('snap-activity').style.display = 'none';
+      }
 
       // Competitor analysis
       const validComps = competitors.filter(c => c.reviews >= 30);
@@ -542,7 +609,7 @@
       }
 
       // Save context for regenerate
-      lastCtx = { firstName, bizName, rating, reviews, implicationLine, trustLine };
+      lastCtx = { firstName, bizName, rating, reviews, implicationLine, trustLine, lastReviewDays: last_review_days, velocity: review_velocity };
       currentAngle = 0;
       document.getElementById('angle-indicator').textContent = `1 / ${TOTAL_ANGLES}`;
       document.getElementById('li-message').textContent = buildMessage(0, lastCtx);

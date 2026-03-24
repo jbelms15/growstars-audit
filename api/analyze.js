@@ -9,6 +9,31 @@
 
 const SEARCH_KEYWORDS = ["hair salon", "barber", "hairdresser"];
 
+async function getReviewActivity(placeId, apiKey) {
+  const url =
+    `https://maps.googleapis.com/maps/api/place/details/json` +
+    `?place_id=${encodeURIComponent(placeId)}&fields=reviews&reviews_sort=newest&key=${apiKey}`;
+
+  const r = await fetch(url);
+  const data = await r.json();
+  if (data.status !== "OK") return { last_review_days: null, velocity: "unknown" };
+
+  const reviews = (data.result?.reviews || []).sort((a, b) => b.time - a.time);
+  if (!reviews.length) return { last_review_days: null, velocity: "unknown" };
+
+  const now = Math.floor(Date.now() / 1000);
+  const last_review_days = Math.floor((now - reviews[0].time) / 86400);
+
+  let velocity = "unknown";
+  if (reviews.length >= 3) {
+    const spanDays = (reviews[0].time - reviews[reviews.length - 1].time) / 86400;
+    const avgDays  = spanDays / (reviews.length - 1);
+    velocity = avgDays < 7 ? "fast" : avgDays < 30 ? "medium" : "slow";
+  }
+
+  return { last_review_days, velocity };
+}
+
 async function fetchNearbyCompetitors(lat, lng, excludePlaceId, apiKey) {
   const results = [];
   const seen = new Set([excludePlaceId]);
@@ -70,6 +95,9 @@ export default async function handler(req, res) {
     const lat   = place.geometry?.location?.lat;
     const lng   = place.geometry?.location?.lng;
 
+    // Step 2a — review activity (parallel with competitor fetch)
+    const activityPromise = getReviewActivity(place.place_id, apiKey);
+
     const business = {
       name:      place.name,
       rating:    place.rating ?? null,
@@ -82,6 +110,10 @@ export default async function handler(req, res) {
     if (lat && lng) {
       competitors = await fetchNearbyCompetitors(lat, lng, place.place_id, apiKey);
     }
+
+    const { last_review_days, velocity } = await activityPromise;
+    business.last_review_days = last_review_days;
+    business.review_velocity  = velocity;
 
     return res.status(200).json({ business, competitors });
 
