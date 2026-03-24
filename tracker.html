@@ -154,6 +154,20 @@
       letter-spacing: 0.03em;
     }
 
+    /* ANGLE BADGE */
+    .angle-badge {
+      display: inline-block;
+      margin-top: 4px;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 1px 6px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.05);
+      color: #7a6e62;
+    }
+
     /* DATE */
     .sent-date {
       font-size: 11px;
@@ -414,6 +428,7 @@
   };
 
   const STATUS_OPTIONS = Object.keys(STATUS_META);
+  const ANGLE_LABELS  = ['Velocity', 'Competition', 'Opportunity', 'Visibility'];
 
   function load() {
     try { return JSON.parse(localStorage.getItem(TRACKER_KEY) || '[]'); }
@@ -487,7 +502,8 @@
         <tr class="${rowClass(entry)}" data-index="${i}">
           <td>
             <div class="biz-name">${entry.business}</div>
-            ${entry.maps_link ? `<a href="${entry.maps_link}" target="_blank" style="font-size:10px;color:#b0a492;text-decoration:none;" title="Google Business Profile">GBP ↗</a>` : ''}
+            ${entry.angle != null ? `<span class="angle-badge">${ANGLE_LABELS[entry.angle] || ''}</span>` : ''}
+            ${entry.maps_link ? `<a href="${entry.maps_link}" target="_blank" style="font-size:10px;color:#b0a492;text-decoration:none;display:block;margin-top:3px;" title="Google Business Profile">GBP ↗</a>` : ''}
           </td>
           <td><div class="contact-name">${entry.contact || '–'}</div></td>
           <td><span class="channel-badge">${entry.channel}</span></td>
