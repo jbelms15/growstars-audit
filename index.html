@@ -364,6 +364,10 @@
         <div class="obs-badge" id="snap-obs"></div>
         <a id="snap-link" class="maps-link" href="#" target="_blank">View on Maps ↗</a>
         <a id="snap-website" class="maps-link" href="#" target="_blank">Website ↗</a>
+        <div class="snapshot-activity" id="snap-email-row" style="display:none">
+          <span style="font-size:11px;color:#b0a492">✉</span>
+          <a id="snap-email" class="maps-link" href="#"></a>
+        </div>
         <div class="snapshot-activity" id="snap-activity" style="display:none">
           <span id="snap-last-review"></span>
           <span class="velocity-badge" id="snap-velocity"></span>
@@ -661,6 +665,36 @@
 
       statusEl.textContent = '';
       outputEl.style.display = 'block';
+
+      // Email scrape — runs in background, doesn't block results
+      const emailRow = document.getElementById('snap-email-row');
+      const emailEl  = document.getElementById('snap-email');
+      emailRow.style.display = 'none';
+
+      if (website) {
+        emailEl.textContent = 'Looking for email...';
+        emailEl.removeAttribute('href');
+        emailEl.className = 'maps-link disabled';
+        emailRow.style.display = '';
+
+        fetch('/api/scrape-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: website }),
+        })
+          .then(r => r.json())
+          .then(({ email }) => {
+            if (email) {
+              emailEl.textContent = email;
+              emailEl.href = `mailto:${email}`;
+              emailEl.className = 'maps-link';
+            } else {
+              emailEl.textContent = 'No email found';
+              emailEl.className = 'maps-link disabled';
+            }
+          })
+          .catch(() => { emailRow.style.display = 'none'; });
+      }
 
     } catch (err) {
       statusEl.textContent = 'Request failed: ' + err.message;
