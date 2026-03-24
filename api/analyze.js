@@ -62,9 +62,11 @@ async function fetchNearbyCompetitors(lat, lng, excludePlaceId, apiKey) {
       if (place.user_ratings_total < 10) continue; // skip near-empty profiles
       seen.add(place.place_id);
       results.push({
-        name:    place.name,
-        rating:  place.rating,
-        reviews: place.user_ratings_total,
+        name:     place.name,
+        rating:   place.rating,
+        reviews:  place.user_ratings_total,
+        place_id: place.place_id,
+        vicinity: place.vicinity || null,
       });
     }
   }

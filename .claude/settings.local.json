@@ -13,7 +13,15 @@
       "Bash(cat:*)",
       "Bash(npx vercel:*)",
       "Bash(curl:*)",
-      "Bash(vercel --prod)"
+      "Bash(vercel --prod)",
+      "Bash(mv index.html lead-runner.html)",
+      "Bash(mv linkedin-assist.html index.html)",
+      "Bash(cp index.html lead-runner.html)",
+      "Bash(cp linkedin-assist.html index.html)",
+      "Bash(rm linkedin-assist.html)",
+      "Bash(ls \"c:/Users/Joanna \\(Freelancing\\)/growstars-audit/\")",
+      "Bash(head -5 \"c:/Users/Joanna \\(Freelancing\\)/growstars-audit/lead-runner.html\")",
+      "Bash(head -5 \"c:/Users/Joanna \\(Freelancing\\)/growstars-audit/index.html\")"
     ]
   }
 }

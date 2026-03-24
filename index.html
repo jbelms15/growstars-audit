@@ -460,8 +460,10 @@
     <a class="brand" href="lead-runner.html">Grow<span>Stars</span></a>
     <span class="page-title">LinkedIn Assist</span>
   </div>
-  <a class="nav-link" href="lead-runner.html">← Lead Runner</a>
-  <button class="nav-link" style="cursor:pointer;background:none;" onclick="openGuide()">Guide</button>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <a class="nav-link" href="lead-runner.html">← Lead Runner</a>
+    <button class="nav-link" style="cursor:pointer;background:none;" onclick="openGuide()">Guide</button>
+  </div>
 </div>
 
 <div class="main">
@@ -537,6 +539,7 @@
               <th>Business</th>
               <th>Rating</th>
               <th>Reviews</th>
+              <th></th>
             </tr>
           </thead>
           <tbody id="comp-tbody"></tbody>
@@ -860,7 +863,7 @@
       );
       const { implicationLine, trustLine } = getMessageParts(obsLabel, hasStronger);
 
-      // Competitor table (rating + reviews only, no averages)
+      // Competitor table
       const tbody = document.getElementById('comp-tbody');
       tbody.innerHTML = '';
 
@@ -869,14 +872,30 @@
           <td>${bizName}<span class="you-label">you</span></td>
           <td>${rating} ⭐</td>
           <td>${reviews}</td>
+          <td></td>
         </tr>`);
 
       for (const c of competitors) {
+        let deltaCls, deltaLabel;
+        if (c.rating > rating || c.reviews > reviews * 1.2) {
+          deltaCls = 'delta-above'; deltaLabel = 'ahead';
+        } else if (c.rating < rating && c.reviews < reviews) {
+          deltaCls = 'delta-below'; deltaLabel = 'behind';
+        } else {
+          deltaCls = 'delta-at'; deltaLabel = 'similar';
+        }
+        const mapsHref = c.place_id
+          ? `https://www.google.com/maps/place/?q=place_id:${c.place_id}`
+          : null;
+        const mapsCell = mapsHref
+          ? `<a href="${mapsHref}" target="_blank" class="maps-link" style="font-size:10px;margin-left:6px;" title="View on Maps">↗</a>`
+          : '';
         tbody.insertAdjacentHTML('beforeend', `
           <tr>
-            <td>${c.name}</td>
+            <td>${c.name}${mapsCell}</td>
             <td>${c.rating} ⭐</td>
             <td>${c.reviews}</td>
+            <td><span class="delta-badge ${deltaCls}">${deltaLabel}</span></td>
           </tr>`);
       }
 
