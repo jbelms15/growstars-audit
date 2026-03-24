@@ -37,6 +37,12 @@ async function getPlaceDetails(placeId, apiKey) {
   return { last_review_days, velocity, website };
 }
 
+const HAIR_TYPES = new Set(["hair_care", "hair_salon", "barber_shop"]);
+
+function isHairBusiness(place) {
+  return (place.types || []).some((t) => HAIR_TYPES.has(t));
+}
+
 async function fetchNearbyCompetitors(lat, lng, excludePlaceId, apiKey) {
   const results = [];
   const seen = new Set([excludePlaceId]);
@@ -52,6 +58,8 @@ async function fetchNearbyCompetitors(lat, lng, excludePlaceId, apiKey) {
     for (const place of data.results || []) {
       if (seen.has(place.place_id)) continue;
       if (!place.rating || !place.user_ratings_total) continue;
+      if (!isHairBusiness(place)) continue;   // skip spas, nail bars, etc.
+      if (place.user_ratings_total < 10) continue; // skip near-empty profiles
       seen.add(place.place_id);
       results.push({
         name:    place.name,
@@ -61,9 +69,9 @@ async function fetchNearbyCompetitors(lat, lng, excludePlaceId, apiKey) {
     }
   }
 
-  // Sort by rating desc, take top 5
+  // Sort by review count desc (most established first), take top 5
   return results
-    .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews)
+    .sort((a, b) => b.reviews - a.reviews || b.rating - a.rating)
     .slice(0, 5);
 }
 
