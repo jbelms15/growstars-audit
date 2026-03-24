@@ -561,16 +561,6 @@
       </div>
     </div>
 
-    <div class="section">
-      <div class="section-title">Loom Script</div>
-      <div class="text-block">
-        <div class="text-content" id="loom-script"></div>
-        <div class="block-actions">
-          <button class="copy-btn" onclick="copyBlock(this, 'loom-script')">Copy</button>
-        </div>
-      </div>
-    </div>
-
   </div>
 </div>
 
@@ -850,8 +840,7 @@
   function regenerate() {
     if (!lastCtx) return;
     currentAngle = (currentAngle + 1) % TOTAL_ANGLES;
-    document.getElementById('li-message').textContent    = buildMessage(currentAngle, lastCtx);
-    document.getElementById('loom-script').textContent   = buildLoomScript(currentAngle, lastCtx);
+    document.getElementById('li-message').textContent      = buildMessage(currentAngle, lastCtx);
     document.getElementById('angle-indicator').textContent = `${currentAngle + 1} / ${TOTAL_ANGLES}`;
   }
 
@@ -860,14 +849,20 @@
     const TRACKER_KEY = 'growstars_tracker';
     const data = (() => { try { return JSON.parse(localStorage.getItem(TRACKER_KEY) || '[]'); } catch { return []; } })();
     data.unshift({
-      id:          Date.now(),
-      business:    lastCtx.bizName,
-      contact:     lastCtx.firstName !== '{{first_name}}' ? lastCtx.firstName : '',
-      channel:     'LinkedIn',
-      sent_date:   new Date().toISOString().slice(0, 10),
-      status:      'Waiting',
-      last_action: 'Message sent',
-      notes:       '',
+      id:             Date.now(),
+      business:       lastCtx.bizName,
+      contact:        lastCtx.firstName !== '{{first_name}}' ? lastCtx.firstName : '',
+      channel:        'LinkedIn',
+      sent_date:      new Date().toISOString().slice(0, 10),
+      status:         'Waiting',
+      last_action:    'Message sent',
+      notes:          '',
+      // context for Loom script generation
+      rating:         lastCtx.rating,
+      reviews:        lastCtx.reviews,
+      lastReviewDays: lastCtx.lastReviewDays,
+      hasStronger:    lastCtx.hasStronger,
+      angle:          currentAngle,
     });
     localStorage.setItem(TRACKER_KEY, JSON.stringify(data));
     btn.textContent = 'Added';
@@ -995,7 +990,6 @@
       currentAngle = selectDefaultAngle({ lastReviewDays: last_review_days, hasStronger, rating });
       document.getElementById('angle-indicator').textContent = `${currentAngle + 1} / ${TOTAL_ANGLES}`;
       document.getElementById('li-message').textContent    = buildMessage(currentAngle, lastCtx);
-      document.getElementById('loom-script').textContent   = buildLoomScript(currentAngle, lastCtx);
 
       statusEl.textContent = '';
       outputEl.style.display = 'block';

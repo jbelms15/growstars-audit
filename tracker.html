@@ -233,6 +233,111 @@
     }
 
     .delete-btn:hover { color: #c82333; background: rgba(220,53,69,0.08); }
+
+    /* LOOM BUTTON */
+    .loom-btn {
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 3px 8px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      background: rgba(107,70,193,0.1);
+      color: #6b46c1;
+      white-space: nowrap;
+    }
+
+    .loom-btn:hover { background: rgba(107,70,193,0.18); }
+
+    /* MODAL */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      background: #fff;
+      border-radius: 10px;
+      padding: 28px;
+      width: 100%;
+      max-width: 520px;
+      margin: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .modal-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1208;
+    }
+
+    .modal-meta {
+      font-size: 11px;
+      color: #b0a492;
+      margin-top: 2px;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: #b0a492;
+      cursor: pointer;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+
+    .modal-close:hover { color: #1a1208; }
+
+    .modal-script {
+      font-size: 12px;
+      line-height: 1.7;
+      color: #1a1208;
+      white-space: pre-wrap;
+      background: #faf8f4;
+      border: 1px solid rgba(0,0,0,0.07);
+      border-radius: 6px;
+      padding: 16px;
+      max-height: 340px;
+      overflow-y: auto;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .modal-copy-btn {
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 5px;
+      border: 1px solid #d4c9b0;
+      background: #fff;
+      color: #1a1208;
+      cursor: pointer;
+    }
+
+    .modal-copy-btn:hover { background: #f5f1ea; }
   </style>
 </head>
 <body>
@@ -271,10 +376,28 @@
           <th>Last Action</th>
           <th>Notes</th>
           <th></th>
+          <th></th>
         </tr>
       </thead>
       <tbody id="tracker-tbody"></tbody>
     </table>
+  </div>
+</div>
+
+<!-- Loom Script Modal -->
+<div class="modal-backdrop" id="loom-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-title">Loom Script</div>
+        <div class="modal-meta" id="modal-meta"></div>
+      </div>
+      <button class="modal-close" onclick="closeLoomModal()">×</button>
+    </div>
+    <div class="modal-script" id="modal-script"></div>
+    <div class="modal-actions">
+      <button class="modal-copy-btn" onclick="copyScript()">Copy script</button>
+    </div>
   </div>
 </div>
 
@@ -354,19 +477,26 @@
     wrap.style.display  = 'block';
     count.textContent   = `${data.length} prospect${data.length !== 1 ? 's' : ''}`;
 
-    tbody.innerHTML = data.map((entry, i) => `
-      <tr class="${rowClass(entry)}" data-index="${i}">
-        <td><div class="biz-name">${entry.business}</div></td>
-        <td><div class="contact-name">${entry.contact || '–'}</div></td>
-        <td><span class="channel-badge">${entry.channel}</span></td>
-        <td><span class="sent-date">${formatDate(entry.sent_date)}</span></td>
-        <td>${statusSelectHTML(entry.status)}</td>
-        <td>${followupBadge(entry)}</td>
-        <td><span class="last-action">${entry.last_action || '–'}</span></td>
-        <td><input class="notes-input" type="text" placeholder="Add a note..." value="${entry.notes || ''}" onchange="updateNotes(this)" data-index="${i}" /></td>
-        <td><button class="delete-btn" onclick="deleteEntry(${i})" title="Remove">×</button></td>
-      </tr>
-    `).join('');
+    const LOOM_STATUSES = new Set(['Replied', 'Loom Sent']);
+
+    tbody.innerHTML = data.map((entry, i) => {
+      const loomBtn = LOOM_STATUSES.has(entry.status)
+        ? `<button class="loom-btn" onclick="openLoomModal(${i})">Loom script</button>`
+        : '';
+      return `
+        <tr class="${rowClass(entry)}" data-index="${i}">
+          <td><div class="biz-name">${entry.business}</div></td>
+          <td><div class="contact-name">${entry.contact || '–'}</div></td>
+          <td><span class="channel-badge">${entry.channel}</span></td>
+          <td><span class="sent-date">${formatDate(entry.sent_date)}</span></td>
+          <td>${statusSelectHTML(entry.status)}</td>
+          <td>${followupBadge(entry)}</td>
+          <td><span class="last-action">${entry.last_action || '–'}</span></td>
+          <td><input class="notes-input" type="text" placeholder="Add a note..." value="${entry.notes || ''}" onchange="updateNotes(this)" data-index="${i}" /></td>
+          <td>${loomBtn}</td>
+          <td><button class="delete-btn" onclick="deleteEntry(${i})" title="Remove">×</button></td>
+        </tr>`;
+    }).join('');
   }
 
   function updateStatus(select) {
@@ -391,6 +521,70 @@
     data.splice(index, 1);
     save(data);
     render();
+  }
+
+  function buildLoomScript({ bizName, rating, reviews, lastReviewDays, hasStronger, angle }) {
+    const hook  = `Hey, I had a quick look at your Google reviews and wanted to show you something.`;
+    const cause = `No system to get reviews consistently is usually why this happens.`;
+    const fix   = `There's a simple way to ask every happy client at the right moment, so reviews come in more regularly without it feeling pushy.`;
+    const cta   = `If you want, I can show you how to set this up.`;
+
+    let scenario;
+    if (angle === 1)                                        scenario = 'competition';
+    else if (angle === 2)                                   scenario = 'opportunity';
+    else if (angle === 3)                                   scenario = 'velocity';
+    else if (lastReviewDays !== null && lastReviewDays > 60) scenario = 'velocity';
+    else if (hasStronger)                                   scenario = 'competition';
+    else if (rating <= 4.3)                                 scenario = 'low_rating';
+    else                                                    scenario = 'opportunity';
+
+    let obs, what, why;
+
+    if (scenario === 'velocity') {
+      obs  = `It looks like your reviews have slowed down recently.`;
+      what = `You've got ${reviews} reviews at ${rating} stars, which is a decent base. But when reviews stop coming in, Google starts showing your profile less. The most recent reviews on your page are getting older, and that matters more than people realise.`;
+      why  = `People check how recent your reviews are before deciding where to book. Old reviews, even good ones, make the profile look quiet. That can push bookings to someone who's been getting reviews more consistently.`;
+    } else if (scenario === 'competition') {
+      obs  = `Nearby spots are getting more reviews than you right now.`;
+      what = `You're at ${reviews} reviews and ${rating} stars. A few places nearby have more volume coming in, which pushes them higher when someone searches for a salon in the area.`;
+      why  = `Google tends to show profiles with the most consistent review activity first. The more regularly reviews come in, the more visible you are, and the more bookings follow from people who didn't already know you.`;
+    } else if (scenario === 'low_rating') {
+      obs  = `Your rating suggests something might be holding it back.`;
+      what = `You've got ${reviews} reviews, but a ${rating} average means a few lower scores are pulling it down. The problem is usually that only unhappy customers leave reviews without being asked. Happy ones need a nudge.`;
+      why  = `When people compare salons nearby, rating is the first thing they check. A lower score makes them click somewhere else, even if the actual service is great.`;
+    } else {
+      obs  = `You're already in a solid position, ${rating} stars with ${reviews} reviews.`;
+      what = `That's a strong base. But there's still a gap between where you are and the top spots locally. The businesses pulling ahead aren't necessarily better, they just have a steadier flow of new reviews coming in.`;
+      why  = `More recent reviews means better visibility in search, which means more people finding you before they find someone else. It compounds over time.`;
+    }
+
+    return [hook, obs, what, why, cause, fix, cta].join('\n\n');
+  }
+
+  function openLoomModal(index) {
+    const data  = load();
+    const entry = data[index];
+    document.getElementById('modal-title').textContent = `Loom Script — ${entry.business}`;
+    document.getElementById('modal-meta').textContent  = entry.contact ? `For ${entry.contact}` : '';
+    document.getElementById('modal-script').textContent = buildLoomScript(entry);
+    document.getElementById('loom-modal').classList.add('open');
+  }
+
+  function closeLoomModal() {
+    document.getElementById('loom-modal').classList.remove('open');
+  }
+
+  function closeModal(e) {
+    if (e.target === document.getElementById('loom-modal')) closeLoomModal();
+  }
+
+  function copyScript() {
+    const text = document.getElementById('modal-script').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.modal-copy-btn');
+      btn.textContent = 'Copied';
+      setTimeout(() => { btn.textContent = 'Copy script'; }, 2000);
+    });
   }
 
   render();
