@@ -354,9 +354,10 @@
 
     /* ── LEADS TABLE ── */
     #leads {
-      margin: 8px 0 64px;
+      margin: 8px 0 0;
       padding: 0;
-      overflow-x: auto;
+      overflow: auto;
+      max-height: calc(100vh - 175px);
     }
 
     /* ── SPREADSHEET TABLE ── */
@@ -498,16 +499,32 @@
     :root       { --sticky-head: #eae6dd; --sticky-body: #f5f1ea; }
     body.dark   { --sticky-head: #1c1410; --sticky-body: #120d08; }
 
-    .leads-table th:nth-child(-n+3),
-    .leads-table td:nth-child(-n+3) { position: sticky; z-index: 2; }
+    /* Body sticky cells */
+    .leads-table tbody td:nth-child(1),
+    .leads-table tbody td:nth-child(2),
+    .leads-table tbody td:nth-child(3) {
+      position: sticky;
+      z-index: 1;
+      background: var(--sticky-body);
+    }
+    .leads-table tbody td:nth-child(1) { left: 0; }
+    .leads-table tbody td:nth-child(2) { left: 36px; }
+    .leads-table tbody td:nth-child(3) { left: 72px; }
+    .leads-table tbody tr:hover td:nth-child(1),
+    .leads-table tbody tr:hover td:nth-child(2),
+    .leads-table tbody tr:hover td:nth-child(3) { background: var(--surface); }
 
-    .leads-table th:nth-child(1), .leads-table td:nth-child(1) { left: 0; }
-    .leads-table th:nth-child(2), .leads-table td:nth-child(2) { left: 36px; }
-    .leads-table th:nth-child(3), .leads-table td:nth-child(3) { left: 72px; }
-
-    .leads-table thead th:nth-child(-n+3) { background: var(--sticky-head); z-index: 12; }
-    .leads-table tbody td:nth-child(-n+3) { background: var(--sticky-body); }
-    .leads-table tbody tr:hover td:nth-child(-n+3) { background: var(--surface); }
+    /* Header sticky cells — must be above body sticky cells */
+    .leads-table thead th:nth-child(1),
+    .leads-table thead th:nth-child(2),
+    .leads-table thead th:nth-child(3) {
+      position: sticky;
+      z-index: 20;
+      background: var(--sticky-head);
+    }
+    .leads-table thead th:nth-child(1) { left: 0; }
+    .leads-table thead th:nth-child(2) { left: 36px; }
+    .leads-table thead th:nth-child(3) { left: 72px; }
 
     /* ── RESIZE HANDLES ── */
     .leads-table thead th { position: relative; }
@@ -573,6 +590,69 @@
     }
 
     .icon-btn.live-fetched { color: #2a7a4a; border-color: #2a7a4a; opacity: 0.7; }
+
+    /* ── COLUMN MENU ── */
+    .col-menu {
+      position: fixed;
+      background: var(--bg);
+      border: 1px solid var(--border2);
+      border-radius: 7px;
+      box-shadow: 0 6px 28px rgba(0,0,0,0.18);
+      z-index: 3000;
+      width: 210px;
+      padding: 4px 0;
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    .col-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.07s;
+    }
+
+    .col-menu-item:hover  { background: var(--surface); }
+    .col-menu-item.active { color: #D4A43A; }
+    .col-menu-item .mi    { opacity: 0.5; width: 14px; text-align: center; font-size: 11px; }
+
+    .col-menu-divider { height: 1px; background: var(--border); margin: 3px 0; }
+
+    .col-menu-filter {
+      padding: 6px 12px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .col-menu-filter label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--sub);
+    }
+
+    .col-menu-filter input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-i);
+      border-radius: 3px;
+      padding: 5px 8px;
+      font-size: 12px;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+    }
+
+    .col-menu-filter input:focus { border-color: #D4A43A; }
+
+    /* active sort/filter indicators on th */
+    .col-sort-ind  { font-size: 10px; color: var(--sub); margin-left: 3px; }
+    .col-filter-ind { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #4a90c4; margin-left: 4px; vertical-align: middle; }
 
     .outcome-dot {
       display: inline-block;
@@ -1155,6 +1235,113 @@
     saveLeads();
   }
 
+  // ── COLUMN MENU ──
+  const SORTABLE_COLS   = new Set(['name','signal','rating','reviews','city']);
+  const FILTERABLE_COLS = new Set(['name','signal','city','phone','owner','email']);
+  const COL_LABELS      = {name:'Name',signal:'Signal',rating:'Rating',reviews:'Reviews',velocity:'Velocity',lastrev:'Last Review',city:'City',phone:'Phone',website:'Website',maps:'Maps',owner:'Owner',email:'Email'};
+
+  let activeMenuCol = null;
+
+  function openColMenu(col, thEl) {
+    if (activeMenuCol === col) { closeColMenu(); return; }
+    closeColMenu();
+    activeMenuCol = col;
+
+    const rect  = thEl.getBoundingClientRect();
+    const menu  = document.getElementById('col-menu');
+    const isSortable   = SORTABLE_COLS.has(col);
+    const isFilterable = FILTERABLE_COLS.has(col);
+    const isTextCol    = ['name','signal','city'].includes(col);
+    const curFilter    = colFilters[col] || '';
+
+    let html = '';
+
+    if (isSortable) {
+      const ascLabel  = isTextCol ? 'Sort A → Z' : 'Sort Low → High';
+      const descLabel = isTextCol ? 'Sort Z → A' : 'Sort High → Low';
+      html += `
+        <div class="col-menu-item${sortCol===col&&sortDir===1?' active':''}" data-action="sort-asc">
+          <span class="mi">↑</span>${ascLabel}
+        </div>
+        <div class="col-menu-item${sortCol===col&&sortDir===-1?' active':''}" data-action="sort-desc">
+          <span class="mi">↓</span>${descLabel}
+        </div>`;
+      if (sortCol === col) {
+        html += `<div class="col-menu-item" data-action="sort-clear"><span class="mi">✕</span>Clear sort</div>`;
+      }
+      html += `<div class="col-menu-divider"></div>`;
+    }
+
+    if (isFilterable) {
+      html += `
+        <div class="col-menu-filter">
+          <label>Filter on ${COL_LABELS[col] || col}</label>
+          <input id="col-menu-filter-input" type="text" placeholder="type to filter…" value="${escHtml(curFilter)}">
+        </div>`;
+      if (curFilter) {
+        html += `<div class="col-menu-item" data-action="filter-clear"><span class="mi">✕</span>Clear filter</div>`;
+      }
+      html += `<div class="col-menu-divider"></div>`;
+    }
+
+    if (sortCol === col || curFilter) {
+      // already shown above
+    }
+
+    html += `<div class="col-menu-item" data-action="sort-clear-all" style="color:var(--sub)"><span class="mi">↺</span>Reset all sorts &amp; filters</div>`;
+
+    menu.innerHTML = html;
+    menu.style.display = 'block';
+
+    // Position below the th, aligned left
+    const menuW = 210;
+    let left = rect.left;
+    if (left + menuW > window.innerWidth) left = window.innerWidth - menuW - 8;
+    menu.style.top  = (rect.bottom + 2) + 'px';
+    menu.style.left = left + 'px';
+
+    // Wire up filter input
+    const fi = document.getElementById('col-menu-filter-input');
+    if (fi) {
+      fi.focus();
+      fi.addEventListener('input', () => {
+        colFilters[col] = fi.value.trim().toLowerCase();
+        applyColFilters();
+      });
+      fi.addEventListener('keydown', e => { if (e.key === 'Escape') closeColMenu(); });
+    }
+
+    // Wire up action items
+    menu.querySelectorAll('.col-menu-item[data-action]').forEach(item => {
+      item.addEventListener('click', () => {
+        const action = item.dataset.action;
+        if (action === 'sort-asc') {
+          sortCol = col; sortDir = 1; closeColMenu(); renderAllLeads();
+        } else if (action === 'sort-desc') {
+          sortCol = col; sortDir = -1; closeColMenu(); renderAllLeads();
+        } else if (action === 'sort-clear') {
+          sortCol = null; closeColMenu(); renderAllLeads();
+        } else if (action === 'filter-clear') {
+          delete colFilters[col]; closeColMenu(); applyColFilters(); renderAllLeads();
+        } else if (action === 'sort-clear-all') {
+          sortCol = null; Object.keys(colFilters).forEach(k => delete colFilters[k]);
+          closeColMenu(); renderAllLeads();
+        }
+      });
+    });
+  }
+
+  function closeColMenu() {
+    const menu = document.getElementById('col-menu');
+    if (menu) menu.style.display = 'none';
+    activeMenuCol = null;
+  }
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#col-menu') && !e.target.closest('th.col-has-menu')) closeColMenu();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeColMenu(); });
+
   // ── LIVE DATA REFRESH ──
   async function refreshLead(i) {
     const lead = leadMap.get(i);
@@ -1226,17 +1413,6 @@
     });
   }
 
-  function attachFilterListeners() {
-    leadsEl.querySelectorAll('.filter-input').forEach(input => {
-      input.addEventListener('input', () => {
-        const col = input.dataset.col;
-        colFilters[col] = input.value.trim().toLowerCase();
-        applyColFilters();
-      });
-      // Restore previous filter value
-      if (colFilters[input.dataset.col]) input.value = colFilters[input.dataset.col];
-    });
-  }
 
   // ── COLUMN RESIZE ──
   let resizeState = null;
@@ -1463,25 +1639,13 @@
             <th class="cell-cb"></th>
             ${['name','signal','rating','reviews','velocity','lastrev','city','phone','website','maps','owner','email','actions'].map((col,ci) => {
               const labels = {name:'Name',signal:'Signal',rating:'Rating',reviews:'Reviews',velocity:'Velocity',lastrev:'Last Review',city:'City',phone:'Phone',website:'Website',maps:'',owner:'Owner',email:'Email',actions:''};
-              const sortable = ['name','signal','rating','reviews','city'].includes(col);
               const ra = ['rating','reviews'].includes(col) ? ' style="text-align:right"' : '';
-              const active = sortCol===col ? ' sort-active' : '';
-              const arrow = sortable ? ` <span class="sort-arrow">${sortCol===col?(sortDir===1?'↑':'↓'):'↕'}</span>` : '';
-              const resize = col!=='actions' ? `<div class="col-resize" data-ci="${ci+2}"></div>` : '';
-              return `<th class="${sortable?'sortable':''}${active}"${sortable?' data-col="'+col+'"':''} ${ra}>${labels[col]}${arrow}${resize}</th>`;
+              const sortInd   = sortCol===col ? `<span class="col-sort-ind">${sortDir===1?'↑':'↓'}</span>` : '';
+              const filterInd = colFilters[col] ? `<span class="col-filter-ind"></span>` : '';
+              const resize    = col!=='actions' ? `<div class="col-resize" data-ci="${ci+2}"></div>` : '';
+              const hasMenu   = col!=='actions';
+              return `<th${hasMenu?' data-col="'+col+'" class="col-has-menu"':''} ${ra}>${labels[col]}${sortInd}${filterInd}${resize}</th>`;
             }).join('')}
-          </tr>
-          <tr class="filter-row">
-            <td></td><td></td>
-            <td><input class="filter-input" data-col="name" placeholder="filter…"></td>
-            <td><input class="filter-input" data-col="signal" placeholder="filter…"></td>
-            <td></td><td></td><td></td><td></td>
-            <td><input class="filter-input" data-col="city" placeholder="filter…"></td>
-            <td><input class="filter-input" data-col="phone" placeholder="filter…"></td>
-            <td></td><td></td>
-            <td><input class="filter-input" data-col="owner" placeholder="filter…"></td>
-            <td><input class="filter-input" data-col="email" placeholder="filter…"></td>
-            <td></td>
           </tr>
         </thead>
         <tbody>
@@ -1490,15 +1654,13 @@
       </table>`;
     if (hideContacted) leadsEl.classList.add('hide-contacted');
     attachLeadListeners();
-    attachFilterListeners();
     attachResizeHandles();
     applyColFilters();
-    leadsEl.querySelectorAll('th.sortable').forEach(th => {
-      th.addEventListener('click', () => {
-        const col = th.dataset.col;
-        if (sortCol === col) { sortDir *= -1; }
-        else { sortCol = col; sortDir = col === 'name' || col === 'city' || col === 'signal' ? 1 : -1; }
-        renderAllLeads();
+    leadsEl.querySelectorAll('th.col-has-menu').forEach(th => {
+      th.style.cursor = 'pointer';
+      th.addEventListener('click', e => {
+        if (e.target.closest('.col-resize')) return;
+        openColMenu(th.dataset.col, th);
       });
     });
 
@@ -1583,6 +1745,8 @@
       .replace(/"/g, '&quot;');
   }
 </script>
+
+<div id="col-menu" class="col-menu" style="display:none"></div>
 
 </body>
 </html>
