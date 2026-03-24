@@ -591,6 +591,94 @@
 
     .icon-btn.live-fetched { color: #2a7a4a; border-color: #2a7a4a; opacity: 0.7; }
 
+    /* ── COMPETITOR TABLE (modal) ── */
+    .comp-section-title {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--sub);
+      margin: 18px 0 10px;
+    }
+
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .comp-table th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sub);
+      padding: 0 8px 7px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .comp-table td {
+      padding: 7px 8px 7px 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    .comp-table tr.target-row td {
+      background: rgba(212,164,58,0.07);
+      font-weight: 600;
+    }
+
+    .comp-table tr.target-row td:first-child { border-radius: 4px 0 0 4px; padding-left: 8px; }
+    .comp-table tr.target-row td:last-child  { border-radius: 0 4px 4px 0; }
+
+    .delta-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .delta-above { background: rgba(40,167,69,0.1);  color: #1e7e34; }
+    .delta-below { background: rgba(220,53,69,0.1);  color: #c82333; }
+    .delta-at    { background: rgba(0,0,0,0.06);     color: var(--sub); }
+
+    body.dark .delta-above { background: rgba(40,167,69,0.18);  color: #5abf7a; }
+    body.dark .delta-below { background: rgba(220,53,69,0.18);  color: #e87070; }
+    body.dark .delta-at    { background: rgba(255,255,255,0.07); }
+
+    .you-badge {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: #D4A43A;
+      color: #fff;
+      padding: 1px 5px;
+      border-radius: 3px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .comp-load-btn {
+      font-size: 11px;
+      font-family: inherit;
+      font-weight: 500;
+      background: none;
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      padding: 4px 12px;
+      color: var(--sub);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      margin-top: 16px;
+    }
+
+    .comp-load-btn:hover { color: var(--text); border-color: var(--text); }
+    .comp-load-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
     /* ── COLUMN MENU ── */
     .col-menu {
       position: fixed;
@@ -1165,6 +1253,83 @@
       </tr>`;
   }
 
+  function renderCompTable(lead, competitors) {
+    if (!competitors.length) {
+      return `<p class="comp-section-title" style="margin-top:16px">No nearby competitors found</p>`;
+    }
+
+    const rows = competitors.map(c => {
+      let cls, label;
+      if (c.rating > lead.rating || c.reviews > lead.reviews * 1.2) {
+        cls = 'delta-above'; label = 'ahead';
+      } else if (c.rating < lead.rating && c.reviews < lead.reviews) {
+        cls = 'delta-below'; label = 'behind';
+      } else {
+        cls = 'delta-at'; label = 'similar';
+      }
+      const mapsHref = c.place_id
+        ? `https://www.google.com/maps/place/?q=place_id:${c.place_id}`
+        : '#';
+      return `
+        <tr>
+          <td><a href="${escHtml(mapsHref)}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">${escHtml(c.name)}</a></td>
+          <td style="text-align:right;font-weight:600">${c.rating} ⭐</td>
+          <td style="text-align:right;color:var(--sub)">${c.reviews}</td>
+          <td style="text-align:right"><span class="delta-badge ${cls}">${label}</span></td>
+        </tr>`;
+    }).join('');
+
+    return `
+      <div class="comp-section-title">Local Competition</div>
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Business</th>
+            <th style="text-align:right">Rating</th>
+            <th style="text-align:right">Reviews</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="target-row">
+            <td>${escHtml(lead.name)}<span class="you-badge">you</span></td>
+            <td style="text-align:right">${lead.rating} ⭐</td>
+            <td style="text-align:right">${lead.reviews}</td>
+            <td></td>
+          </tr>
+          ${rows}
+        </tbody>
+      </table>`;
+  }
+
+  async function loadCompetitors(i) {
+    const lead    = leadMap.get(i);
+    if (!lead) return;
+    const placeId = lead.id || lead.place_id;
+    if (!placeId) return;
+
+    const btn     = document.getElementById('comp-load-btn');
+    const section = document.getElementById('modal-comp-section');
+    if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+
+    try {
+      const res  = await fetch('/api/competitors', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ place_id: placeId }),
+      });
+      const data = await res.json();
+      const competitors = data.competitors || [];
+
+      lead._competitors = competitors;
+      saveLeads();
+
+      if (section) section.innerHTML = renderCompTable(lead, competitors);
+    } catch {
+      if (btn) { btn.disabled = false; btn.textContent = 'Retry competition ↓'; }
+    }
+  }
+
   function openModal(i) {
     const lead = leadMap.get(i);
     if (!lead) return;
@@ -1198,6 +1363,11 @@
           <button class="copy-btn modal-copy-btn" data-text="${escHtml(waMsg)}">Copy</button>
         </div>
       </div>
+      <div id="modal-comp-section">
+        ${lead._competitors
+          ? renderCompTable(lead, lead._competitors)
+          : `<button class="comp-load-btn" id="comp-load-btn">Show local competition ↓</button>`}
+      </div>
     `;
 
     body.querySelectorAll('.wa-open-btn').forEach(b => {
@@ -1209,6 +1379,9 @@
     body.querySelectorAll('.modal-copy-btn').forEach(b => {
       b.addEventListener('click', () => copyText(b, b.dataset.text));
     });
+
+    const compBtn = document.getElementById('comp-load-btn');
+    if (compBtn) compBtn.addEventListener('click', () => loadCompetitors(i));
 
     document.getElementById('lead-modal').style.display = 'block';
   }
