@@ -609,6 +609,19 @@
 
     .modal-close:hover { color: var(--text); }
 
+    /* ── GUIDE CONTENT ── */
+    .guide-content h1 { font-size: 16px; font-weight: 700; margin: 20px 0 6px; color: var(--text); }
+    .guide-content h2 { font-size: 14px; font-weight: 600; margin: 16px 0 4px; color: var(--text); }
+    .guide-content h3 { font-size: 12px; font-weight: 600; margin: 12px 0 4px; color: var(--sub); text-transform: uppercase; letter-spacing: 0.06em; }
+    .guide-content p  { font-size: 13px; color: var(--text); line-height: 1.65; margin: 6px 0; }
+    .guide-content ul, .guide-content ol { font-size: 13px; color: var(--text); line-height: 1.65; padding-left: 18px; margin: 6px 0; }
+    .guide-content hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+    .guide-content blockquote { border-left: 3px solid #D4A43A; padding-left: 10px; margin: 10px 0; color: var(--sub); font-style: italic; font-size: 13px; }
+    .guide-content table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 10px 0; }
+    .guide-content th { text-align: left; padding: 6px 8px; background: var(--surface); color: var(--sub); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .guide-content td { padding: 6px 8px; border-top: 1px solid var(--border); color: var(--text); }
+    .guide-content .guide-first-h1 { margin-top: 0; }
+
     .empty-state {
       text-align: center;
       padding: 48px 0;
@@ -621,6 +634,7 @@
 
 <div class="topbar">
   <a class="nav-link" href="execution-panel.html" target="_blank">Execution Panel ↗</a>
+  <button class="nav-link" style="cursor:pointer;background:none;" onclick="openGuide()">Guide</button>
   <div class="theme-toggle" onclick="toggleTheme()">
     <span class="toggle-label">Light</span>
     <div class="toggle-track"><div class="toggle-thumb"></div></div>
@@ -657,6 +671,76 @@
   <div id="leads"></div>
   <div id="export-bar" style="max-width:720px;margin:12px auto 48px;padding:0 20px;display:none;">
     <button class="copy-btn" onclick="exportCSV()">Export CSV</button>
+  </div>
+</div>
+
+<!-- Guide modal -->
+<div id="guide-modal" style="display:none">
+  <div class="modal-overlay" onclick="closeGuide()"></div>
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Reputation Signals Playbook</div>
+      <button class="modal-close" onclick="closeGuide()">✕</button>
+    </div>
+    <div class="guide-content">
+      <h1 class="guide-first-h1">How Google Maps Actually Works</h1>
+      <p>Google Maps ranking is driven by 3 core factors:</p>
+      <h3>1. Relevance</h3><p>How well the business matches the search query.</p>
+      <h3>2. Distance</h3><p>How close the business is to the user.</p>
+      <h3>3. Prominence (Most Important)</h3>
+      <p>This is where reviews matter. Prominence includes: rating, number of reviews, review velocity, keywords in reviews, and overall engagement.</p>
+      <hr>
+      <h1>User Behavior</h1>
+      <p>When someone searches "barber near me" or "hair salon" they typically:</p>
+      <ol><li>Look at top 3 results</li><li>Compare rating and number of reviews</li><li>Click 1–2 options max</li></ol>
+      <blockquote>You don't need to be #1 — but you must be competitive.</blockquote>
+      <hr>
+      <h1>Core Metrics</h1>
+      <h2>Rating (Stars)</h2>
+      <p>First filter for trust. Anything below ~4.4 starts losing clicks.</p>
+      <table>
+        <tr><th>Rating</th><th>Perception</th></tr>
+        <tr><td>4.8–5.0</td><td>Premium / top choice</td></tr>
+        <tr><td>4.5–4.7</td><td>Strong</td></tr>
+        <tr><td>4.2–4.4</td><td>Risky</td></tr>
+        <tr><td>&lt;4.2</td><td>Avoided</td></tr>
+      </table>
+      <h2>Review Count</h2>
+      <p>Social proof and confidence signal. 4.6 with 300 reviews beats 4.6 with 50 reviews almost every time.</p>
+      <h2>Review Velocity</h2>
+      <p>How often new reviews are added. Signals the business is active and keeps ranking fresh. Old or inconsistent reviews cause ranking to drop over time.</p>
+      <hr>
+      <h1>Observation Labels</h1>
+      <h2>🔴 "costing bookings"</h2>
+      <p><strong>Condition:</strong> Rating ≤ 4.3<br>Customers see better-rated competitors nearby and skip this business during comparison. A few bad reviews dragging the average down with no system to recover unhappy clients.</p>
+      <h2>🟡 "room to improve rating"</h2>
+      <p><strong>Condition:</strong> High reviews (120+) but rating &lt; 4.7<br>Strong base but not optimised. Not asking happy customers for reviews. Negative reviews not managed.</p>
+      <h2>🔵 "low visibility"</h2>
+      <p><strong>Condition:</strong> Reviews ≤ 80 and rating ≥ 4.4<br>Good quality, low volume. No review generation system. Not appearing in top results.</p>
+      <h2>🟣 "high volume, not optimised"</h2>
+      <p><strong>Condition:</strong> Reviews ≥ 200 and rating ≤ 4.4<br>High traffic but poor consistency. Scaling without quality control. Massive lost potential.</p>
+      <hr>
+      <h1>Observation → Real Problem</h1>
+      <table>
+        <tr><th>Label</th><th>Real Problem</th></tr>
+        <tr><td>costing bookings</td><td>losing customers</td></tr>
+        <tr><td>low visibility</td><td>not being seen</td></tr>
+        <tr><td>room to improve</td><td>underperforming</td></tr>
+        <tr><td>high volume not optimised</td><td>leaking growth</td></tr>
+      </table>
+      <hr>
+      <h1>Why Your Messaging Works</h1>
+      <p>You are not saying "we help you get more reviews".</p>
+      <blockquote>You are saying: "this is what's costing you bookings"</blockquote>
+      <p>This aligns with how customers behave and how Google ranks businesses.</p>
+      <hr>
+      <h1>Mental Model</h1>
+      <p>Google Maps = Competition. Every search is: <em>"Who looks best right now?"</em></p>
+      <ul><li>Looks worse → loses</li><li>Looks equal → ignored</li><li>Looks better → wins</li></ul>
+      <hr>
+      <h2>Final Takeaway</h2>
+      <p>You are not selling a service. You are pointing out where they are losing customers right now. That's why this works.</p>
+    </div>
   </div>
 </div>
 
@@ -841,6 +925,9 @@
     document.getElementById('lead-modal').style.display = 'none';
   }
 
+  function openGuide()  { document.getElementById('guide-modal').style.display = 'block'; }
+  function closeGuide() { document.getElementById('guide-modal').style.display = 'none'; }
+
   function setOutcome(i, outcome) {
     const lead = leadMap.get(i);
     if (!lead) return;
@@ -1009,7 +1096,7 @@
   // Modal close handlers
   document.getElementById('modal-close').addEventListener('click', closeModal);
   document.getElementById('modal-overlay').addEventListener('click', closeModal);
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeGuide(); } });
 
   // Load from localStorage instantly, then merge from Supabase
   loadFromLocalStorage();
