@@ -353,6 +353,19 @@
     .velocity-fast   { background: rgba(40,167,69,0.1);  color: #1e7e34; }
     .velocity-medium { background: rgba(212,164,58,0.12); color: #b59a3a; }
     .velocity-slow   { background: rgba(220,53,69,0.1);  color: #c82333; }
+
+    .maturity-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .maturity-new       { background: rgba(99,179,237,0.12); color: #2b6cb0; }
+    .maturity-building  { background: rgba(40,167,69,0.1);   color: #1e7e34; }
+    .maturity-plateaued { background: rgba(212,164,58,0.12); color: #b59a3a; }
+    .maturity-quiet     { background: rgba(220,53,69,0.1);   color: #c82333; }
   </style>
 </head>
 <body>
@@ -415,6 +428,7 @@
           <div class="snapshot-activity" id="snap-activity" style="display:none">
             <span id="snap-last-review"></span>
             <span class="velocity-badge" id="snap-velocity"></span>
+            <span class="maturity-badge" id="snap-maturity"></span>
           </div>
         </div>
       </div>
@@ -578,6 +592,18 @@
     return s || name.trim();
   }
 
+  function getProfileMaturity(reviews, lastReviewDays, velocity) {
+    const stale  = lastReviewDays === null || lastReviewDays > 90;
+    const active = velocity === 'fast' || velocity === 'medium';
+
+    if (stale && reviews >= 80)  return { label: 'Gone quiet',   cls: 'maturity-quiet' };
+    if (stale)                   return { label: 'Gone quiet',   cls: 'maturity-quiet' };
+    if (reviews < 50 && active)  return { label: 'New presence', cls: 'maturity-new' };
+    if (!active && reviews >= 50) return { label: 'Plateaued',  cls: 'maturity-plateaued' };
+    if (active)                  return { label: 'Building',     cls: 'maturity-building' };
+    return                              { label: 'Plateaued',    cls: 'maturity-plateaued' };
+  }
+
   function selectDefaultAngle({ lastReviewDays, hasStronger, rating }) {
     if (lastReviewDays !== null && lastReviewDays > 60) return 0; // Velocity
     if (hasStronger)                                              return 1; // Competition
@@ -664,12 +690,18 @@
         document.getElementById('snap-last-review').textContent  = `Last review ${lastReviewLabel}`;
         const velEl = document.getElementById('snap-velocity');
         if (velocityLabels[review_velocity]) {
-          velEl.textContent  = velocityLabels[review_velocity];
-          velEl.className    = `velocity-badge ${velocityClass[review_velocity]}`;
+          velEl.textContent   = velocityLabels[review_velocity];
+          velEl.className     = `velocity-badge ${velocityClass[review_velocity]}`;
           velEl.style.display = '';
         } else {
           velEl.style.display = 'none';
         }
+
+        const maturity   = getProfileMaturity(reviews, last_review_days, review_velocity);
+        const maturityEl = document.getElementById('snap-maturity');
+        maturityEl.textContent = maturity.label;
+        maturityEl.className   = `maturity-badge ${maturity.cls}`;
+
         document.getElementById('snap-activity').style.display = '';
       } else {
         document.getElementById('snap-activity').style.display = 'none';
