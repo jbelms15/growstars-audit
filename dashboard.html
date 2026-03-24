@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — GrowStars</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f1ea;
+      color: #1a1208;
+      min-height: 100vh;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      background: #f5f1ea;
+    }
+
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+
+    .brand {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1208;
+      text-decoration: none;
+    }
+
+    .brand span { color: #D4A43A; }
+
+    .page-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: #7a6e62;
+      letter-spacing: 0.04em;
+    }
+
+    .nav-link {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #7a6e62;
+      text-decoration: none;
+      padding: 4px 10px;
+      border: 0.5px solid #d4c9b0;
+      border-radius: 3px;
+    }
+
+    .nav-link:hover { color: #1a1208; }
+
+    /* LAYOUT */
+    .main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 80px 24px;
+      color: #7a6e62;
+      font-size: 14px;
+    }
+
+    /* SECTION */
+    .section { margin-bottom: 36px; }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #7a6e62;
+      margin-bottom: 12px;
+    }
+
+    /* CARD */
+    .card {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 8px;
+    }
+
+    /* STATS ROW */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 8px;
+      padding: 20px 24px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1a1208;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #b0a492;
+      font-weight: 500;
+    }
+
+    /* FUNNEL */
+    .funnel-card {
+      padding: 20px 24px;
+    }
+
+    .funnel-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .funnel-row:last-child { margin-bottom: 0; }
+
+    .funnel-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #7a6e62;
+      width: 100px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .funnel-bar-track {
+      flex: 1;
+      height: 22px;
+      background: rgba(0,0,0,0.03);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .funnel-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      min-width: 2px;
+      transition: width 0.3s ease;
+    }
+
+    .funnel-count {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1a1208;
+      width: 28px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .funnel-divider {
+      border: none;
+      border-top: 1px solid rgba(0,0,0,0.06);
+      margin: 10px 0;
+    }
+
+    .funnel-row.dimmed .funnel-label,
+    .funnel-row.dimmed .funnel-count {
+      color: #b0a492;
+    }
+
+    /* ANGLE TABLE */
+    .angle-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .angle-table th {
+      text-align: left;
+      padding: 10px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #b0a492;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .angle-table td {
+      padding: 11px 16px;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+      color: #1a1208;
+    }
+
+    .angle-table tr:last-child td { border-bottom: none; }
+
+    .angle-table tr.best-angle { border-left: 3px solid #D4A43A; }
+    .angle-table tr.best-angle td:first-child { padding-left: 13px; }
+
+    .angle-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 3px;
+      background: rgba(212,164,58,0.12);
+      color: #a07820;
+    }
+
+    .rate-value {
+      font-weight: 600;
+    }
+
+    .rate-high { color: #1a7f37; }
+    .rate-mid  { color: #7a6e62; }
+    .rate-low  { color: #b0a492; }
+
+    /* WEEKLY VOLUME */
+    .volume-card {
+      padding: 20px 24px;
+    }
+
+    .week-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .week-row:last-child { margin-bottom: 0; }
+
+    .week-label {
+      font-size: 11px;
+      color: #7a6e62;
+      font-weight: 500;
+      width: 70px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .week-bar-track {
+      flex: 1;
+      height: 18px;
+      background: rgba(0,0,0,0.03);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .week-bar-fill {
+      height: 100%;
+      background: rgba(212,164,58,0.35);
+      border-radius: 3px;
+      min-width: 0;
+      transition: width 0.3s ease;
+    }
+
+    .week-count {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1a1208;
+      width: 28px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* NOT INTERESTED LIST */
+    .ni-note {
+      font-size: 11px;
+      color: #b0a492;
+      margin-bottom: 12px;
+    }
+
+    .ni-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .ni-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .ni-item:last-child { border-bottom: none; }
+
+    .ni-business {
+      font-size: 12px;
+      font-weight: 500;
+      flex: 1;
+      color: #1a1208;
+    }
+
+    .ni-date {
+      font-size: 11px;
+      color: #b0a492;
+    }
+
+    /* Refresh button */
+    .refresh-btn {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #7a6e62;
+      background: none;
+      cursor: pointer;
+      padding: 4px 10px;
+      border: 0.5px solid #d4c9b0;
+      border-radius: 3px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .refresh-btn:hover { color: #1a1208; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="brand" href="lead-runner.html">Grow<span>Stars</span></a>
+    <span class="page-title">Dashboard</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <a class="nav-link" href="index.html">LinkedIn Assist</a>
+    <a class="nav-link" href="tracker.html">Tracker</a>
+    <a class="nav-link" href="lead-runner.html">Lead Runner</a>
+    <button class="refresh-btn" onclick="render()">Refresh</button>
+  </div>
+</div>
+
+<div class="main" id="main"></div>
+
+<script>
+  const ANGLE_NAMES = ['Velocity', 'Competition', 'Opportunity', 'Visibility'];
+  const ANGLE_BEST  = {
+    Velocity:    'Slowed review activity',
+    Competition: 'Strong nearby competitors',
+    Opportunity: 'High rating, room to grow',
+    Visibility:  'Low review volume'
+  };
+
+  const REPLY_STATUSES    = new Set(['Replied', 'Loom Sent', 'Call Booked', 'Closed Won']);
+  const LOOM_STATUSES     = new Set(['Loom Sent', 'Call Booked', 'Closed Won']);
+  const FUNNEL_STAGES     = ['Waiting', 'Replied', 'Loom Sent', 'Call Booked', 'Closed Won'];
+  const FUNNEL_COLORS     = {
+    'Waiting':     'rgba(0,0,0,0.08)',
+    'Replied':     'rgba(10,102,194,0.20)',
+    'Loom Sent':   'rgba(107,70,193,0.20)',
+    'Call Booked': 'rgba(40,167,69,0.18)',
+    'Closed Won':  'rgba(40,167,69,0.30)'
+  };
+
+  function loadData() {
+    try {
+      const raw = localStorage.getItem('growstars_tracker');
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function rateClass(r) {
+    if (r >= 40) return 'rate-high';
+    if (r >= 15) return 'rate-mid';
+    return 'rate-low';
+  }
+
+  function fmtRate(sent, replies) {
+    if (!sent) return { pct: 0, str: '—' };
+    const pct = Math.round((replies / sent) * 100);
+    return { pct, str: pct + '%' };
+  }
+
+  function getWeekLabel(dateStr) {
+    // Returns "W Mon DD" string for the Monday of the week containing dateStr
+    const d = new Date(dateStr + 'T12:00:00');
+    const day = d.getDay(); // 0=Sun
+    const diff = (day === 0) ? -6 : 1 - day;
+    const monday = new Date(d);
+    monday.setDate(d.getDate() + diff);
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return 'W ' + months[monday.getMonth()] + ' ' + monday.getDate();
+  }
+
+  function getMondayKey(dateStr) {
+    const d = new Date(dateStr + 'T12:00:00');
+    const day = d.getDay();
+    const diff = (day === 0) ? -6 : 1 - day;
+    const monday = new Date(d);
+    monday.setDate(d.getDate() + diff);
+    return monday.toISOString().slice(0, 10);
+  }
+
+  function getLast6Weeks() {
+    const today = new Date();
+    const day = today.getDay();
+    const diff = (day === 0) ? -6 : 1 - day;
+    const thisMonday = new Date(today);
+    thisMonday.setDate(today.getDate() + diff);
+    thisMonday.setHours(0, 0, 0, 0);
+    const weeks = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(thisMonday);
+      d.setDate(thisMonday.getDate() - i * 7);
+      const key = d.toISOString().slice(0, 10);
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const label = 'W ' + months[d.getMonth()] + ' ' + d.getDate();
+      weeks.push({ key, label, count: 0 });
+    }
+    return weeks;
+  }
+
+  function render() {
+    const data = loadData();
+    const container = document.getElementById('main');
+
+    if (!data.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          No outreach data yet. Add prospects from <a href="index.html" style="color:#D4A43A;text-decoration:none;font-weight:600;">LinkedIn Assist</a>.
+        </div>`;
+      return;
+    }
+
+    const total = data.length;
+
+    // --- Summary stats ---
+    const replyCount   = data.filter(e => REPLY_STATUSES.has(e.status)).length;
+    const loomCount    = data.filter(e => LOOM_STATUSES.has(e.status)).length;
+    const closedCount  = data.filter(e => e.status === 'Closed Won').length;
+    const replyRate    = total ? Math.round((replyCount / total) * 100) : 0;
+    const loomConv     = replyCount ? Math.round((loomCount / replyCount) * 100) : 0;
+
+    // --- Funnel ---
+    const stageCounts = {};
+    FUNNEL_STAGES.forEach(s => stageCounts[s] = 0);
+    stageCounts['Not Interested'] = 0;
+    data.forEach(e => {
+      if (stageCounts.hasOwnProperty(e.status)) stageCounts[e.status]++;
+    });
+
+    // --- Angle performance ---
+    const angleStats = {};
+    ANGLE_NAMES.forEach(n => angleStats[n] = { sent: 0, replies: 0 });
+    data.forEach(e => {
+      const name = ANGLE_NAMES[e.angle];
+      if (!name) return;
+      angleStats[name].sent++;
+      if (REPLY_STATUSES.has(e.status)) angleStats[name].replies++;
+    });
+    // Find best angle (highest reply rate, min 1 sent)
+    let bestAngle = null, bestPct = -1;
+    ANGLE_NAMES.forEach(n => {
+      const s = angleStats[n];
+      const pct = s.sent ? (s.replies / s.sent) * 100 : 0;
+      if (s.sent > 0 && pct > bestPct) { bestPct = pct; bestAngle = n; }
+    });
+
+    // --- Weekly volume ---
+    const weeks = getLast6Weeks();
+    const weekMap = {};
+    weeks.forEach(w => weekMap[w.key] = w);
+    data.forEach(e => {
+      if (!e.sent_date) return;
+      const key = getMondayKey(e.sent_date);
+      if (weekMap[key]) weekMap[key].count++;
+    });
+    const maxWeekCount = Math.max(1, ...weeks.map(w => w.count));
+
+    // --- Not Interested ---
+    const niEntries = data.filter(e => e.status === 'Not Interested');
+    const niShow    = niEntries.slice(0, 5);
+
+    // --- BUILD HTML ---
+    let html = '';
+
+    // 1. Summary stats
+    html += `
+    <div class="section">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value">${total}</div>
+          <div class="stat-label">Total Sent</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${replyRate}%</div>
+          <div class="stat-label">Reply Rate</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${loomConv}%</div>
+          <div class="stat-label">of replies &rarr; Loom</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${closedCount}</div>
+          <div class="stat-label">Closed Won</div>
+        </div>
+      </div>
+    </div>`;
+
+    // 2. Funnel
+    html += `
+    <div class="section">
+      <div class="section-title">Pipeline</div>
+      <div class="card funnel-card">`;
+
+    FUNNEL_STAGES.forEach(stage => {
+      const count   = stageCounts[stage] || 0;
+      const pct     = total ? Math.max(0, Math.min(100, (count / total) * 100)) : 0;
+      const color   = FUNNEL_COLORS[stage];
+      html += `
+        <div class="funnel-row">
+          <div class="funnel-label">${stage}</div>
+          <div class="funnel-bar-track">
+            <div class="funnel-bar-fill" style="width:${pct}%;background:${color};"></div>
+          </div>
+          <div class="funnel-count">${count}</div>
+        </div>`;
+    });
+
+    html += `<hr class="funnel-divider">`;
+
+    const niCount = stageCounts['Not Interested'] || 0;
+    const niPct   = total ? (niCount / total) * 100 : 0;
+    html += `
+        <div class="funnel-row dimmed">
+          <div class="funnel-label">Not Interested</div>
+          <div class="funnel-bar-track">
+            <div class="funnel-bar-fill" style="width:${niPct}%;background:rgba(0,0,0,0.05);"></div>
+          </div>
+          <div class="funnel-count">${niCount}</div>
+        </div>
+      </div>
+    </div>`;
+
+    // 3. Angle table
+    html += `
+    <div class="section">
+      <div class="section-title">Message Angle Performance</div>
+      <div class="card">
+        <table class="angle-table">
+          <thead>
+            <tr>
+              <th>Angle</th>
+              <th>Sent</th>
+              <th>Replies</th>
+              <th>Reply Rate</th>
+              <th>Best For</th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+    ANGLE_NAMES.forEach(name => {
+      const s    = angleStats[name];
+      const rate = fmtRate(s.sent, s.replies);
+      const cls  = (name === bestAngle && s.sent > 0) ? ' class="best-angle"' : '';
+      const rCls = rateClass(rate.pct);
+      html += `
+            <tr${cls}>
+              <td><span class="angle-badge">${name}</span></td>
+              <td>${s.sent || '—'}</td>
+              <td>${s.replies || '—'}</td>
+              <td><span class="rate-value ${s.sent ? rCls : 'rate-low'}">${rate.str}</span></td>
+              <td style="color:#7a6e62;">${ANGLE_BEST[name]}</td>
+            </tr>`;
+    });
+
+    html += `
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+    // 4. Weekly volume
+    html += `
+    <div class="section">
+      <div class="section-title">Outreach Volume</div>
+      <div class="card volume-card">`;
+
+    weeks.forEach(w => {
+      const pct = Math.round((w.count / maxWeekCount) * 100);
+      html += `
+        <div class="week-row">
+          <div class="week-label">${w.label}</div>
+          <div class="week-bar-track">
+            <div class="week-bar-fill" style="width:${pct}%;"></div>
+          </div>
+          <div class="week-count">${w.count || ''}</div>
+        </div>`;
+    });
+
+    html += `
+      </div>
+    </div>`;
+
+    // 5. Not Interested breakdown
+    html += `
+    <div class="section">
+      <div class="section-title">Not Interested &mdash; Quick Look</div>`;
+
+    if (!niEntries.length) {
+      html += `<div class="card" style="padding:20px 24px;font-size:12px;color:#b0a492;">No &ldquo;Not Interested&rdquo; entries yet.</div>`;
+    } else {
+      html += `
+      <div class="ni-note">${niEntries.length} total not interested</div>
+      <div class="card ni-list">`;
+      niShow.forEach(e => {
+        const angleName = ANGLE_NAMES[e.angle] || '—';
+        const dateStr   = e.sent_date ? e.sent_date : '—';
+        html += `
+        <div class="ni-item">
+          <div class="ni-business">${e.business || '—'}</div>
+          <span class="angle-badge">${angleName}</span>
+          <div class="ni-date">${dateStr}</div>
+        </div>`;
+      });
+      if (niEntries.length > 5) {
+        html += `<div class="ni-item" style="color:#b0a492;font-size:11px;">+${niEntries.length - 5} more not shown</div>`;
+      }
+      html += `</div>`;
+    }
+
+    html += `</div>`;
+
+    container.innerHTML = html;
+  }
+
+  render();
+</script>
+</body>
+</html>

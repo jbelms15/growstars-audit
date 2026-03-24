@@ -131,6 +131,7 @@
     /* ROW STATES */
     tr.row-overdue  td { background: rgba(220,53,69,0.04); }
     tr.row-followup td { background: rgba(212,164,58,0.06); }
+    tr.row-dead td { opacity: 0.35; }
 
     /* BUSINESS + CONTACT */
     .biz-name {
@@ -352,6 +353,7 @@
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
     <a class="nav-link" href="index.html">LinkedIn Assist</a>
+    <a class="nav-link" href="dashboard.html">Dashboard</a>
     <a class="nav-link" href="lead-runner.html">Lead Runner</a>
   </div>
 </div>
@@ -375,9 +377,8 @@
           <th>Sent Date</th>
           <th>Status</th>
           <th>Follow-up</th>
-          <th>Last Action</th>
           <th>Next Step</th>
-          <th>Notes</th>
+          <th>Context</th>
           <th></th>
           <th></th>
         </tr>
@@ -443,32 +444,41 @@
 
   function followupBadge(entry) {
     const refDate = entry.status_date || entry.sent_date;
+    const days    = daysSince(refDate);
     if (entry.status === 'Waiting') {
-      const days = daysSince(refDate);
-      if (days >= 7) return `<span class="followup-badge followup-overdue">Overdue</span>`;
+      if (days >= 7) return `<span class="followup-badge followup-overdue">Follow up</span>`;
       if (days >= 2) return `<span class="followup-badge followup-due">Follow up</span>`;
       return `<span class="followup-ok">–</span>`;
     }
     if (entry.status === 'Replied') {
-      const days = daysSince(refDate);
       if (days >= 5) return `<span class="followup-badge followup-overdue">Send Loom</span>`;
       return `<span class="followup-badge followup-due">Send Loom</span>`;
+    }
+    if (entry.status === 'Loom Sent') {
+      if (days >= 7) return `<span class="followup-badge followup-overdue">Chase call</span>`;
+      if (days >= 3) return `<span class="followup-badge followup-due">Chase call</span>`;
+      return `<span class="followup-ok">–</span>`;
     }
     return `<span class="followup-ok">–</span>`;
   }
 
   function rowClass(entry) {
     const refDate = entry.status_date || entry.sent_date;
+    const days    = daysSince(refDate);
+    if (entry.status === 'Not Interested') return 'row-dead';
     if (entry.status === 'Waiting') {
-      const days = daysSince(refDate);
       if (days >= 7) return 'row-overdue';
       if (days >= 2) return 'row-followup';
       return '';
     }
     if (entry.status === 'Replied') {
-      const days = daysSince(refDate);
       if (days >= 5) return 'row-overdue';
       return 'row-followup';
+    }
+    if (entry.status === 'Loom Sent') {
+      if (days >= 7) return 'row-overdue';
+      if (days >= 3) return 'row-followup';
+      return '';
     }
     return '';
   }
@@ -487,18 +497,40 @@
   }
 
   function renderSummary(data) {
-    const summary = document.getElementById('pipeline-summary');
+    const summary  = document.getElementById('pipeline-summary');
+    if (!data.length) { summary.innerHTML = ''; return; }
     const statuses = ['Waiting','Replied','Loom Sent','Call Booked','Closed Won','Not Interested'];
-    const counts = {};
+    const counts   = {};
     data.forEach(e => { counts[e.status] = (counts[e.status] || 0) + 1; });
     const items = statuses.filter(s => counts[s] > 0).map(s =>
       `<span style="font-size:11px;color:#7a6e62;"><span style="font-weight:600;color:#1a1208;">${counts[s]}</span> ${s}</span>`
     );
+    const total     = data.length;
+    const replied   = (counts['Replied'] || 0) + (counts['Loom Sent'] || 0) + (counts['Call Booked'] || 0) + (counts['Closed Won'] || 0);
+    const replyRate = Math.round((replied / total) * 100);
+    items.push(`<span style="font-size:11px;color:#7a6e62;border-left:1px solid #d4c9b0;padding-left:16px;"><span style="font-weight:600;color:#1a1208;">${replyRate}%</span> reply rate</span>`);
     summary.innerHTML = items.join(' <span style="color:#b0a492;">·</span> ');
+  }
+
+  function urgencyPriority(entry) {
+    const refDate = entry.status_date || entry.sent_date;
+    const days    = daysSince(refDate);
+    if (entry.status === 'Closed Won' || entry.status === 'Not Interested') return 99;
+    if (entry.status === 'Waiting'   && days >= 7) return 0;
+    if (entry.status === 'Replied'   && days >= 5) return 0;
+    if (entry.status === 'Loom Sent' && days >= 7) return 0;
+    if (entry.status === 'Waiting'   && days >= 2) return 1;
+    if (entry.status === 'Replied')                return 1;
+    if (entry.status === 'Loom Sent' && days >= 3) return 1;
+    if (entry.status === 'Call Booked')            return 2;
+    if (entry.status === 'Loom Sent')              return 3;
+    if (entry.status === 'Waiting')                return 4;
+    return 10;
   }
 
   function render() {
     const data  = load();
+    data.sort((a, b) => urgencyPriority(a) - urgencyPriority(b));
     const tbody = document.getElementById('tracker-tbody');
     const empty = document.getElementById('empty-state');
     const wrap  = document.getElementById('tracker-wrap');
@@ -534,9 +566,8 @@
           </td>
           <td>${statusSelectHTML(entry.status)}</td>
           <td>${followupBadge(entry)}</td>
-          <td><input class="notes-input" type="text" placeholder="Log what happened..." value="${(entry.last_action || '').replace(/"/g, '&quot;')}" onchange="updateLastAction(this)" data-index="${i}" style="width:130px;" /></td>
           <td><input class="notes-input" type="text" placeholder="e.g. Send Loom today" value="${(entry.next_step || '').replace(/"/g, '&quot;')}" onchange="updateNextStep(this)" data-index="${i}" style="width:140px;" /></td>
-          <td><input class="notes-input" type="text" placeholder="Add a note..." value="${(entry.notes || '').replace(/"/g, '&quot;')}" onchange="updateNotes(this)" data-index="${i}" /></td>
+          <td><input class="notes-input" type="text" placeholder="What happened, what was said..." value="${(entry.context || entry.last_action || entry.notes || '').replace(/"/g, '&quot;')}" onchange="updateContext(this)" data-index="${i}" style="width:180px;" /></td>
           <td>${loomBtn}</td>
           <td><button class="delete-btn" onclick="deleteEntry(${i})" title="Remove">×</button></td>
         </tr>`;
@@ -554,17 +585,10 @@
     render();
   }
 
-  function updateNotes(input) {
+  function updateContext(input) {
     const index = parseInt(input.dataset.index);
     const data  = load();
-    data[index].notes = input.value;
-    save(data);
-  }
-
-  function updateLastAction(input) {
-    const index = parseInt(input.dataset.index);
-    const data  = load();
-    data[index].last_action = input.value;
+    data[index].context = input.value;
     save(data);
   }
 
