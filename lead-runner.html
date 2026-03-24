@@ -1025,20 +1025,49 @@
     }
 
     /* ── SNAPSHOT OBSERVATION BLOCK ── */
-    .snap-obs-block {
-      background: var(--surface);
-      border-radius: 6px;
-      padding: 10px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
     .snap-obs-reason {
       font-size: 11px;
       color: var(--sub);
-      line-height: 1.5;
+      line-height: 1.6;
       margin: 0;
+      background: var(--surface);
+      border-radius: 5px;
+      padding: 8px 10px;
     }
+
+    /* ── SNAPSHOT LABELS GRID ── */
+    .snap-labels-grid { display: flex; flex-direction: column; gap: 10px; }
+    .snap-label-row {
+      display: grid;
+      grid-template-columns: 56px auto 1fr;
+      align-items: start;
+      gap: 8px;
+    }
+    .snap-label-key {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--sub);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding-top: 3px;
+    }
+    .snap-label-desc {
+      font-size: 11px;
+      color: var(--sub);
+      line-height: 1.4;
+      padding-top: 2px;
+    }
+
+    /* ── SNAPSHOT REVIEW ITEM ROW ── */
+    .snap-review-item {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      font-size: 11px;
+      padding: 3px 0;
+      color: var(--sub);
+    }
+    .snap-review-item strong { color: var(--text); }
 
     /* ── SNAPSHOT SECTION HEADER ── */
     .snap-section-header {
@@ -1618,6 +1647,106 @@
   }
 
   let _snapIndex = null;
+  let _snapAngle = 0;
+  let _snapLead  = null;
+  const SNAP_ANGLE_LABELS = ['Velocity', 'Competition', 'Opportunity', 'Visibility'];
+
+  function getVelocityDescription(velocity) {
+    switch (velocity) {
+      case 'fast':   return 'Reviews coming in frequently — less than 7 days average gap';
+      case 'medium': return 'Steady flow — roughly a new review every 1–4 weeks';
+      case 'slow':   return 'Growth has slowed — reviews coming in less than once a month';
+      default:       return 'Not enough data yet';
+    }
+  }
+
+  function getMaturityDescription(label) {
+    switch (label) {
+      case 'Gone quiet':   return 'Reviews have dried up — GBP being neglected. Highest priority prospect.';
+      case 'New presence': return 'Just started building on Google. Review foundation still forming.';
+      case 'Building':     return 'Actively collecting reviews — a system is working, even if informal.';
+      case 'Plateaued':    return 'Had momentum, lost it. No system keeping the reviews coming.';
+      default:             return '';
+    }
+  }
+
+  function getObservationText(lead, signal) {
+    const r = lead.rating, v = lead.reviews;
+    switch (signal.label) {
+      case 'costing bookings':
+        return `Rating at ${r} with ${v} reviews — below the 4.4 threshold where Google starts filtering profiles from top results.`;
+      case 'high vol, not optimised':
+        return `${v} reviews at ${r} ★ — high traffic but rating is dragging. At this volume every 0.1 changes outcomes.`;
+      case 'room to improve':
+        return `${v} reviews at ${r} ★ — established presence, not at the ceiling. Competitors with stronger profiles are taking their bookings.`;
+      case 'low visibility':
+        return `${r} ★ with ${v} reviews — good reputation, not enough people seeing it. Volume is the gap.`;
+      default:
+        return `${r} ★ with ${v} reviews — no obvious red flag, but no clear edge either.`;
+    }
+  }
+
+  function getSnapAngleReason(lead) {
+    const hasStronger = (lead._competitors || []).some(
+      c => c.rating >= lead.rating && c.reviews >= lead.reviews * 0.5
+    );
+    if (lead.last_review_days != null && lead.last_review_days > 60) return `last review ${lead.last_review_days}d ago`;
+    if (hasStronger)        return 'stronger competitors nearby';
+    if (lead.rating >= 4.6) return `strong rating (${lead.rating})`;
+    return 'low review volume';
+  }
+
+  function getDefaultAngle(lead) {
+    const hasStronger = (lead._competitors || []).some(
+      c => c.rating >= lead.rating && c.reviews >= lead.reviews * 0.5
+    );
+    if (lead.last_review_days != null && lead.last_review_days > 60) return 0;
+    if (hasStronger)        return 1;
+    if (lead.rating >= 4.6) return 2;
+    return 3;
+  }
+
+  function buildSnapMessage(angle, lead) {
+    const bizName = lead.name || 'your salon';
+    const rating  = lead.rating;
+    const reviews = lead.reviews;
+    const lastReviewDays = lead.last_review_days;
+    const hasStronger = (lead._competitors || []).some(
+      c => c.rating >= rating && c.reviews >= reviews * 0.5
+    );
+    const ownerFirst = lead.owner ? lead.owner.split(' ')[0] : null;
+    const hey = ownerFirst ? `Hey ${ownerFirst}` : 'Hey';
+
+    switch (angle) {
+      case 1:
+        return `${hey}, quick one.\n\nHad a look at what's happening locally around ${bizName}. A few nearby spots are picking up reviews faster right now.\n\nThat's usually when the gap starts to show in search results.\n\nI put together a quick breakdown on what's driving that, want me to send it?`;
+      case 2:
+        return `${hey}, quick one.\n\n${bizName} is at ${rating} with ${reviews} reviews, which is a decent base to build from.\n\nMost salons at that stage can push their review count up pretty quickly with a simple system.\n\nI made a quick breakdown on how to do that, want me to send it?`;
+      case 3:
+        return `${hey}, quick one.\n\nNoticed when people search nearby, ${bizName} isn't always showing as prominently as it could.\n\nThat usually comes down to how often new reviews are coming in.\n\nI made a quick breakdown of what affects that, want me to send it?`;
+      default: {
+        let ctx, impact, cta;
+        if (lastReviewDays != null && lastReviewDays > 60) {
+          ctx    = `Noticed ${bizName} is at ${rating} with ${reviews} reviews, that's a solid spot to be in. Reviews seem to have slowed down a bit recently.`;
+          impact = `That can influence how people decide which salon to go to.`;
+          cta    = `I made a quick breakdown on how to get reviews coming in more consistently, want me to send it?`;
+        } else if (hasStronger) {
+          ctx    = `Noticed ${bizName} is at ${rating} with ${reviews} reviews, that's a solid spot to be in. A few nearby spots are building up more reviews though.`;
+          impact = `That can influence how people decide which salon to go to.`;
+          cta    = `I made a quick breakdown on how to stay ahead, want me to send it?`;
+        } else if (rating <= 4.3) {
+          ctx    = `Noticed ${bizName} is at ${rating} with ${reviews} reviews, looks like there's some room to push that higher.`;
+          impact = `That can affect how new customers decide where to go.`;
+          cta    = `I made a quick breakdown of what might be holding your rating back, want me to send it?`;
+        } else {
+          ctx    = `Noticed ${bizName} is at ${rating} with ${reviews} reviews, that's a solid spot to be in.`;
+          impact = `That can influence how people decide which salon to go to.`;
+          cta    = `I made a quick breakdown on how to get more reviews coming in, want me to send it?`;
+        }
+        return `${hey}, quick one.\n\n${ctx}\n\n${impact}\n\n${cta}`;
+      }
+    }
+  }
 
   function renderGbpAudit(gbp, lead) {
     const item = (icon, label, val, cls) =>
@@ -1642,53 +1771,61 @@
     const lead = leadMap.get(i);
     if (!lead) return;
     _snapIndex = i;
+    _snapAngle = getDefaultAngle(lead);
+    _snapLead  = lead;
 
-    const waMsg    = buildMessage(lead.name, lead.rating, lead.reviews);
-    const cleanNum = (lead.phone || '').replace(/\D/g, '');
     const signal   = getSignal(lead.rating, lead.reviews);
     const maturity = (lead.last_review_days != null || lead.velocity) ? getMaturity(lead) : null;
+    const cleanNum = (lead.phone || '').replace(/\D/g, '');
 
-    // Name as GBP link in header
+    // Header: name as GBP link, no underline
     const titleEl = document.getElementById('snap-title');
     if (lead.maps_link) {
-      titleEl.innerHTML = `<a href="${escHtml(lead.maps_link)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;border-bottom:1px solid var(--border2)">${escHtml(lead.name || '')}</a>`;
+      titleEl.innerHTML = `<a href="${escHtml(lead.maps_link)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">${escHtml(lead.name || '')}</a>`;
     } else {
       titleEl.textContent = lead.name || '';
     }
 
     const liveStamp = lead._live_at
       ? `<span style="font-size:10px;color:#2a7a4a;font-weight:600">● LIVE</span> <span style="font-size:10px;color:var(--sub)">fetched ${Math.round((Date.now()-lead._live_at)/60000)}m ago</span>`
-      : `<span style="font-size:10px;color:var(--sub);font-style:italic">Snapshot data — click ↻ in the table to fetch live signals</span>`;
+      : `<span style="font-size:10px;color:var(--sub);font-style:italic">Snapshot data — fetch live ↻ for full signals</span>`;
 
-    // Review signals (after live fetch)
+    // Review Signals section
     let reviewSignalsHtml = '';
-    if (lead._live) {
-      const negHtml = lead.neg_count > 0
-        ? `<div style="font-size:11px;color:#c82333;font-weight:500">⚠ ${lead.neg_count} of ${lead.responds_total || 5} recent reviews are 1–2 ★</div>
-           ${lead.neg_snippet ? `<div class="neg-snippet">"${escHtml(lead.neg_snippet)}${lead.neg_snippet.length >= 160 ? '…' : ''}"</div>` : ''}`
-        : `<div style="font-size:11px;color:#2a7a4a">✓ No 1–2 ★ reviews in recent sample</div>`;
+    const lastRevLine = `<div class="snap-review-item"><span>Last review</span><strong>${lead.last_review_days != null ? `${lead.last_review_days}d ago` : '–'}</strong></div>`;
 
-      const respondsHtml = lead.responds_total
+    if (lead._live) {
+      const negLine = lead.neg_count > 0
+        ? `<div class="snap-review-item"><span>Negative reviews</span><span style="color:#c82333;font-weight:600">⚠ ${lead.neg_count} of ${lead.responds_total || 5} are 1–2 ★</span></div>
+           ${lead.neg_snippet ? `<div class="neg-snippet">"${escHtml(lead.neg_snippet)}${lead.neg_snippet.length >= 160 ? '…' : ''}"</div>` : ''}`
+        : `<div class="snap-review-item"><span>Negative reviews</span><span style="color:#2a7a4a;font-weight:600">✓ None in recent sample</span></div>`;
+
+      const repliedLine = lead.responds_total
         ? (() => {
             const n = lead.responds_count, t = lead.responds_total;
             const cls = n === 0 ? 'responds-no' : n === t ? 'responds-yes' : '';
-            const label = n === 0 ? `✗ None of ${t}` : n === t ? `✓ All ${t} of ${t}` : `${n} of ${t}`;
-            return `<div style="margin-top:5px;font-size:11px;color:var(--sub)">Replied to reviews: <span class="${cls}" style="font-weight:600">${label}</span></div>`;
+            const lbl = n === 0 ? `✗ None of ${t}` : n === t ? `✓ All ${t} of ${t}` : `${n} of ${t}`;
+            return `<div class="snap-review-item"><span>Replied to reviews</span><span class="${cls}" style="font-weight:600">${lbl}</span></div>`;
           })()
         : '';
 
       reviewSignalsHtml = `
         <div class="snap-divider"></div>
         <div>
-          <div class="snap-section-header">
-            <div class="snap-section-label">Review Signals</div>
-            <p class="snap-section-desc">From ${lead.responds_total || 5} most recent Google reviews</p>
-          </div>
-          ${negHtml}${respondsHtml}
+          <div class="snap-section-label" style="margin-bottom:8px">Review Signals</div>
+          ${lastRevLine}${repliedLine}${negLine}
+        </div>`;
+    } else if (lead.last_review_days != null) {
+      reviewSignalsHtml = `
+        <div class="snap-divider"></div>
+        <div>
+          <div class="snap-section-label" style="margin-bottom:8px">Review Signals</div>
+          ${lastRevLine}
+          <p class="snap-section-desc" style="margin-top:4px">Fetch live ↻ for replied count and negative review signals</p>
         </div>`;
     }
 
-    // GBP Audit (after live fetch)
+    // GBP Audit (after live fetch only)
     const gbpHtml = lead._live && lead._gbp ? `
       <div class="snap-divider"></div>
       <div>
@@ -1696,44 +1833,74 @@
         ${renderGbpAudit(lead._gbp, lead)}
       </div>` : '';
 
+    const initMsg     = buildSnapMessage(_snapAngle, lead);
+    const angleReason = getSnapAngleReason(lead);
+
     const body = document.getElementById('snap-body');
     body.innerHTML = `
-      <div class="snap-obs-block">
-        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-          <span class="signal-pill ${signal.cls}"><span class="signal-dot"></span>${signal.label}</span>
-          ${maturity ? `<span class="maturity-badge ${maturity.cls}">${maturity.label}</span>` : ''}
+      <div style="display:flex;flex-direction:column;gap:4px">
+        ${lead._city || lead.city ? `<div style="font-size:11px;color:var(--sub)">${escHtml(lead._city || lead.city)}</div>` : ''}
+        <div style="display:flex;gap:14px;flex-wrap:wrap">
+          ${lead.phone ? `<span style="font-size:11px;color:var(--sub)">${escHtml(lead.phone)}</span>` : ''}
+          ${lead.website ? `<a href="${escHtml(lead.website)}" target="_blank" rel="noopener" style="font-size:11px;color:var(--sub);text-decoration:none">Website</a>` : ''}
         </div>
-        <p class="snap-obs-reason">${getSignalExplanation(signal)}</p>
+        <div style="margin-top:2px">${liveStamp}</div>
       </div>
-      <div class="snap-stat-row" style="margin-top:2px">
-        <span class="snap-rating">${lead.rating} ★</span>
-        <span class="snap-reviews">${lead.reviews} reviews</span>
-        ${lead.velocity ? `<span class="vel-badge vel-${lead.velocity}">${lead.velocity}</span>` : ''}
-      </div>
-      <div class="snap-meta-row">
-        ${lead.last_review_days != null ? `<span>${lead.last_review_days}d since last review</span>` : ''}
-        ${lead._city || lead.city ? `<span>· ${escHtml(lead._city || lead.city)}</span>` : ''}
-        ${lead.phone ? `<span>· ${escHtml(lead.phone)}</span>` : ''}
-        ${lead.website ? `<span>· <a href="${escHtml(lead.website)}" target="_blank" rel="noopener">${escHtml(lead.website.replace(/^https?:\/\/(www\.)?/,''))}</a></span>` : ''}
-        ${lead.maps_link ? `<span>· <a href="${escHtml(lead.maps_link)}" target="_blank" rel="noopener">Maps ↗</a></span>` : ''}
-      </div>
-      <div>${liveStamp}</div>
-      ${reviewSignalsHtml}
+
       <div class="snap-divider"></div>
+
+      <div style="display:flex;align-items:baseline;gap:10px">
+        <span style="font-size:28px;font-weight:700;line-height:1;color:var(--text)">${lead.rating} ★</span>
+        <span style="font-size:15px;color:var(--sub);font-weight:400">${lead.reviews} reviews</span>
+      </div>
+
+      <div class="snap-divider"></div>
+
+      <div class="snap-labels-grid">
+        ${lead.velocity ? `
+        <div class="snap-label-row">
+          <span class="snap-label-key">Velocity</span>
+          <span class="vel-badge vel-${lead.velocity}" style="flex-shrink:0">${lead.velocity}</span>
+          <span class="snap-label-desc">${getVelocityDescription(lead.velocity)}</span>
+        </div>` : ''}
+        <div class="snap-label-row">
+          <span class="snap-label-key">Signal</span>
+          <span class="signal-pill ${signal.cls}" style="flex-shrink:0;font-size:10px"><span class="signal-dot"></span>${signal.label}</span>
+          <span class="snap-label-desc">${getSignalExplanation(signal)}</span>
+        </div>
+        ${maturity ? `
+        <div class="snap-label-row">
+          <span class="snap-label-key">Maturity</span>
+          <span class="maturity-badge ${maturity.cls}" style="flex-shrink:0">${maturity.label}</span>
+          <span class="snap-label-desc">${getMaturityDescription(maturity.label)}</span>
+        </div>` : ''}
+      </div>
+
+      ${reviewSignalsHtml}
+
+      <div class="snap-divider"></div>
+
       <div>
-        <div class="snap-section-header">
-          <div class="snap-section-label">WhatsApp Message</div>
-          <p class="snap-section-desc">Personalised to their rating and signal</p>
+        <div class="snap-section-label" style="margin-bottom:8px">Observation & Messages</div>
+        <p class="snap-obs-reason">${getObservationText(lead, signal)}</p>
+        <div style="margin:10px 0 6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="msg-label" id="snap-angle-label">${SNAP_ANGLE_LABELS[_snapAngle]}</span>
+            <span style="font-size:10px;color:var(--sub);font-style:italic" id="snap-angle-reason">${escHtml(angleReason)}</span>
+          </div>
+          <button class="copy-btn snap-next-angle" style="font-size:10px;padding:2px 8px">Try another →</button>
         </div>
         <div class="msg-block" style="margin-top:0">
-          <div class="msg-text">${escHtml(waMsg)}</div>
+          <div class="msg-text" id="snap-msg-text">${escHtml(initMsg)}</div>
           <div class="msg-actions" style="margin-top:6px">
-            ${cleanNum ? `<button class="copy-btn wa-open-btn" data-phone="${cleanNum}" data-message="${escHtml(waMsg)}">Open WA ↗</button>` : ''}
-            <button class="copy-btn snap-copy-btn" data-text="${escHtml(waMsg)}">Copy</button>
+            ${cleanNum ? `<button class="copy-btn wa-open-btn" data-phone="${cleanNum}" data-message="${escHtml(initMsg)}">Open WA ↗</button>` : ''}
+            <button class="copy-btn snap-copy-btn" data-text="${escHtml(initMsg)}">Copy</button>
           </div>
         </div>
       </div>
+
       <div class="snap-divider"></div>
+
       <div>
         <div class="snap-section-header">
           <div class="snap-section-label">Local Competition</div>
@@ -1745,6 +1912,7 @@
             : `<p style="font-size:11px;color:var(--sub);font-style:italic">Loading…</p>`}
         </div>
       </div>
+
       ${gbpHtml}
     `;
 
@@ -1757,13 +1925,29 @@
       b.addEventListener('click', () => copyText(b, b.dataset.text));
     });
 
+    const nextAngleBtn = body.querySelector('.snap-next-angle');
+    if (nextAngleBtn) {
+      nextAngleBtn.addEventListener('click', () => {
+        _snapAngle = (_snapAngle + 1) % SNAP_ANGLE_LABELS.length;
+        const newMsg = buildSnapMessage(_snapAngle, _snapLead);
+        const msgEl  = document.getElementById('snap-msg-text');
+        if (msgEl) msgEl.textContent = newMsg;
+        const labelEl  = document.getElementById('snap-angle-label');
+        const reasonEl = document.getElementById('snap-angle-reason');
+        if (labelEl)  labelEl.textContent  = SNAP_ANGLE_LABELS[_snapAngle];
+        if (reasonEl) reasonEl.textContent = getSnapAngleReason(_snapLead);
+        body.querySelectorAll('.snap-copy-btn').forEach(b => { b.dataset.text = newMsg; });
+        body.querySelectorAll('.wa-open-btn').forEach(b => { b.dataset.message = escHtml(newMsg); });
+      });
+    }
+
     const gbpToggle = document.getElementById('gbp-toggle');
     if (gbpToggle) {
       gbpToggle.addEventListener('click', () => {
         const auditBody = document.getElementById('gbp-audit-body');
         const open = auditBody.style.display !== 'flex';
         auditBody.style.display = open ? 'flex' : 'none';
-        auditBody.style.flexDirection = 'column';
+        if (open) auditBody.style.flexDirection = 'column';
         gbpToggle.textContent = open ? 'GBP Audit ▸' : 'GBP Audit ▾';
       });
     }
@@ -1771,7 +1955,6 @@
     document.getElementById('snap-drawer').classList.add('open');
     document.getElementById('snap-overlay').classList.add('active');
 
-    // Auto-load competition if not cached
     if (!lead._competitors) loadCompetitors(i);
   }
 
