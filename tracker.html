@@ -315,7 +315,7 @@
       border: 1px solid rgba(0,0,0,0.07);
       border-radius: 6px;
       padding: 16px;
-      max-height: 340px;
+      max-height: 460px;
       overflow-y: auto;
     }
 
@@ -526,42 +526,42 @@
     render();
   }
 
-  function buildLoomScript({ bizName, rating, reviews, lastReviewDays, hasStronger, angle }) {
-    const hook  = `Hey, I had a quick look at your Google reviews and wanted to show you something.`;
-    const cause = `No system to get reviews consistently is usually why this happens.`;
-    const fix   = `There's a simple way to ask every happy client at the right moment, so reviews come in more regularly without it feeling pushy.`;
-    const cta   = `If you want, I can show you how to set this up.`;
+  function buildLoomScript({ bizName, rating, reviews, lastReviewDays, hasStronger, angle, contact }) {
+    const name = contact || 'there';
 
     let scenario;
-    if (angle === 1)                                        scenario = 'competition';
-    else if (angle === 2)                                   scenario = 'opportunity';
-    else if (angle === 3)                                   scenario = 'velocity';
+    if (angle === 1)                                         scenario = 'competition';
+    else if (angle === 2)                                    scenario = 'opportunity';
+    else if (angle === 3)                                    scenario = 'velocity';
     else if (lastReviewDays !== null && lastReviewDays > 60) scenario = 'velocity';
-    else if (hasStronger)                                   scenario = 'competition';
-    else if (rating <= 4.3)                                 scenario = 'low_rating';
-    else                                                    scenario = 'opportunity';
+    else if (hasStronger)                                    scenario = 'competition';
+    else if (rating <= 4.3)                                  scenario = 'low_rating';
+    else                                                     scenario = 'opportunity';
 
-    let obs, what, why;
+    const slide2 = {
+      velocity:    `It looks like your reviews have slowed down recently.\n\nIf I scroll here, you were getting reviews more often before, but now there are bigger gaps.`,
+      competition: `I noticed nearby spots are getting more reviews than you.\n\nEven if your service is great, Google tends to rank the more active profiles higher. So they end up getting more visibility and more bookings.`,
+      opportunity: `You're already in a strong position, ${rating} stars with ${reviews} reviews.\n\nYour rating is great, which means people clearly like your service. The opportunity here is to turn that into more reviews consistently.`,
+      low_rating:  `Your rating at ${rating} stars suggests something might be holding it back.\n\nEven a small drop in rating can reduce trust and clicks. So even if you're getting traffic, fewer people convert.`,
+    }[scenario];
 
-    if (scenario === 'velocity') {
-      obs  = `It looks like your reviews have slowed down recently.`;
-      what = `You've got ${reviews} reviews at ${rating} stars, which is a decent base. But when reviews stop coming in, Google starts showing your profile less. The most recent reviews on your page are getting older, and that matters more than people realise.`;
-      why  = `People check how recent your reviews are before deciding where to book. Old reviews, even good ones, make the profile look quiet. That can push bookings to someone who's been getting reviews more consistently.`;
-    } else if (scenario === 'competition') {
-      obs  = `Nearby spots are getting more reviews than you right now.`;
-      what = `You're at ${reviews} reviews and ${rating} stars. A few places nearby have more volume coming in, which pushes them higher when someone searches for a salon in the area.`;
-      why  = `Google tends to show profiles with the most consistent review activity first. The more regularly reviews come in, the more visible you are, and the more bookings follow from people who didn't already know you.`;
-    } else if (scenario === 'low_rating') {
-      obs  = `Your rating suggests something might be holding it back.`;
-      what = `You've got ${reviews} reviews, but a ${rating} average means a few lower scores are pulling it down. The problem is usually that only unhappy customers leave reviews without being asked. Happy ones need a nudge.`;
-      why  = `When people compare salons nearby, rating is the first thing they check. A lower score makes them click somewhere else, even if the actual service is great.`;
-    } else {
-      obs  = `You're already in a solid position, ${rating} stars with ${reviews} reviews.`;
-      what = `That's a strong base. But there's still a gap between where you are and the top spots locally. The businesses pulling ahead aren't necessarily better, they just have a steadier flow of new reviews coming in.`;
-      why  = `More recent reviews means better visibility in search, which means more people finding you before they find someone else. It compounds over time.`;
-    }
+    const s = [
+      `SLIDE 1 — Hook\n[Visual: Google page of their business]\n\n"Hey ${name}, I had a quick look at your Google reviews and wanted to show you something I noticed."`,
 
-    return [hook, obs, what, why, cause, fix, cta].join('\n\n');
+      `SLIDE 2 — What I Noticed\n[Visual: Scroll reviews, show numbers]\n\n"${slide2}"`,
+
+      `SLIDE 3 — What's Happening\n[Visual: Scroll older vs recent reviews]\n\n"Google pushes businesses that get reviews consistently.\nWhen that slows down, or others get more, you start losing visibility."`,
+
+      `SLIDE 4 — Why It Matters\n[Visual: Search results / map pack]\n\n"This affects how many people find you...\nwhich directly impacts how many bookings you get."`,
+
+      `SLIDE 5 — What's Causing It\n[Visual: Stay on page]\n\n"Usually it's not that clients don't want to leave reviews...\nit's just that there's no system to get them consistently."`,
+
+      `SLIDE 6 — What To Do Instead\n[Visual: Notes / simple diagram]\n\n"What works is having a simple way to ask every happy client at the right moment...\nso reviews come in consistently without chasing."`,
+
+      `SLIDE 7 — Soft CTA\n[Visual: Back to their profile]\n\n"If you want, I can show you how to set this up for your shop.\nTakes a few minutes to explain."`,
+    ];
+
+    return s.join('\n\n' + '─'.repeat(40) + '\n\n');
   }
 
   function openLoomModal(index) {
