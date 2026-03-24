@@ -342,6 +342,22 @@
     }
 
     .modal-copy-btn:hover { background: #f5f1ea; }
+
+    .filter-btn {
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 10px;
+      border: 1px solid #d4c9b0;
+      background: transparent;
+      color: #7a6e62;
+      cursor: pointer;
+    }
+    .filter-btn:hover { background: rgba(0,0,0,0.04); }
+    .filter-btn.active { background: #1a1208; color: #f5f1ea; border-color: #1a1208; }
   </style>
 </head>
 <body>
@@ -364,6 +380,16 @@
     <div id="pipeline-summary" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"></div>
   </div>
 
+  <div id="filter-bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+    <button class="filter-btn active" data-filter="All" onclick="setFilter('All')">All</button>
+    <button class="filter-btn" data-filter="Waiting" onclick="setFilter('Waiting')">Waiting</button>
+    <button class="filter-btn" data-filter="Replied" onclick="setFilter('Replied')">Replied</button>
+    <button class="filter-btn" data-filter="Loom Sent" onclick="setFilter('Loom Sent')">Loom Sent</button>
+    <button class="filter-btn" data-filter="Call Booked" onclick="setFilter('Call Booked')">Call Booked</button>
+    <button class="filter-btn" data-filter="Closed Won" onclick="setFilter('Closed Won')">Closed Won</button>
+    <button class="filter-btn" data-filter="Not Interested" onclick="setFilter('Not Interested')">Not Interested</button>
+  </div>
+
   <div id="empty-state" class="empty-state" style="display:none;">
     No prospects tracked yet. Add one from LinkedIn Assist.
   </div>
@@ -379,6 +405,7 @@
           <th>Follow-up</th>
           <th>Next Step</th>
           <th>Context</th>
+          <th>Re-engage</th>
           <th></th>
           <th></th>
         </tr>
@@ -420,6 +447,16 @@
   const STATUS_OPTIONS = Object.keys(STATUS_META);
   const ANGLE_LABELS  = ['Velocity', 'Competition', 'Opportunity', 'Visibility'];
 
+  let activeFilter = 'All';
+
+  function setFilter(f) {
+    activeFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.filter === f);
+    });
+    render();
+  }
+
   function load() {
     try { return JSON.parse(localStorage.getItem(TRACKER_KEY) || '[]'); }
     catch { return []; }
@@ -443,6 +480,10 @@
   }
 
   function followupBadge(entry) {
+    if (entry.reengage_date) {
+      const today = new Date().toISOString().slice(0, 10);
+      if (entry.reengage_date <= today) return `<span class="followup-badge followup-due">Re-engage</span>`;
+    }
     const refDate = entry.status_date || entry.sent_date;
     const days    = daysSince(refDate);
     if (entry.status === 'Waiting') {
@@ -502,9 +543,19 @@
     const statuses = ['Waiting','Replied','Loom Sent','Call Booked','Closed Won','Not Interested'];
     const counts   = {};
     data.forEach(e => { counts[e.status] = (counts[e.status] || 0) + 1; });
-    const items = statuses.filter(s => counts[s] > 0).map(s =>
-      `<span style="font-size:11px;color:#7a6e62;"><span style="font-weight:600;color:#1a1208;">${counts[s]}</span> ${s}</span>`
-    );
+
+    // Count stale waiting (7+ days)
+    const staleWaiting = data.filter(e => {
+      if (e.status !== 'Waiting') return false;
+      return daysSince(e.status_date || e.sent_date) >= 7;
+    }).length;
+
+    const items = statuses.filter(s => counts[s] > 0).map(s => {
+      let extra = '';
+      if (s === 'Waiting' && staleWaiting > 0) extra = ` <span style="color:#c82333;">(${staleWaiting} overdue)</span>`;
+      return `<span style="font-size:11px;color:#7a6e62;"><span style="font-weight:600;color:#1a1208;">${counts[s]}</span> ${s}${extra}</span>`;
+    });
+
     const total     = data.length;
     const replied   = (counts['Replied'] || 0) + (counts['Loom Sent'] || 0) + (counts['Call Booked'] || 0) + (counts['Closed Won'] || 0);
     const replyRate = Math.round((replied / total) * 100);
@@ -531,6 +582,7 @@
   function render() {
     const data  = load();
     data.sort((a, b) => urgencyPriority(a) - urgencyPriority(b));
+    const filtered = activeFilter === 'All' ? data : data.filter(e => e.status === activeFilter);
     const tbody = document.getElementById('tracker-tbody');
     const empty = document.getElementById('empty-state');
     const wrap  = document.getElementById('tracker-wrap');
@@ -543,12 +595,19 @@
     }
 
     empty.style.display = 'none';
-    wrap.style.display  = 'block';
     renderSummary(data);
+
+    if (!filtered.length) {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:#b0a492;font-size:12px;">No prospects match this filter.</td></tr>';
+      wrap.style.display = 'block';
+      return;
+    }
+
+    wrap.style.display  = 'block';
 
     const LOOM_STATUSES = new Set(['Replied', 'Loom Sent']);
 
-    tbody.innerHTML = data.map((entry, i) => {
+    tbody.innerHTML = filtered.map((entry, i) => {
       const loomBtn = LOOM_STATUSES.has(entry.status)
         ? `<button class="loom-btn" onclick="openLoomModal(${i})">Loom script</button>`
         : '';
@@ -556,10 +615,14 @@
         <tr class="${rowClass(entry)}" data-index="${i}">
           <td>
             <div class="biz-name">${entry.business}</div>
+            ${entry.deal_note ? `<div style="font-size:10px;color:#1e7e34;margin-top:3px;font-weight:500;">✓ ${entry.deal_note}</div>` : ''}
             ${entry.angle != null ? `<span class="angle-badge">${ANGLE_LABELS[entry.angle] || ''}</span>` : ''}
             ${entry.maps_link ? `<a href="${entry.maps_link}" target="_blank" style="font-size:10px;color:#b0a492;text-decoration:none;display:block;margin-top:3px;" title="Google Business Profile">GBP ↗</a>` : ''}
           </td>
-          <td><div class="contact-name">${entry.contact || '–'}</div></td>
+          <td>
+            <div class="contact-name">${entry.contact || '–'}</div>
+            ${entry.linkedin_url ? `<a href="${entry.linkedin_url.startsWith('http') ? entry.linkedin_url : 'https://' + entry.linkedin_url}" target="_blank" style="font-size:10px;color:#0a66c2;text-decoration:none;">LinkedIn ↗</a>` : ''}
+          </td>
           <td>
             <span class="sent-date">${formatDate(entry.sent_date)}</span>
             <span style="font-size:10px;color:#b0a492;display:block;margin-top:2px;">${timeAgo(entry.sent_date)}</span>
@@ -568,6 +631,7 @@
           <td>${followupBadge(entry)}</td>
           <td><input class="notes-input" type="text" placeholder="e.g. Send Loom today" value="${(entry.next_step || '').replace(/"/g, '&quot;')}" onchange="updateNextStep(this)" data-index="${i}" style="width:140px;" /></td>
           <td><input class="notes-input" type="text" placeholder="What happened, what was said..." value="${(entry.context || entry.last_action || entry.notes || '').replace(/"/g, '&quot;')}" onchange="updateContext(this)" data-index="${i}" style="width:180px;" /></td>
+          <td><input type="date" class="notes-input" value="${entry.reengage_date || ''}" onchange="updateReengage(this)" data-index="${i}" style="width:120px;cursor:pointer;" title="Set re-engagement date" /></td>
           <td>${loomBtn}</td>
           <td><button class="delete-btn" onclick="deleteEntry(${i})" title="Remove">×</button></td>
         </tr>`;
@@ -583,6 +647,17 @@
     data[index].last_action = '';
     save(data);
     render();
+    if (select.value === 'Closed Won') {
+      setTimeout(() => {
+        const note = prompt(`Deal note for ${data[index]?.business || 'this prospect'} (optional — e.g. "Signed up for review system"):`, '');
+        if (note !== null && note.trim()) {
+          const d = load();
+          d[index].deal_note = note.trim();
+          save(d);
+          render();
+        }
+      }, 100);
+    }
   }
 
   function updateContext(input) {
@@ -597,6 +672,14 @@
     const data  = load();
     data[index].next_step = input.value;
     save(data);
+  }
+
+  function updateReengage(input) {
+    const index = parseInt(input.dataset.index);
+    const data  = load();
+    data[index].reengage_date = input.value;
+    save(data);
+    render();
   }
 
   function deleteEntry(index) {

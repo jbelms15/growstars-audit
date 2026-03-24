@@ -486,6 +486,10 @@
         <label>First Name (prospect)</label>
         <input type="text" id="first-name" placeholder="e.g. Alex" />
       </div>
+      <div class="field">
+        <label>LinkedIn URL (optional)</label>
+        <input type="text" id="linkedin-url" placeholder="linkedin.com/in/..." />
+      </div>
       <button class="analyze-btn" id="analyze-btn" onclick="analyze()">Analyze →</button>
     </div>
   </div>
@@ -503,7 +507,7 @@
   <div id="output">
 
     <div class="section">
-      <div class="section-title">Business Snapshot</div>
+      <div class="section-title">Business Snapshot <span id="tracker-note" style="display:none;font-size:10px;font-weight:500;color:#D4A43A;margin-left:8px;letter-spacing:0.03em;text-transform:none;"></span></div>
       <div class="snapshot">
         <div class="snapshot-top">
           <div>
@@ -557,6 +561,7 @@
           <button class="copy-btn" onclick="copyBlock(this, 'li-message')">Copy</button>
           <button class="copy-btn" id="regen-btn" onclick="regenerate()">Try another angle</button>
           <span id="angle-indicator" style="font-size:10px;color:#b0a492;align-self:center;margin-left:2px"></span>
+          <span id="angle-reason" style="font-size:10px;color:#b0a492;align-self:center;margin-left:8px;font-style:italic;"></span>
           <button class="copy-btn" id="tracker-btn" onclick="addToTracker(this)" style="margin-left:auto;">+ Add to Tracker</button>
         </div>
       </div>
@@ -706,6 +711,13 @@
     return                              { label: 'Plateaued',    cls: 'maturity-plateaued' };
   }
 
+  function getAngleReason({ lastReviewDays, hasStronger, rating }) {
+    if (lastReviewDays !== null && lastReviewDays > 60) return `last review ${lastReviewDays}d ago`;
+    if (hasStronger)          return 'stronger competitors nearby';
+    if (rating >= 4.6)        return `strong rating (${rating})`;
+    return 'low review volume';
+  }
+
   function selectDefaultAngle({ lastReviewDays, hasStronger, rating }) {
     if (lastReviewDays !== null && lastReviewDays > 60) return 0; // Velocity
     if (hasStronger)                                              return 1; // Competition
@@ -843,12 +855,20 @@
     currentAngle = (currentAngle + 1) % TOTAL_ANGLES;
     document.getElementById('li-message').textContent      = buildMessage(currentAngle, lastCtx);
     document.getElementById('angle-indicator').textContent = `${currentAngle + 1} / ${TOTAL_ANGLES}`;
+    document.getElementById('angle-reason').textContent = '';
   }
 
   function addToTracker(btn) {
     if (!lastCtx) return;
     const TRACKER_KEY = 'growstars_tracker';
     const data = (() => { try { return JSON.parse(localStorage.getItem(TRACKER_KEY) || '[]'); } catch { return []; } })();
+    const existing = data.find(e => e.business && lastCtx.bizName && e.business.toLowerCase() === lastCtx.bizName.toLowerCase());
+    if (existing) {
+      btn.textContent = `Already tracked (${existing.status})`;
+      btn.disabled = true;
+      setTimeout(() => { btn.textContent = '+ Add to Tracker'; btn.disabled = false; }, 3000);
+      return;
+    }
     data.unshift({
       id:             Date.now(),
       business:       lastCtx.bizName,
@@ -866,6 +886,7 @@
       hasStronger:    lastCtx.hasStronger,
       angle:          currentAngle,
       maps_link:      lastCtx.mapsLink || null,
+      linkedin_url:   document.getElementById('linkedin-url').value.trim() || null,
     });
     localStorage.setItem(TRACKER_KEY, JSON.stringify(data));
     btn.textContent = 'Added';
@@ -992,10 +1013,22 @@
       lastCtx = { firstName, bizName: shortBizName, rating, reviews, implicationLine, trustLine, lastReviewDays: last_review_days, velocity: review_velocity, hasStronger, mapsLink: maps_link };
       currentAngle = selectDefaultAngle({ lastReviewDays: last_review_days, hasStronger, rating });
       document.getElementById('angle-indicator').textContent = `${currentAngle + 1} / ${TOTAL_ANGLES}`;
+      document.getElementById('angle-reason').textContent = `· ${getAngleReason({ lastReviewDays: last_review_days, hasStronger, rating })}`;
       document.getElementById('li-message').textContent    = buildMessage(currentAngle, lastCtx);
 
       statusEl.textContent = '';
       outputEl.style.display = 'block';
+
+      // Check if already in tracker
+      const trackerData = (() => { try { return JSON.parse(localStorage.getItem('growstars_tracker') || '[]'); } catch { return []; } })();
+      const existing = trackerData.find(e => e.business && shortBizName && e.business.toLowerCase() === shortBizName.toLowerCase());
+      const trackerNote = document.getElementById('tracker-note');
+      if (existing) {
+        trackerNote.textContent = `Already in tracker · ${existing.status}`;
+        trackerNote.style.display = 'inline';
+      } else {
+        trackerNote.style.display = 'none';
+      }
 
       // Save to history
       const maturity = getProfileMaturity(reviews, last_review_days, review_velocity);

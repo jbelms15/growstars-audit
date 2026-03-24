@@ -95,7 +95,7 @@
     /* STATS ROW */
     .stats-row {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
     }
 
@@ -448,6 +448,24 @@
     const replyRate    = total ? Math.round((replyCount / total) * 100) : 0;
     const loomConv     = replyCount ? Math.round((loomCount / replyCount) * 100) : 0;
 
+    // 30-day reply rate
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const recent = data.filter(e => e.sent_date && new Date(e.sent_date) >= thirtyDaysAgo);
+    const recentReplied = recent.filter(e => REPLY_STATUSES.has(e.status)).length;
+    const replyRate30 = recent.length ? Math.round((recentReplied / recent.length) * 100) : null;
+
+    // Average time to reply (days between sent_date and status_date for replied+ entries)
+    const repliedEntries = data.filter(e => REPLY_STATUSES.has(e.status) && e.sent_date && e.status_date && e.status_date !== e.sent_date);
+    let avgReplyDays = null;
+    if (repliedEntries.length) {
+      const totalDays = repliedEntries.reduce((sum, e) => {
+        const diff = Math.floor((new Date(e.status_date) - new Date(e.sent_date)) / 86400000);
+        return sum + Math.max(0, diff);
+      }, 0);
+      avgReplyDays = Math.round(totalDays / repliedEntries.length);
+    }
+
     // --- Funnel ---
     const stageCounts = {};
     FUNNEL_STAGES.forEach(s => stageCounts[s] = 0);
@@ -511,6 +529,14 @@
           <div class="stat-value">${closedCount}</div>
           <div class="stat-label">Closed Won</div>
         </div>
+        <div class="stat-card">
+          <div class="stat-value">${replyRate30 !== null ? replyRate30 + '%' : '—'}</div>
+          <div class="stat-label">Reply rate (30d)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${avgReplyDays !== null ? avgReplyDays + 'd' : '—'}</div>
+          <div class="stat-label">Avg. days to reply</div>
+        </div>
       </div>
     </div>`;
 
@@ -568,15 +594,17 @@
 
     ANGLE_NAMES.forEach(name => {
       const s    = angleStats[name];
+      const lowData = s.sent > 0 && s.sent < 5;
       const rate = fmtRate(s.sent, s.replies);
-      const cls  = (name === bestAngle && s.sent > 0) ? ' class="best-angle"' : '';
+      const cls  = (name === bestAngle && s.sent >= 5) ? ' class="best-angle"' : '';
       const rCls = rateClass(rate.pct);
+      const rateDisplay = !s.sent ? '—' : lowData ? `<span class="rate-value rate-low" title="Less than 5 sends — not enough data">low data</span>` : `<span class="rate-value ${rCls}">${rate.str}</span>`;
       html += `
             <tr${cls}>
               <td><span class="angle-badge">${name}</span></td>
               <td>${s.sent || '—'}</td>
               <td>${s.replies || '—'}</td>
-              <td><span class="rate-value ${s.sent ? rCls : 'rate-low'}">${rate.str}</span></td>
+              <td>${rateDisplay}</td>
               <td style="color:#7a6e62;">${ANGLE_BEST[name]}</td>
             </tr>`;
     });
@@ -636,6 +664,30 @@
       html += `</div>`;
     }
 
+    html += `</div>`;
+
+    // 6. Closed Won detail
+    const wonEntries = data.filter(e => e.status === 'Closed Won');
+    html += `
+    <div class="section">
+      <div class="section-title">Closed Won</div>`;
+
+    if (!wonEntries.length) {
+      html += `<div class="card" style="padding:20px 24px;font-size:12px;color:#b0a492;">No closed deals yet.</div>`;
+    } else {
+      html += `<div class="card ni-list">`;
+      wonEntries.forEach(e => {
+        const angleName = ANGLE_NAMES[e.angle] || '—';
+        html += `
+        <div class="ni-item">
+          <div class="ni-business" style="color:#1a1208;">${e.business || '—'}${e.contact ? `<span style="font-weight:400;color:#7a6e62;"> · ${e.contact}</span>` : ''}</div>
+          <span class="angle-badge">${angleName}</span>
+          ${e.deal_note ? `<div style="font-size:11px;color:#1e7e34;font-weight:500;">✓ ${e.deal_note}</div>` : '<div style="font-size:11px;color:#b0a492;">No deal note</div>'}
+          <div class="ni-date">${e.sent_date || '—'}</div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
     html += `</div>`;
 
     container.innerHTML = html;
