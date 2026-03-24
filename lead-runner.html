@@ -359,86 +359,106 @@
       overflow-x: auto;
     }
 
+    /* ── SPREADSHEET TABLE ── */
     .leads-table {
       width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
+      border-bottom: 1px solid var(--grid-line);
     }
+
+    :root       { --grid-line: rgba(0,0,0,0.09); --head-bg: rgba(0,0,0,0.025); }
+    body.dark   { --grid-line: rgba(255,255,255,0.08); --head-bg: rgba(255,255,255,0.04); }
 
     .leads-table thead {
       position: sticky;
       top: 0;
       z-index: 10;
-      background: var(--bg);
+    }
+
+    .leads-table th, .leads-table td {
+      border-right: 1px solid var(--grid-line);
+      border-bottom: 1px solid var(--grid-line);
+      padding: 0 10px;
+      vertical-align: middle;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .leads-table thead th {
-      text-align: left;
-      padding: 8px 12px;
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      height: 34px;
+      font-size: 11px;
+      font-weight: 500;
       color: var(--sub);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-      overflow: hidden;
-      transition: color 0.15s;
+      background: var(--head-bg);
+      border-top: 1px solid var(--grid-line);
+      letter-spacing: 0.01em;
+      transition: color 0.15s, background 0.15s;
     }
 
-    .leads-table thead th:first-child { padding-left: 24px; }
-    .leads-table thead th:last-child  { padding-right: 24px; }
+    .leads-table thead th:first-child {
+      border-left: 1px solid var(--grid-line);
+    }
 
     .leads-table thead th.sortable {
       cursor: pointer;
       user-select: none;
     }
 
-    .leads-table thead th.sortable:hover { color: var(--text); }
+    .leads-table thead th.sortable:hover { color: var(--text); background: var(--surface); }
     .leads-table thead th.sort-active    { color: var(--text); }
 
-    .sort-arrow { margin-left: 3px; opacity: 0.4; font-size: 9px; }
+    .sort-arrow { margin-left: 3px; opacity: 0.35; font-size: 9px; }
     th.sort-active .sort-arrow { opacity: 1; }
 
-    .leads-table tbody tr {
-      border-bottom: 1px solid var(--border);
-      transition: background 0.08s;
-    }
-
-    .leads-table tbody tr:hover { background: var(--surface); }
-
-    .leads-table td {
-      padding: 7px 12px;
-      vertical-align: middle;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .leads-table tbody td {
+      height: 36px;
       font-size: 12px;
+      color: var(--text);
+      background: var(--bg);
+      transition: background 0.05s;
     }
 
-    .leads-table td:first-child { padding-left: 24px; }
-    .leads-table td:last-child  { padding-right: 24px; }
+    .leads-table tbody td:first-child { border-left: 1px solid var(--grid-line); }
 
-    .leads-table tbody tr.contacted td { opacity: 0.35; }
-    .leads-table tbody tr.wa-sent   td:first-child { box-shadow: inset 3px 0 0 #4caf82; }
-    .leads-table tbody tr.call-made td:first-child { box-shadow: inset 3px 0 0 #b59a6a; }
+    .leads-table tbody tr:hover td { background: var(--head-bg); }
 
-    /* ── SIGNAL BADGE ── */
-    .signal-badge {
+    /* row number cell */
+    .cell-num {
+      color: var(--sub);
+      font-size: 11px;
+      text-align: right;
+      padding-right: 12px;
+      user-select: none;
+    }
+
+    /* checkbox cell */
+    .cell-cb { text-align: center; }
+
+    .leads-table tbody tr.contacted td { opacity: 0.32; }
+    .leads-table tbody tr.wa-sent   td.cell-num { box-shadow: inset 3px 0 0 #4caf82; }
+    .leads-table tbody tr.call-made td.cell-num { box-shadow: inset 3px 0 0 #b59a6a; }
+
+    /* ── SIGNAL PILL ── */
+    .signal-pill {
       display: inline-flex;
       align-items: center;
       gap: 5px;
       font-size: 11px;
       font-weight: 500;
+      padding: 2px 8px 2px 6px;
+      border-radius: 3px;
       white-space: nowrap;
     }
 
-    .signal-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
+    .signal-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+    .signal-red    { background: rgba(224,82,82,0.1);  color: #c94040; }
+    .signal-purple { background: rgba(155,111,219,0.1);color: #7c52c0; }
+    .signal-amber  { background: rgba(212,149,58,0.1); color: #b07820; }
+    .signal-blue   { background: rgba(74,144,196,0.1); color: #2e74b0; }
+    .signal-grey   { background: var(--surface);       color: var(--sub); }
 
     .signal-red    .signal-dot { background: #e05252; }
     .signal-purple .signal-dot { background: #9b6fdb; }
@@ -446,34 +466,33 @@
     .signal-blue   .signal-dot { background: #4a90c4; }
     .signal-grey   .signal-dot { background: var(--sub); }
 
-    .signal-red    { color: #e05252; }
-    .signal-purple { color: #9b6fdb; }
-    .signal-amber  { color: #d4953a; }
-    .signal-blue   { color: #4a90c4; }
-    .signal-grey   { color: var(--sub); }
+    body.dark .signal-red    { background: rgba(224,82,82,0.15);  color: #e87070; }
+    body.dark .signal-purple { background: rgba(155,111,219,0.15);color: #b894e8; }
+    body.dark .signal-amber  { background: rgba(212,149,58,0.15); color: #d4a048; }
+    body.dark .signal-blue   { background: rgba(74,144,196,0.15); color: #60a8d8; }
 
     .lead-name-btn {
       background: none;
       border: none;
       cursor: pointer;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 500;
       color: var(--text);
       font-family: inherit;
       padding: 0;
       text-align: left;
-      max-width: 220px;
+      width: 100%;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       display: block;
     }
 
-    .lead-name-btn:hover { color: #D4A43A; }
+    .lead-name-btn:hover { color: #D4A43A; text-decoration: underline; }
 
-    .rating-high { color: #2a7a4a; font-weight: 700; }
-    .rating-mid  { color: #b59a6a; font-weight: 700; }
-    .rating-low  { color: #c0392b; font-weight: 700; }
+    .rating-high { color: #2a7a4a; }
+    .rating-mid  { color: #b07820; }
+    .rating-low  { color: #c0392b; }
 
     .outcome-dot {
       display: inline-block;
@@ -947,15 +966,16 @@
 
     return `
       <tr class="${contacted ? 'contacted' : ''}${outcomeClass}" id="row-${i}">
-        <td>
+        <td class="cell-num">${i + 1}</td>
+        <td class="cell-cb">
           <label class="done-label" title="Mark as done" style="margin:0">
             <input type="checkbox" class="done-cb" data-index="${i}"${contacted ? ' checked' : ''}>
             <span class="done-icon">${contacted ? '☑️' : '⬜'}</span>
           </label>
         </td>
         <td><button class="lead-name-btn open-modal-btn" data-index="${i}" title="${name}">${name}</button></td>
-        <td><span class="signal-badge ${signal.cls}"><span class="signal-dot"></span>${signal.label}</span></td>
-        <td class="${ratingClass}">${lead.rating}</td>
+        <td><span class="signal-pill ${signal.cls}"><span class="signal-dot"></span>${signal.label}</span></td>
+        <td class="${ratingClass}" style="text-align:right">${lead.rating}</td>
         <td style="color:var(--sub);text-align:right">${lead.reviews}</td>
         <td style="color:var(--sub)">${city}</td>
         <td style="color:var(--sub);font-size:11px">${phone}${isMobile ? ' 📱' : ''}</td>
@@ -1155,21 +1175,23 @@
     leadsEl.innerHTML = `
       <table class="leads-table">
         <colgroup>
-          <col style="width:44px">
-          <col style="width:22%">
-          <col style="width:18%">
-          <col style="width:72px">
-          <col style="width:80px">
-          <col style="width:100px">
-          <col style="width:150px">
+          <col style="width:36px">
+          <col style="width:40px">
+          <col style="width:21%">
+          <col style="width:17%">
+          <col style="width:64px">
+          <col style="width:74px">
+          <col style="width:96px">
+          <col style="width:152px">
           <col>
         </colgroup>
         <thead>
           <tr>
-            <th></th>
-            <th class="sortable${sortCol==='name'?' sort-active':''}" data-col="name">Business <span class="sort-arrow">${sortCol==='name'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
+            <th class="cell-num"></th>
+            <th class="cell-cb"></th>
+            <th class="sortable${sortCol==='name'?' sort-active':''}" data-col="name">Name <span class="sort-arrow">${sortCol==='name'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
             <th class="sortable${sortCol==='signal'?' sort-active':''}" data-col="signal">Signal <span class="sort-arrow">${sortCol==='signal'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
-            <th class="sortable${sortCol==='rating'?' sort-active':''}" data-col="rating">Rating <span class="sort-arrow">${sortCol==='rating'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
+            <th class="sortable${sortCol==='rating'?' sort-active':''}" data-col="rating" style="text-align:right">Rating <span class="sort-arrow">${sortCol==='rating'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
             <th class="sortable${sortCol==='reviews'?' sort-active':''}" data-col="reviews" style="text-align:right">Reviews <span class="sort-arrow">${sortCol==='reviews'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
             <th class="sortable${sortCol==='city'?' sort-active':''}" data-col="city">City <span class="sort-arrow">${sortCol==='city'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
             <th>Phone</th>
