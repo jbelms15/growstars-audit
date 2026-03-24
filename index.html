@@ -155,28 +155,26 @@
       background: #fff;
       border: 1px solid rgba(0,0,0,0.08);
       border-radius: 8px;
-      padding: 16px;
+      padding: 20px;
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .snapshot-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
       gap: 16px;
-      flex-wrap: wrap;
+      padding-bottom: 14px;
     }
 
     .snapshot-name {
       font-size: 15px;
       font-weight: 600;
-      flex: 1;
-      min-width: 160px;
+      color: #1a1208;
+      line-height: 1.3;
     }
-
-    .snapshot-meta {
-      display: flex;
-      gap: 16px;
-      font-size: 13px;
-      color: #7a6e62;
-    }
-
-    .snapshot-meta strong { color: #1a1208; }
 
     .obs-badge {
       font-size: 11px;
@@ -186,7 +184,49 @@
       background: rgba(212,164,58,0.12);
       color: #b59a3a;
       white-space: nowrap;
+      margin-top: 6px;
+      display: inline-block;
     }
+
+    .snapshot-stats {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .snapshot-rating {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1208;
+      white-space: nowrap;
+    }
+
+    .snapshot-reviews {
+      font-size: 11px;
+      color: #b0a492;
+      white-space: nowrap;
+    }
+
+    .snapshot-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+      flex-wrap: wrap;
+    }
+
+    .snapshot-links {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .snapshot-meta { display: none; } /* kept for safety, unused */
 
     /* Message + Script blocks */
     .text-block {
@@ -295,13 +335,11 @@
     }
 
     .snapshot-activity {
-      width: 100%;
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-top: 4px;
-      font-size: 12px;
-      color: #7a6e62;
+      gap: 8px;
+      font-size: 11px;
+      color: #b0a492;
     }
 
     .velocity-badge {
@@ -356,21 +394,28 @@
     <div class="section">
       <div class="section-title">Business Snapshot</div>
       <div class="snapshot">
-        <div class="snapshot-name" id="snap-name"></div>
-        <div class="snapshot-meta">
-          <span><strong id="snap-rating"></strong> ⭐</span>
-          <span><strong id="snap-reviews"></strong> reviews</span>
+        <div class="snapshot-top">
+          <div>
+            <div class="snapshot-name" id="snap-name"></div>
+            <div class="obs-badge" id="snap-obs"></div>
+          </div>
+          <div class="snapshot-stats">
+            <div class="snapshot-rating"><span id="snap-rating"></span> ⭐</div>
+            <div class="snapshot-reviews"><span id="snap-reviews"></span> reviews</div>
+          </div>
         </div>
-        <div class="obs-badge" id="snap-obs"></div>
-        <a id="snap-link" class="maps-link" href="#" target="_blank">View on Maps ↗</a>
-        <a id="snap-website" class="maps-link" href="#" target="_blank">Website ↗</a>
-        <div class="snapshot-activity" id="snap-email-row" style="display:none">
-          <span style="font-size:11px;color:#b0a492">✉</span>
-          <a id="snap-email" class="maps-link" href="#"></a>
-        </div>
-        <div class="snapshot-activity" id="snap-activity" style="display:none">
-          <span id="snap-last-review"></span>
-          <span class="velocity-badge" id="snap-velocity"></span>
+        <div class="snapshot-bottom">
+          <div class="snapshot-links">
+            <a id="snap-link" class="maps-link" href="#" target="_blank">View on Maps ↗</a>
+            <a id="snap-website" class="maps-link" href="#" target="_blank">Website ↗</a>
+            <span id="snap-email-row" style="display:none">
+              <a id="snap-email" class="maps-link" href="#"></a>
+            </span>
+          </div>
+          <div class="snapshot-activity" id="snap-activity" style="display:none">
+            <span id="snap-last-review"></span>
+            <span class="velocity-badge" id="snap-velocity"></span>
+          </div>
         </div>
       </div>
     </div>
