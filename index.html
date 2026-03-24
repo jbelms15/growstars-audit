@@ -863,6 +863,7 @@
       lastReviewDays: lastCtx.lastReviewDays,
       hasStronger:    lastCtx.hasStronger,
       angle:          currentAngle,
+      maps_link:      lastCtx.mapsLink || null,
     });
     localStorage.setItem(TRACKER_KEY, JSON.stringify(data));
     btn.textContent = 'Added';
@@ -986,7 +987,7 @@
       }
 
       // Save context for regenerate
-      lastCtx = { firstName, bizName: shortBizName, rating, reviews, implicationLine, trustLine, lastReviewDays: last_review_days, velocity: review_velocity, hasStronger };
+      lastCtx = { firstName, bizName: shortBizName, rating, reviews, implicationLine, trustLine, lastReviewDays: last_review_days, velocity: review_velocity, hasStronger, mapsLink: maps_link };
       currentAngle = selectDefaultAngle({ lastReviewDays: last_review_days, hasStronger, rating });
       document.getElementById('angle-indicator').textContent = `${currentAngle + 1} / ${TOTAL_ANGLES}`;
       document.getElementById('li-message').textContent    = buildMessage(currentAngle, lastCtx);

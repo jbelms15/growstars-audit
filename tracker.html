@@ -485,7 +485,10 @@
         : '';
       return `
         <tr class="${rowClass(entry)}" data-index="${i}">
-          <td><div class="biz-name">${entry.business}</div></td>
+          <td>
+            <div class="biz-name">${entry.business}</div>
+            ${entry.maps_link ? `<a href="${entry.maps_link}" target="_blank" style="font-size:10px;color:#b0a492;text-decoration:none;" title="Google Business Profile">GBP ↗</a>` : ''}
+          </td>
           <td><div class="contact-name">${entry.contact || '–'}</div></td>
           <td><span class="channel-badge">${entry.channel}</span></td>
           <td><span class="sent-date">${formatDate(entry.sent_date)}</span></td>
