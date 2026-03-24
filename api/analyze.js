@@ -9,17 +9,20 @@
 
 const SEARCH_KEYWORDS = ["hair salon", "barber", "hairdresser"];
 
-async function getReviewActivity(placeId, apiKey) {
+async function getPlaceDetails(placeId, apiKey) {
   const url =
     `https://maps.googleapis.com/maps/api/place/details/json` +
-    `?place_id=${encodeURIComponent(placeId)}&fields=reviews&reviews_sort=newest&key=${apiKey}`;
+    `?place_id=${encodeURIComponent(placeId)}&fields=reviews,website&reviews_sort=newest&key=${apiKey}`;
 
   const r = await fetch(url);
   const data = await r.json();
-  if (data.status !== "OK") return { last_review_days: null, velocity: "unknown" };
+  if (data.status !== "OK") return { last_review_days: null, velocity: "unknown", website: null };
 
-  const reviews = (data.result?.reviews || []).sort((a, b) => b.time - a.time);
-  if (!reviews.length) return { last_review_days: null, velocity: "unknown" };
+  const result  = data.result || {};
+  const website = result.website || null;
+  const reviews = (result.reviews || []).sort((a, b) => b.time - a.time);
+
+  if (!reviews.length) return { last_review_days: null, velocity: "unknown", website };
 
   const now = Math.floor(Date.now() / 1000);
   const last_review_days = Math.floor((now - reviews[0].time) / 86400);
@@ -31,7 +34,7 @@ async function getReviewActivity(placeId, apiKey) {
     velocity = avgDays < 7 ? "fast" : avgDays < 30 ? "medium" : "slow";
   }
 
-  return { last_review_days, velocity };
+  return { last_review_days, velocity, website };
 }
 
 async function fetchNearbyCompetitors(lat, lng, excludePlaceId, apiKey) {
@@ -95,8 +98,8 @@ export default async function handler(req, res) {
     const lat   = place.geometry?.location?.lat;
     const lng   = place.geometry?.location?.lng;
 
-    // Step 2a — review activity (parallel with competitor fetch)
-    const activityPromise = getReviewActivity(place.place_id, apiKey);
+    // Step 2a — place details (review activity + website), runs parallel with competitor fetch
+    const detailsPromise = getPlaceDetails(place.place_id, apiKey);
 
     const business = {
       name:      place.name,
@@ -111,9 +114,10 @@ export default async function handler(req, res) {
       competitors = await fetchNearbyCompetitors(lat, lng, place.place_id, apiKey);
     }
 
-    const { last_review_days, velocity } = await activityPromise;
+    const { last_review_days, velocity, website } = await detailsPromise;
     business.last_review_days = last_review_days;
     business.review_velocity  = velocity;
+    business.website          = website;
 
     return res.status(200).json({ business, competitors });
 

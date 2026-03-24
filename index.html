@@ -232,6 +232,7 @@
     }
 
     .maps-link:hover { color: #7a6e62; }
+    .maps-link.disabled { color: #ccc5ba; pointer-events: none; cursor: default; }
 
     /* ── COMPETITOR TABLE ── */
     .comp-table {
@@ -362,6 +363,7 @@
         </div>
         <div class="obs-badge" id="snap-obs"></div>
         <a id="snap-link" class="maps-link" href="#" target="_blank">View on Maps ↗</a>
+        <a id="snap-website" class="maps-link" href="#" target="_blank">Website ↗</a>
         <div class="snapshot-activity" id="snap-activity" style="display:none">
           <span id="snap-last-review"></span>
           <span class="velocity-badge" id="snap-velocity"></span>
@@ -582,7 +584,7 @@
       }
 
       const { business, competitors } = data;
-      const { name: bizName, rating, reviews, maps_link, last_review_days, review_velocity } = business;
+      const { name: bizName, rating, reviews, maps_link, last_review_days, review_velocity, website } = business;
       const firstName    = firstInput.value.trim() || '{{first_name}}';
       const shortBizName = shortenBizName(bizName);
       const obsLabel  = getObservationLabel(rating, reviews);
@@ -593,6 +595,17 @@
       document.getElementById('snap-reviews').textContent = reviews;
       document.getElementById('snap-obs').textContent     = obsLabel;
       document.getElementById('snap-link').href           = maps_link;
+
+      const websiteEl = document.getElementById('snap-website');
+      if (website) {
+        websiteEl.href = website;
+        websiteEl.textContent = 'Website ↗';
+        websiteEl.classList.remove('disabled');
+      } else {
+        websiteEl.removeAttribute('href');
+        websiteEl.textContent = 'No website';
+        websiteEl.classList.add('disabled');
+      }
 
       // Activity row
       const lastReviewLabel = formatDaysAgo(last_review_days);
