@@ -49,11 +49,26 @@ export default async function handler(req, res) {
       velocity = avgDays < 7 ? "fast" : avgDays < 30 ? "medium" : "slow";
     }
 
+    // Negative sentiment — 1–2 star reviews in the sample (up to 5 from Places API)
+    const negReviews = reviews.filter(r => r.rating <= 2);
+    const neg_count  = negReviews.length;
+    const neg_snippet = neg_count && negReviews[0].text
+      ? negReviews[0].text.slice(0, 160)
+      : null;
+
+    // Responds to reviews — checks author_reply field (returned by Places API when owner has replied)
+    const responds = reviews.length > 0
+      ? reviews.some(r => !!(r.author_reply?.text))
+      : null;
+
     return res.status(200).json({
       rating:           result.rating             ?? null,
       reviews:          result.user_ratings_total ?? null,
       last_review_days,
       velocity,
+      neg_count,
+      neg_snippet,
+      responds,
     });
   } catch (err) {
     return res.status(500).json({ error: err.message });

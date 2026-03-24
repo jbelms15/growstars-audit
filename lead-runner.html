@@ -371,12 +371,6 @@
     :root       { --grid-line: rgba(0,0,0,0.09); --head-bg: rgba(0,0,0,0.025); }
     body.dark   { --grid-line: rgba(255,255,255,0.08); --head-bg: rgba(255,255,255,0.04); }
 
-    .leads-table thead {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
     .leads-table th, .leads-table td {
       border-right: 1px solid var(--grid-line);
       border-bottom: 1px solid var(--grid-line);
@@ -388,6 +382,9 @@
     }
 
     .leads-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 10;
       height: 28px;
       font-size: 11px;
       font-weight: 500;
@@ -504,30 +501,29 @@
     .leads-table tbody td:nth-child(2),
     .leads-table tbody td:nth-child(3) {
       position: sticky;
-      z-index: 1;
+      z-index: 2;
       background: var(--sticky-body);
     }
     .leads-table tbody td:nth-child(1) { left: 0; }
-    .leads-table tbody td:nth-child(2) { left: 36px; }
-    .leads-table tbody td:nth-child(3) { left: 72px; }
+    .leads-table tbody td:nth-child(2) { left: 32px; }
+    .leads-table tbody td:nth-child(3) { left: 64px; }
     .leads-table tbody tr:hover td:nth-child(1),
     .leads-table tbody tr:hover td:nth-child(2),
     .leads-table tbody tr:hover td:nth-child(3) { background: var(--surface); }
 
-    /* Header sticky cells — must be above body sticky cells */
+    /* Frozen header cells — sticky in both axes, above everything */
     .leads-table thead th:nth-child(1),
     .leads-table thead th:nth-child(2),
     .leads-table thead th:nth-child(3) {
-      position: sticky;
-      z-index: 20;
+      z-index: 30;
       background: var(--sticky-head);
     }
     .leads-table thead th:nth-child(1) { left: 0; }
-    .leads-table thead th:nth-child(2) { left: 36px; }
-    .leads-table thead th:nth-child(3) { left: 72px; }
+    .leads-table thead th:nth-child(2) { left: 32px; }
+    .leads-table thead th:nth-child(3) { left: 64px; }
 
     /* ── RESIZE HANDLES ── */
-    .leads-table thead th { position: relative; }
+    /* (th already has position:sticky, so absolute children work) */
     .col-resize {
       position: absolute;
       right: 0; top: 0; bottom: 0;
@@ -543,10 +539,10 @@
       background: var(--sticky-head);
       border-bottom: 2px solid var(--grid-line);
     }
-    tr.filter-row td:nth-child(-n+3) { position: sticky; z-index: 2; }
+    tr.filter-row td:nth-child(-n+3) { position: sticky; z-index: 5; }
     tr.filter-row td:nth-child(1) { left: 0; }
-    tr.filter-row td:nth-child(2) { left: 36px; }
-    tr.filter-row td:nth-child(3) { left: 72px; }
+    tr.filter-row td:nth-child(2) { left: 32px; }
+    tr.filter-row td:nth-child(3) { left: 64px; }
 
     .filter-input {
       width: 100%;
@@ -741,6 +737,41 @@
     /* active sort/filter indicators on th */
     .col-sort-ind  { font-size: 10px; color: var(--sub); margin-left: 3px; }
     .col-filter-ind { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #4a90c4; margin-left: 4px; vertical-align: middle; }
+
+    /* ── PROFILE MATURITY BADGE ── */
+    .maturity-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+    .maturity-new       { background: rgba(99,179,237,0.12); color: #2b6cb0; }
+    .maturity-building  { background: rgba(40,167,69,0.1);   color: #1e7e34; }
+    .maturity-plateaued { background: rgba(212,164,58,0.12); color: #b59a3a; }
+    .maturity-quiet     { background: rgba(220,53,69,0.1);   color: #c82333; }
+
+    /* ── NEGATIVE REVIEW SNIPPET ── */
+    .neg-snippet {
+      font-size: 11px;
+      color: var(--sub);
+      font-style: italic;
+      border-left: 2px solid #c82333;
+      padding-left: 8px;
+      margin: 6px 0 0;
+      line-height: 1.5;
+    }
+
+    /* ── RESPONDS BADGE ── */
+    .responds-yes { font-size: 10px; font-weight: 600; color: #1e7e34; }
+    .responds-no  { font-size: 10px; font-weight: 600; color: #c82333; }
+
+    /* ── COLUMN DRAG-TO-REORDER ── */
+    th[draggable="true"] { cursor: grab; }
+    th[draggable="true"]:active { cursor: grabbing; }
+    th.col-drag-over { box-shadow: inset 3px 0 0 #D4A43A; }
+    th.col-drag-src  { opacity: 0.5; }
 
     .outcome-dot {
       display: inline-block;
@@ -1209,6 +1240,64 @@
   let sortCol = null;
   let sortDir = -1;
 
+  // ── COLUMN ORDER (drag-to-reorder) ──
+  let colOrder = ['name','signal','rating','reviews','velocity','lastrev','city','phone','owner','email','competition','actions'];
+
+  const COL_LABELS    = {name:'Name',signal:'Signal',rating:'Rating',reviews:'Reviews',velocity:'Velocity',lastrev:'Last Review',city:'City',phone:'Phone',owner:'Owner',email:'Email',competition:'Competition',actions:''};
+  const COL_WIDTH     = {name:180,signal:150,rating:58,reviews:70,velocity:76,lastrev:86,city:76,phone:125,owner:125,email:155,competition:110,actions:108};
+  const COL_MIN_WIDTH = {name:160,signal:130,rating:54,reviews:64,velocity:68,lastrev:78,city:66,phone:110,owner:110,email:140,competition:100,actions:100};
+
+  function renderCell(lead, i, col) {
+    const name      = escHtml(lead.name || '');
+    const clean     = (lead.phone || '').replace(/\D/g, '');
+    const isMobile  = clean.startsWith('447') || clean.startsWith('07');
+    const outcome   = lead.contact_outcome || 'pending';
+    const outcomeDot = outcome === 'whatsapp_sent'
+      ? `<span class="outcome-dot wa-dot" title="WA Sent"></span>`
+      : outcome === 'call'
+      ? `<span class="outcome-dot call-dot" title="Call made"></span>`
+      : '';
+    const ratingClass = lead.rating <= 4.3 ? 'rating-low' : lead.rating <= 4.5 ? 'rating-mid' : 'rating-high';
+    const city   = escHtml(lead._city || lead.city || '');
+    const phone  = escHtml(lead.phone || '');
+    const signal = getSignal(lead.rating, lead.reviews);
+
+    switch (col) {
+      case 'name':
+        return `<td><button class="lead-name-btn open-modal-btn" data-index="${i}" title="${name}">${name}</button></td>`;
+      case 'signal':
+        return `<td id="signal-${i}"><span class="signal-pill ${signal.cls}"><span class="signal-dot"></span>${signal.label}</span></td>`;
+      case 'rating':
+        return `<td class="${ratingClass}" style="text-align:right" id="rating-${i}">${lead.rating}${lead._live ? '<span class="live-tag">live</span>' : ''}</td>`;
+      case 'reviews':
+        return `<td style="color:var(--sub);text-align:right" id="reviews-${i}">${lead.reviews}</td>`;
+      case 'velocity':
+        return `<td id="velocity-${i}">${lead.velocity ? `<span class="vel-badge vel-${lead.velocity}">${lead.velocity}</span>` : '<span class="stale">–</span>'}</td>`;
+      case 'lastrev':
+        return `<td style="color:var(--sub)" id="lastrev-${i}">${lead.last_review_days != null ? `${lead.last_review_days}d ago` : '<span class="stale">–</span>'}</td>`;
+      case 'city':
+        return `<td style="color:var(--sub)">${city}</td>`;
+      case 'phone':
+        return `<td style="color:var(--sub)">${phone}${isMobile ? ' 📱' : ''}</td>`;
+      case 'owner':
+        return `<td id="owner-${i}">${lead.owner ? escHtml(lead.owner) : ''}</td>`;
+      case 'email':
+        return `<td id="email-${i}">${lead.email ? `<a href="mailto:${escHtml(lead.email)}" style="color:var(--sub);text-decoration:none">${escHtml(lead.email)}</a>` : ''}</td>`;
+      case 'competition':
+        return `<td id="comp-${i}">${getCompSummary(lead)}</td>`;
+      case 'actions':
+        return `<td><div style="display:flex;gap:4px;align-items:center" id="actions-${i}">
+          ${outcomeDot}
+          ${clean ? `<button class="icon-btn wa-icon-btn" data-index="${i}">WA</button>` : ''}
+          ${clean ? `<a class="icon-btn call-icon-btn" href="tel:${clean}" data-index="${i}">Call</a>` : ''}
+          ${(lead.id || lead.place_id) ? `<button class="icon-btn refresh-btn${lead._live?' live-fetched':''}" data-index="${i}" title="${lead._live ? 'Re-fetch live data' : 'Fetch live data from Google'}">↻</button>` : ''}
+          ${lead.website && !lead._enriched ? `<button class="icon-btn enrich-btn" data-index="${i}" title="Find email &amp; owner from website">⚡</button>` : ''}
+        </div></td>`;
+      default:
+        return '<td></td>';
+    }
+  }
+
   cityInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') generateLeads();
   });
@@ -1284,6 +1373,19 @@
     return `<span style="font-size:11px">${parts.join(' · ')}</span>`;
   }
 
+  function getMaturity(lead) {
+    const days     = lead.last_review_days;
+    const reviews  = lead.reviews || 0;
+    const velocity = lead.velocity;
+    const stale    = days === null || days === undefined || days > 90;
+    const active   = velocity === 'fast' || velocity === 'medium';
+    if (stale)                    return { label: 'Gone quiet',   cls: 'maturity-quiet' };
+    if (reviews < 50 && active)   return { label: 'New presence', cls: 'maturity-new' };
+    if (!active && reviews >= 50) return { label: 'Plateaued',    cls: 'maturity-plateaued' };
+    if (active)                   return { label: 'Building',     cls: 'maturity-building' };
+    return                               { label: 'Plateaued',    cls: 'maturity-plateaued' };
+  }
+
   function getSignal(rating, reviews) {
     if (reviews >= 200 && rating <= 4.4) return { label: 'high vol, not optimised', cls: 'signal-purple' };
     if (rating <= 4.3)                   return { label: 'costing bookings',         cls: 'signal-red'    };
@@ -1317,53 +1419,19 @@
   }
 
   function renderRow(lead, i) {
-    const name     = escHtml(lead.name || '');
-    const clean    = (lead.phone || '').replace(/\D/g, '');
-    const isMobile = clean.startsWith('447') || clean.startsWith('07');
     const contacted  = lead.status === 'contacted';
     const outcome    = lead.contact_outcome || 'pending';
     const outcomeClass = outcome === 'whatsapp_sent' ? ' wa-sent' : outcome === 'call' ? ' call-made' : '';
-    const outcomeDot   = outcome === 'whatsapp_sent'
-      ? `<span class="outcome-dot wa-dot" title="WA Sent"></span>`
-      : outcome === 'call'
-      ? `<span class="outcome-dot call-dot" title="Call made"></span>`
-      : '';
-
-    const ratingClass = lead.rating <= 4.3 ? 'rating-low' : lead.rating <= 4.5 ? 'rating-mid' : 'rating-high';
-    const city   = escHtml(lead._city || lead.city || '');
-    const phone  = escHtml(lead.phone || '');
-    const signal = getSignal(lead.rating, lead.reviews);
-
-    return `
-      <tr class="${contacted ? 'contacted' : ''}${outcomeClass}" id="row-${i}">
-        <td class="cell-num">${i + 1}</td>
-        <td class="cell-cb">
-          <label class="done-label" title="Mark as done" style="margin:0">
-            <input type="checkbox" class="done-cb" data-index="${i}"${contacted ? ' checked' : ''}>
-            <span class="done-icon">${contacted ? '☑️' : '⬜'}</span>
-          </label>
-        </td>
-        <td><button class="lead-name-btn open-modal-btn" data-index="${i}" title="${name}">${name}</button></td>
-        <td id="signal-${i}"><span class="signal-pill ${signal.cls}"><span class="signal-dot"></span>${signal.label}</span></td>
-        <td class="${ratingClass}" style="text-align:right" id="rating-${i}">${lead.rating}${lead._live ? '<span class="live-tag">live</span>' : ''}</td>
-        <td style="color:var(--sub);text-align:right" id="reviews-${i}">${lead.reviews}</td>
-        <td id="velocity-${i}">${lead.velocity ? `<span class="vel-badge vel-${lead.velocity}">${lead.velocity}</span>` : '<span class="stale">–</span>'}</td>
-        <td style="color:var(--sub)" id="lastrev-${i}">${lead.last_review_days != null ? `${lead.last_review_days}d ago` : '<span class="stale">–</span>'}</td>
-        <td style="color:var(--sub)">${city}</td>
-        <td style="color:var(--sub)">${phone}${isMobile ? ' 📱' : ''}</td>
-        <td id="owner-${i}">${lead.owner ? escHtml(lead.owner) : ''}</td>
-        <td id="email-${i}">${lead.email ? `<a href="mailto:${escHtml(lead.email)}" style="color:var(--sub);text-decoration:none">${escHtml(lead.email)}</a>` : ''}</td>
-        <td id="comp-${i}">${getCompSummary(lead)}</td>
-        <td>
-          <div style="display:flex;gap:4px;align-items:center" id="actions-${i}">
-            ${outcomeDot}
-            ${clean ? `<button class="icon-btn wa-icon-btn" data-index="${i}">WA</button>` : ''}
-            ${clean ? `<a class="icon-btn call-icon-btn" href="tel:${clean}" data-index="${i}">Call</a>` : ''}
-            ${(lead.id || lead.place_id) ? `<button class="icon-btn refresh-btn${lead._live?' live-fetched':''}" data-index="${i}" title="${lead._live ? 'Re-fetch live data' : 'Fetch live data from Google'}">↻</button>` : ''}
-            ${lead.website && !lead._enriched ? `<button class="icon-btn enrich-btn" data-index="${i}" title="Find email &amp; owner from website">⚡</button>` : ''}
-          </div>
-        </td>
-      </tr>`;
+    return `<tr class="${contacted ? 'contacted' : ''}${outcomeClass}" id="row-${i}">
+      <td class="cell-num">${i + 1}</td>
+      <td class="cell-cb">
+        <label class="done-label" title="Mark as done" style="margin:0">
+          <input type="checkbox" class="done-cb" data-index="${i}"${contacted ? ' checked' : ''}>
+          <span class="done-icon">${contacted ? '☑️' : '⬜'}</span>
+        </label>
+      </td>
+      ${colOrder.map(col => renderCell(lead, i, col)).join('')}
+    </tr>`;
   }
 
   function renderCompTable(lead, competitors) {
@@ -1464,6 +1532,30 @@
 
     document.getElementById('snap-title').textContent = lead.name || '';
 
+    const maturity = (lead.last_review_days !== undefined && lead.last_review_days !== null) || lead.velocity
+      ? getMaturity(lead)
+      : null;
+
+    // Review signals block (only after live fetch)
+    let reviewSignalsHtml = '';
+    if (lead._live) {
+      const negHtml = lead.neg_count > 0
+        ? `<div style="font-size:11px;color:#c82333;font-weight:500">⚠ ${lead.neg_count} of ${Math.min(5, lead.reviews || 5)} recent reviews are 1–2 ★</div>
+           ${lead.neg_snippet ? `<div class="neg-snippet">"${escHtml(lead.neg_snippet)}${lead.neg_snippet.length >= 160 ? '…' : ''}"</div>` : ''}`
+        : `<div style="font-size:11px;color:#1e7e34">✓ No 1–2 ★ reviews in recent sample</div>`;
+
+      const respondsHtml = lead.responds !== null && lead.responds !== undefined
+        ? `<div style="margin-top:6px;font-size:11px">Responds to reviews: <span class="${lead.responds ? 'responds-yes' : 'responds-no'}">${lead.responds ? '✓ Yes' : '✗ No'}</span></div>`
+        : '';
+
+      reviewSignalsHtml = `
+        <div class="snap-divider"></div>
+        <div>
+          <div class="snap-section-label">Review Signals</div>
+          ${negHtml}${respondsHtml}
+        </div>`;
+    }
+
     const body = document.getElementById('snap-body');
     body.innerHTML = `
       <div class="snap-stat-row">
@@ -1471,6 +1563,7 @@
         <span class="snap-reviews">${lead.reviews} reviews</span>
         ${lead.velocity ? `<span class="vel-badge vel-${lead.velocity}">${lead.velocity}</span>` : ''}
         <span class="signal-pill ${signal.cls}" style="font-size:11px"><span class="signal-dot"></span>${signal.label}</span>
+        ${maturity ? `<span class="maturity-badge ${maturity.cls}">${maturity.label}</span>` : ''}
       </div>
       <div class="snap-meta-row">
         ${lead.last_review_days != null ? `<span>Last review ${lead.last_review_days}d ago</span>` : ''}
@@ -1481,6 +1574,7 @@
       </div>
       <div>${liveStamp}</div>
       ${obs ? `<div class="snap-divider"></div><div class="lead-obs">${escHtml(obs)}</div>` : ''}
+      ${reviewSignalsHtml}
       <div class="snap-divider"></div>
       <div class="msg-block">
         <div class="msg-label">WhatsApp Message</div>
@@ -1552,7 +1646,6 @@
   // ── COLUMN MENU ──
   const SORTABLE_COLS   = new Set(['name','signal','rating','reviews','city']);
   const FILTERABLE_COLS = new Set(['name','signal','city','phone','owner','email']);
-  const COL_LABELS      = {name:'Name',signal:'Signal',rating:'Rating',reviews:'Reviews',velocity:'Velocity',lastrev:'Last Review',city:'City',phone:'Phone',website:'Website',maps:'Maps',owner:'Owner',email:'Email',competition:'Competition'};
 
   let activeMenuCol = null;
 
@@ -1680,6 +1773,9 @@
       if (data.reviews != null) lead.reviews = data.reviews;
       lead.velocity         = data.velocity;
       lead.last_review_days = data.last_review_days;
+      lead.neg_count        = data.neg_count  ?? null;
+      lead.neg_snippet      = data.neg_snippet ?? null;
+      lead.responds         = data.responds   ?? null;
       lead._live            = true;
       lead._live_at         = Date.now();
 
@@ -1933,31 +2029,20 @@
         <colgroup id="tbl-cols">
           <col style="width:32px">
           <col style="width:32px">
-          <col style="min-width:160px;width:180px">
-          <col style="min-width:130px;width:150px">
-          <col style="min-width:54px;width:58px">
-          <col style="min-width:64px;width:70px">
-          <col style="min-width:68px;width:76px">
-          <col style="min-width:78px;width:86px">
-          <col style="min-width:66px;width:76px">
-          <col style="min-width:110px;width:125px">
-          <col style="min-width:110px;width:125px">
-          <col style="min-width:140px;width:155px">
-          <col style="min-width:100px;width:110px">
-          <col style="min-width:100px;width:108px">
+          ${colOrder.map(col => `<col style="min-width:${COL_MIN_WIDTH[col]||80}px;width:${COL_WIDTH[col]||100}px">`).join('')}
         </colgroup>
         <thead>
           <tr>
             <th class="cell-num"></th>
             <th class="cell-cb"></th>
-            ${['name','signal','rating','reviews','velocity','lastrev','city','phone','owner','email','competition','actions'].map((col,ci) => {
-              const labels = {name:'Name',signal:'Signal',rating:'Rating',reviews:'Reviews',velocity:'Velocity',lastrev:'Last Review',city:'City',phone:'Phone',owner:'Owner',email:'Email',competition:'Competition',actions:''};
-              const ra = ['rating','reviews'].includes(col) ? ' style="text-align:right"' : '';
-              const sortInd   = sortCol===col ? `<span class="col-sort-ind">${sortDir===1?'↑':'↓'}</span>` : '';
-              const filterInd = colFilters[col] ? `<span class="col-filter-ind"></span>` : '';
-              const resize    = col!=='actions' ? `<div class="col-resize" data-ci="${ci+2}"></div>` : '';
-              const hasMenu   = col!=='actions';
-              return `<th${hasMenu?' data-col="'+col+'" class="col-has-menu"':''} ${ra}>${labels[col]}${sortInd}${filterInd}${resize}</th>`;
+            ${colOrder.map((col, ci) => {
+              const ra       = ['rating','reviews'].includes(col) ? ' style="text-align:right"' : '';
+              const sortInd  = sortCol===col ? `<span class="col-sort-ind">${sortDir===1?'↑':'↓'}</span>` : '';
+              const filtInd  = colFilters[col] ? `<span class="col-filter-ind"></span>` : '';
+              const resize   = col!=='actions' ? `<div class="col-resize" data-ci="${ci+2}"></div>` : '';
+              const hasMenu  = col!=='actions';
+              const draggable = col!=='actions' ? ' draggable="true"' : '';
+              return `<th${hasMenu?' data-col="'+col+'" class="col-has-menu"':''}${draggable}${ra}>${COL_LABELS[col]||''}${sortInd}${filtInd}${resize}</th>`;
             }).join('')}
           </tr>
         </thead>
@@ -1969,11 +2054,46 @@
     attachLeadListeners();
     attachResizeHandles();
     applyColFilters();
+
+    // ── COLUMN HEADER INTERACTIONS ──
+    let dragSrcCol = null;
     leadsEl.querySelectorAll('th.col-has-menu').forEach(th => {
-      th.style.cursor = 'pointer';
       th.addEventListener('click', e => {
         if (e.target.closest('.col-resize')) return;
         openColMenu(th.dataset.col, th);
+      });
+
+      // Drag-to-reorder
+      th.addEventListener('dragstart', e => {
+        dragSrcCol = th.dataset.col;
+        e.dataTransfer.effectAllowed = 'move';
+        setTimeout(() => th.classList.add('col-drag-src'), 0);
+      });
+      th.addEventListener('dragend', () => {
+        th.classList.remove('col-drag-src');
+        leadsEl.querySelectorAll('th').forEach(t => t.classList.remove('col-drag-over'));
+        dragSrcCol = null;
+      });
+      th.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        leadsEl.querySelectorAll('th').forEach(t => t.classList.remove('col-drag-over'));
+        if (th.dataset.col !== dragSrcCol) th.classList.add('col-drag-over');
+      });
+      th.addEventListener('dragleave', () => th.classList.remove('col-drag-over'));
+      th.addEventListener('drop', e => {
+        e.preventDefault();
+        const tgt = th.dataset.col;
+        if (dragSrcCol && tgt && dragSrcCol !== tgt) {
+          const si = colOrder.indexOf(dragSrcCol);
+          const ti = colOrder.indexOf(tgt);
+          if (si !== -1 && ti !== -1) {
+            colOrder.splice(si, 1);
+            colOrder.splice(ti, 0, dragSrcCol);
+            renderAllLeads();
+          }
+        }
+        dragSrcCol = null;
       });
     });
 
