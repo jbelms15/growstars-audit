@@ -755,14 +755,13 @@
     return (isMobile ? 100 : 0) + pScore;
   }
 
-  function getObservation(rating, reviews) {
-    if (reviews >= 80 && rating <= 4.4) {
-      return `Strong traffic but inconsistent customer experience\nLikely losing repeat visits → review optimization opportunity`;
-    } else if (reviews <= 60 && rating >= 4.3) {
-      return `Limited social proof vs nearby competitors\nLikely impacting conversion from new customers`;
-    } else {
-      return `Solid presence but not clearly standing out locally\nOpportunity to position as top choice in area`;
-    }
+  function buildMessage(name, rating, reviews) {
+    let implication;
+    if (reviews >= 200 && rating <= 4.4)      implication = "that's likely costing you bookings right now";
+    else if (reviews >= 120 && rating < 4.7)  implication = "there's clear room to push this higher";
+    else if (rating <= 4.3)                   implication = "that's likely costing you bookings right now";
+    else                                       implication = "you're probably not getting as much visibility as you could";
+    return `Hey — quick one.\n\nNoticed ${name} is at ${rating} with ${reviews} reviews — ${implication}.\n\nWant me to send you a quick breakdown?`;
   }
 
   function renderCard(lead, i) {
@@ -791,6 +790,7 @@
             ${phone}${city}${contactType ? `<span>${contactType}</span>` : ''}
             <span class="outcome-badge" id="outcome-${i}">${outcomeBadge}</span>
           </div>
+          ${lead.observation ? `<div class="lead-obs">${escHtml(lead.observation)}</div>` : ''}
         </div>
         <div class="lead-actions">
           ${lead.website ? `<button class="icon-btn site-btn" data-index="${i}">↗</button>` : ''}
@@ -805,9 +805,8 @@
     const lead = leadMap.get(i);
     if (!lead) return;
 
-    const obs     = getObservation(lead.rating, lead.reviews);
-    const waMsg   = lead.whatsapp_message || '';
-    const loomMsg = lead.loom_hook || '';
+    const obs   = lead.observation || '';
+    const waMsg = buildMessage(lead.name, lead.rating, lead.reviews);
     const cleanNum = (lead.phone || '').replace(/\D/g, '');
 
     document.getElementById('modal-title').textContent = lead.name || '';
@@ -823,14 +822,7 @@
           <button class="copy-btn modal-copy-btn" data-text="${escHtml(waMsg)}">Copy</button>
         </div>
       </div>
-      ${loomMsg ? `
-      <div class="msg-block">
-        <div class="msg-label">Loom Hook</div>
-        <div class="msg-text">${escHtml(loomMsg)}</div>
-        <div class="msg-actions" style="margin-top:6px">
-          <button class="copy-btn modal-copy-btn" data-text="${escHtml(loomMsg)}">Copy</button>
-        </div>
-      </div>` : ''}`;
+    `;
 
     body.querySelectorAll('.wa-open-btn').forEach(b => {
       b.addEventListener('click', () => {
@@ -869,7 +861,7 @@
         const lead = leadMap.get(i);
         if (!lead) return;
         const clean = (lead.phone || '').replace(/\D/g, '');
-        const msg   = lead.whatsapp_message || '';
+        const msg   = buildMessage(lead.name, lead.rating, lead.reviews);
         window.open(`https://api.whatsapp.com/send?phone=${clean}&text=${encodeURIComponent(msg)}`, '_blank');
         setOutcome(i, 'whatsapp_sent');
       });
