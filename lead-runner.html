@@ -913,7 +913,7 @@
     .snap-drawer {
       position: fixed;
       top: 0; right: 0; bottom: 0;
-      width: 400px;
+      width: 460px;
       background: var(--bg);
       border-left: 1px solid var(--border2);
       box-shadow: -6px 0 32px rgba(0,0,0,0.14);
@@ -946,13 +946,13 @@
     }
 
     .snap-header-title {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 600;
       color: var(--text);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 300px;
+      max-width: 380px;
     }
 
     .snap-close {
@@ -971,10 +971,10 @@
     .snap-body {
       overflow-y: auto;
       flex: 1;
-      padding: 18px;
+      padding: 18px 20px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
     }
 
     .snap-stat-row {
@@ -1024,50 +1024,120 @@
       font-style: italic;
     }
 
-    /* ── SNAPSHOT OBSERVATION BLOCK ── */
-    .snap-obs-reason {
-      font-size: 11px;
-      color: var(--sub);
-      line-height: 1.6;
-      margin: 0;
-      background: var(--surface);
-      border-radius: 5px;
-      padding: 8px 10px;
-    }
+    /* ── SNAP INFO BLOCK (top meta) ── */
+    .snap-info-block { display: flex; flex-direction: column; gap: 3px; }
+    .snap-info-location { font-size: 12px; color: var(--sub); }
+    .snap-info-meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px; color: var(--sub); align-items: center; }
+    .snap-info-meta a { color: var(--sub); text-decoration: none; }
+    .snap-info-meta a:hover { color: var(--gold); }
+    .snap-live-row { margin-top: 2px; }
 
-    /* ── SNAPSHOT LABELS GRID ── */
-    .snap-labels-grid { display: flex; flex-direction: column; gap: 10px; }
-    .snap-label-row {
-      display: grid;
-      grid-template-columns: 56px auto 1fr;
-      align-items: start;
-      gap: 8px;
+    /* ── SNAP RATING HERO ── */
+    .snap-rating-hero {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 14px 16px;
     }
-    .snap-label-key {
+    .snap-rating-num { font-size: 30px; font-weight: 700; line-height: 1; color: var(--text); }
+    .snap-rating-sub { font-size: 14px; color: var(--sub); }
+
+    /* ── SNAP CARD (general card container) ── */
+    .snap-card {
+      background: var(--surface);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .snap-card-inner { padding: 12px 14px; }
+    .snap-card-row {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .snap-card-row:last-child { border-bottom: none; }
+    .snap-card-row-top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .snap-card-row-key {
       font-size: 10px;
       font-weight: 600;
       color: var(--sub);
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      padding-top: 3px;
+      min-width: 58px;
+      flex-shrink: 0;
     }
-    .snap-label-desc {
+    .snap-card-row-desc {
       font-size: 11px;
       color: var(--sub);
-      line-height: 1.4;
-      padding-top: 2px;
+      line-height: 1.45;
+      padding-left: 66px;
     }
 
-    /* ── SNAPSHOT REVIEW ITEM ROW ── */
-    .snap-review-item {
+    /* ── SNAP SIGNAL ROW (review signals) ── */
+    .snap-sig-row {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
       font-size: 11px;
-      padding: 3px 0;
+      padding: 6px 0;
       color: var(--sub);
+      border-bottom: 1px solid var(--border);
     }
-    .snap-review-item strong { color: var(--text); }
+    .snap-sig-row:last-of-type { border-bottom: none; }
+    .snap-sig-row strong { color: var(--text); font-weight: 600; }
+
+    /* ── SNAP OBSERVATION ── */
+    .snap-obs-reason {
+      font-size: 11px;
+      color: var(--sub);
+      line-height: 1.6;
+      margin: 0 0 10px;
+    }
+
+    /* ── SNAP ANGLE BAR ── */
+    .snap-angle-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+    .snap-angle-left { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .snap-angle-reason-txt { font-size: 10px; color: var(--sub); font-style: italic; }
+    .snap-next-btn {
+      font-size: 10px;
+      padding: 3px 9px;
+      background: none;
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      color: var(--sub);
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .snap-next-btn:hover { color: var(--text); border-color: var(--text); }
+
+    /* ── SNAP MESSAGE BODY ── */
+    .snap-msg-body {
+      background: var(--bg);
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .snap-msg-body .msg-text {
+      font-size: 11px;
+      color: var(--text);
+      line-height: 1.65;
+      white-space: pre-wrap;
+    }
+    .snap-msg-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      justify-content: flex-end;
+    }
 
     /* ── SNAPSHOT SECTION HEADER ── */
     .snap-section-header {
@@ -1792,36 +1862,34 @@
 
     // Review Signals section
     let reviewSignalsHtml = '';
-    const lastRevLine = `<div class="snap-review-item"><span>Last review</span><strong>${lead.last_review_days != null ? `${lead.last_review_days}d ago` : '–'}</strong></div>`;
+    const lastRevLine = `<div class="snap-sig-row"><span>Last review</span><strong>${lead.last_review_days != null ? `${lead.last_review_days}d ago` : '–'}</strong></div>`;
 
     if (lead._live) {
       const negLine = lead.neg_count > 0
-        ? `<div class="snap-review-item"><span>Negative reviews</span><span style="color:#c82333;font-weight:600">⚠ ${lead.neg_count} of ${lead.responds_total || 5} are 1–2 ★</span></div>
-           ${lead.neg_snippet ? `<div class="neg-snippet">"${escHtml(lead.neg_snippet)}${lead.neg_snippet.length >= 160 ? '…' : ''}"</div>` : ''}`
-        : `<div class="snap-review-item"><span>Negative reviews</span><span style="color:#2a7a4a;font-weight:600">✓ None in recent sample</span></div>`;
+        ? `<div class="snap-sig-row"><span>Negative reviews</span><span style="color:#c82333;font-weight:600">⚠ ${lead.neg_count} of ${lead.responds_total || 5} are 1–2 ★</span></div>
+           ${lead.neg_snippet ? `<div class="neg-snippet" style="margin-top:6px">"${escHtml(lead.neg_snippet)}${lead.neg_snippet.length >= 160 ? '…' : ''}"</div>` : ''}`
+        : `<div class="snap-sig-row"><span>Negative reviews</span><span style="color:#2a7a4a;font-weight:600">✓ None in recent sample</span></div>`;
 
       const repliedLine = lead.responds_total
         ? (() => {
             const n = lead.responds_count, t = lead.responds_total;
             const cls = n === 0 ? 'responds-no' : n === t ? 'responds-yes' : '';
             const lbl = n === 0 ? `✗ None of ${t}` : n === t ? `✓ All ${t} of ${t}` : `${n} of ${t}`;
-            return `<div class="snap-review-item"><span>Replied to reviews</span><span class="${cls}" style="font-weight:600">${lbl}</span></div>`;
+            return `<div class="snap-sig-row"><span>Replied to reviews</span><span class="${cls}" style="font-weight:600">${lbl}</span></div>`;
           })()
         : '';
 
       reviewSignalsHtml = `
-        <div class="snap-divider"></div>
-        <div>
+        <div class="snap-card snap-card-inner">
           <div class="snap-section-label" style="margin-bottom:8px">Review Signals</div>
           ${lastRevLine}${repliedLine}${negLine}
         </div>`;
     } else if (lead.last_review_days != null) {
       reviewSignalsHtml = `
-        <div class="snap-divider"></div>
-        <div>
+        <div class="snap-card snap-card-inner">
           <div class="snap-section-label" style="margin-bottom:8px">Review Signals</div>
           ${lastRevLine}
-          <p class="snap-section-desc" style="margin-top:4px">Fetch live ↻ for replied count and negative review signals</p>
+          <p class="snap-section-desc" style="margin-top:6px">Fetch live ↻ for replied count and negative review signals</p>
         </div>`;
     }
 
@@ -1838,68 +1906,66 @@
 
     const body = document.getElementById('snap-body');
     body.innerHTML = `
-      <div style="display:flex;flex-direction:column;gap:4px">
-        ${lead._city || lead.city ? `<div style="font-size:11px;color:var(--sub)">${escHtml(lead._city || lead.city)}</div>` : ''}
-        <div style="display:flex;gap:14px;flex-wrap:wrap">
-          ${lead.phone ? `<span style="font-size:11px;color:var(--sub)">${escHtml(lead.phone)}</span>` : ''}
-          ${lead.website ? `<a href="${escHtml(lead.website)}" target="_blank" rel="noopener" style="font-size:11px;color:var(--sub);text-decoration:none">Website</a>` : ''}
+      <div class="snap-info-block">
+        ${(lead._city || lead.city) ? `<div class="snap-info-location">${escHtml(lead._city || lead.city)}</div>` : ''}
+        <div class="snap-info-meta">
+          ${lead.phone ? `<span>${escHtml(lead.phone)}</span>` : ''}
+          ${lead.website ? `<a href="${escHtml(lead.website)}" target="_blank" rel="noopener">Website</a>` : ''}
         </div>
-        <div style="margin-top:2px">${liveStamp}</div>
+        <div class="snap-live-row">${liveStamp}</div>
       </div>
 
-      <div class="snap-divider"></div>
-
-      <div style="display:flex;align-items:baseline;gap:10px">
-        <span style="font-size:28px;font-weight:700;line-height:1;color:var(--text)">${lead.rating} ★</span>
-        <span style="font-size:15px;color:var(--sub);font-weight:400">${lead.reviews} reviews</span>
+      <div class="snap-rating-hero">
+        <span class="snap-rating-num">${lead.rating} ★</span>
+        <span class="snap-rating-sub">${lead.reviews} reviews</span>
       </div>
 
-      <div class="snap-divider"></div>
-
-      <div class="snap-labels-grid">
+      <div class="snap-card">
         ${lead.velocity ? `
-        <div class="snap-label-row">
-          <span class="snap-label-key">Velocity</span>
-          <span class="vel-badge vel-${lead.velocity}" style="flex-shrink:0">${lead.velocity}</span>
-          <span class="snap-label-desc">${getVelocityDescription(lead.velocity)}</span>
+        <div class="snap-card-row">
+          <div class="snap-card-row-top">
+            <span class="snap-card-row-key">Velocity</span>
+            <span class="vel-badge vel-${lead.velocity}">${lead.velocity}</span>
+          </div>
+          <div class="snap-card-row-desc">${getVelocityDescription(lead.velocity)}</div>
         </div>` : ''}
-        <div class="snap-label-row">
-          <span class="snap-label-key">Signal</span>
-          <span class="signal-pill ${signal.cls}" style="flex-shrink:0;font-size:10px"><span class="signal-dot"></span>${signal.label}</span>
-          <span class="snap-label-desc">${getSignalExplanation(signal)}</span>
+        <div class="snap-card-row">
+          <div class="snap-card-row-top">
+            <span class="snap-card-row-key">Signal</span>
+            <span class="signal-pill ${signal.cls}" style="font-size:10px"><span class="signal-dot"></span>${signal.label}</span>
+          </div>
+          <div class="snap-card-row-desc">${getSignalExplanation(signal)}</div>
         </div>
         ${maturity ? `
-        <div class="snap-label-row">
-          <span class="snap-label-key">Maturity</span>
-          <span class="maturity-badge ${maturity.cls}" style="flex-shrink:0">${maturity.label}</span>
-          <span class="snap-label-desc">${getMaturityDescription(maturity.label)}</span>
+        <div class="snap-card-row">
+          <div class="snap-card-row-top">
+            <span class="snap-card-row-key">Maturity</span>
+            <span class="maturity-badge ${maturity.cls}">${maturity.label}</span>
+          </div>
+          <div class="snap-card-row-desc">${getMaturityDescription(maturity.label)}</div>
         </div>` : ''}
       </div>
 
       ${reviewSignalsHtml}
 
-      <div class="snap-divider"></div>
-
-      <div>
+      <div class="snap-card snap-card-inner">
         <div class="snap-section-label" style="margin-bottom:8px">Observation & Messages</div>
         <p class="snap-obs-reason">${getObservationText(lead, signal)}</p>
-        <div style="margin:10px 0 6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
-          <div style="display:flex;align-items:center;gap:8px">
+        <div class="snap-angle-bar">
+          <div class="snap-angle-left">
             <span class="msg-label" id="snap-angle-label">${SNAP_ANGLE_LABELS[_snapAngle]}</span>
-            <span style="font-size:10px;color:var(--sub);font-style:italic" id="snap-angle-reason">${escHtml(angleReason)}</span>
+            <span class="snap-angle-reason-txt" id="snap-angle-reason">${escHtml(angleReason)}</span>
           </div>
-          <button class="copy-btn snap-next-angle" style="font-size:10px;padding:2px 8px">Try another →</button>
+          <button class="snap-next-btn snap-next-angle">Try another →</button>
         </div>
-        <div class="msg-block" style="margin-top:0">
+        <div class="snap-msg-body">
           <div class="msg-text" id="snap-msg-text">${escHtml(initMsg)}</div>
-          <div class="msg-actions" style="margin-top:6px">
+          <div class="snap-msg-actions">
             ${cleanNum ? `<button class="copy-btn wa-open-btn" data-phone="${cleanNum}" data-message="${escHtml(initMsg)}">Open WA ↗</button>` : ''}
             <button class="copy-btn snap-copy-btn" data-text="${escHtml(initMsg)}">Copy</button>
           </div>
         </div>
       </div>
-
-      <div class="snap-divider"></div>
 
       <div>
         <div class="snap-section-header">
