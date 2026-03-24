@@ -495,28 +495,20 @@
     return hasStrongerCompetitors ? bucket.stronger : bucket.clear;
   }
 
-  function buildMessage(angle, { firstName, bizName, rating, reviews, implicationLine, trustLine, lastReviewDays, velocity }) {
+  function buildMessage(angle, { firstName, bizName, rating, reviews, lastReviewDays, velocity }) {
     switch (angle) {
       case 1:
-        // Question-led
-        return `Hey ${firstName}, quick question for you.\n\nHad a look at ${bizName} online and noticed ${implicationLine}. ${trustLine}\n\nWorth me sending over what I put together?`;
+        // Competition
+        return `Hey ${firstName} — quick one.\n\nNoticed ${bizName} is at ${rating} with ${reviews} reviews — which is solid. A few nearby spots are building up more reviews though.\n\nThat can influence how people decide which salon to go to when they're comparing.\n\nI made a quick breakdown on how to stay ahead — want me to send it?`;
       case 2:
-        // Warm/curious
-        return `Hey ${firstName}, came across ${bizName} while doing some research on local spots in the area.\n\nNoticed ${implicationLine}. ${trustLine}\n\nHappy to share a quick breakdown if it's useful.`;
-      case 3: {
-        // Activity-led
-        const isSlowing = velocity === 'slow' || (lastReviewDays !== null && lastReviewDays > 60);
-        const open  = isSlowing
-          ? `noticed review activity has gone pretty quiet at ${bizName} lately`
-          : `noticed ${bizName} has been picking up reviews recently`;
-        const close = isSlowing
-          ? 'When review momentum drops off, it can be tough to get it back without something actively working in the background.'
-          : 'Keeping that consistent is usually what pulls a spot ahead in local search over time.';
-        return `Hey ${firstName}, ${open}.\n\n${implicationLine}.\n\n${close}\n\nWant me to send over a quick breakdown?`;
-      }
+        // Opportunity
+        return `Hey ${firstName} — quick one.\n\n${bizName} is sitting at ${rating} with ${reviews} reviews — which is strong.\n\nWith a bit more consistent review flow, you could stand out even more locally.\n\nI made a quick breakdown on how to do that — want me to send it?`;
+      case 3:
+        // Visibility
+        return `Hey ${firstName} — quick one.\n\nNoticed when people search nearby, ${bizName} isn't always showing as prominently as it could.\n\nThat usually comes down to how often new reviews are coming in.\n\nI made a quick breakdown of what affects that — want me to send it?`;
       default:
-        // Stats-led (angle 0)
-        return `Hey ${firstName}, spotted ${bizName} online and noticed you're sitting at ${rating} with ${reviews} reviews. ${implicationLine}.\n\n${trustLine}\n\nWant me to send over a quick breakdown?`;
+        // Velocity (angle 0 — default/priority)
+        return `Hey ${firstName} — quick one.\n\nNoticed review activity has slowed down a bit for ${bizName} recently.\n\nA few nearby spots are getting reviews more consistently, which can affect how people decide which salon to go to.\n\nI made a quick breakdown on how to get reviews coming in more consistently — want me to send it?`;
     }
   }
 
