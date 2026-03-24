@@ -232,6 +232,66 @@
     }
 
     .maps-link:hover { color: #7a6e62; }
+
+    /* ── COMPETITOR TABLE ── */
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .comp-table th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #b0a492;
+      padding: 0 8px 8px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .comp-table td {
+      padding: 8px 8px 8px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      color: #1a1208;
+      vertical-align: middle;
+    }
+
+    .comp-table tr.target-row td {
+      background: rgba(212,164,58,0.06);
+      font-weight: 600;
+    }
+
+    .comp-table tr.target-row td:first-child {
+      border-radius: 4px 0 0 4px;
+      padding-left: 8px;
+    }
+
+    .comp-table tr.target-row td:last-child {
+      border-radius: 0 4px 4px 0;
+    }
+
+    .delta-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .delta-above { background: rgba(40,167,69,0.1); color: #1e7e34; }
+    .delta-below { background: rgba(220,53,69,0.1); color: #c82333; }
+    .delta-at    { background: rgba(0,0,0,0.06); color: #7a6e62; }
+
+    .you-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #D4A43A;
+      margin-left: 6px;
+    }
   </style>
 </head>
 <body>
@@ -284,21 +344,28 @@
     </div>
 
     <div class="section">
+      <div class="section-title">Local Competition</div>
+      <div class="text-block">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Business</th>
+              <th>Rating</th>
+              <th>Reviews</th>
+              <th>vs Avg</th>
+            </tr>
+          </thead>
+          <tbody id="comp-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
       <div class="section-title">LinkedIn Message</div>
       <div class="text-block">
         <div class="text-content" id="li-message"></div>
         <div class="block-actions">
           <button class="copy-btn" onclick="copyBlock(this, 'li-message')">Copy</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">Loom Script</div>
-      <div class="text-block">
-        <div class="text-content" id="loom-script"></div>
-        <div class="block-actions">
-          <button class="copy-btn" onclick="copyBlock(this, 'loom-script')">Copy</button>
         </div>
       </div>
     </div>
@@ -379,8 +446,8 @@
         return;
       }
 
-      const { rating, reviews, maps_link } = data;
-      const bizName   = data.name;
+      const { business, competitors } = data;
+      const { name: bizName, rating, reviews, maps_link } = business;
       const firstName = firstInput.value.trim() || '{{first_name}}';
       const obs       = getObservationData(rating, reviews);
 
@@ -391,18 +458,69 @@
       document.getElementById('snap-obs').textContent     = obs.label;
       document.getElementById('snap-link').href           = maps_link;
 
-      // LinkedIn message
-      document.getElementById('li-message').textContent =
-        `Hey ${firstName} — quick one.\n\nNoticed ${bizName} is at ${rating} with ${reviews} reviews — ${obs.implication}.\n\nWant me to send you a quick breakdown?`;
+      // Competitor table
+      const tbody = document.getElementById('comp-tbody');
+      tbody.innerHTML = '';
 
-      // Loom script
-      document.getElementById('loom-script').textContent =
-        `LOOM SCRIPT — ${bizName}\n\n` +
-        `1. What I noticed\n   → ${bizName} is at ${rating} stars with ${reviews} reviews\n   → Label: ${obs.label}\n\n` +
-        `2. Why it matters\n   → ${obs.why}\n\n` +
-        `3. What's causing it\n   → ${obs.cause}\n\n` +
-        `4. What can be improved\n   → Rating can be pushed higher with a simple review follow-up system\n   → Review velocity needs to be consistent, not spiked\n\n` +
-        `5. Offer\n   → "I put together a quick breakdown of what I'd fix first — happy to walk you through it if useful."`;
+      const avgRating = competitors.length
+        ? (competitors.reduce((s, c) => s + c.rating, 0) / competitors.length).toFixed(2)
+        : null;
+
+      // Target row
+      const targetDelta = avgRating !== null ? (rating - avgRating).toFixed(2) : null;
+      const targetBadge = targetDelta === null ? ''
+        : targetDelta > 0  ? `<span class="delta-badge delta-above">+${targetDelta} vs avg</span>`
+        : targetDelta < 0  ? `<span class="delta-badge delta-below">${targetDelta} vs avg</span>`
+        : `<span class="delta-badge delta-at">= avg</span>`;
+
+      tbody.insertAdjacentHTML('beforeend', `
+        <tr class="target-row">
+          <td>${bizName}<span class="you-label">you</span></td>
+          <td>${rating} ⭐</td>
+          <td>${reviews}</td>
+          <td>${targetBadge}</td>
+        </tr>`);
+
+      // Competitor rows
+      for (const c of competitors) {
+        const d = avgRating !== null ? (c.rating - avgRating).toFixed(2) : null;
+        const badge = d === null ? ''
+          : d > 0  ? `<span class="delta-badge delta-above">+${d}</span>`
+          : d < 0  ? `<span class="delta-badge delta-below">${d}</span>`
+          : `<span class="delta-badge delta-at">avg</span>`;
+        tbody.insertAdjacentHTML('beforeend', `
+          <tr>
+            <td>${c.name}</td>
+            <td>${c.rating} ⭐</td>
+            <td>${c.reviews}</td>
+            <td>${badge}</td>
+          </tr>`);
+      }
+
+      if (avgRating !== null) {
+        tbody.insertAdjacentHTML('beforeend', `
+          <tr>
+            <td style="color:#b0a492;font-size:11px">Local avg (${competitors.length} nearby)</td>
+            <td style="color:#b0a492">${avgRating} ⭐</td>
+            <td></td><td></td>
+          </tr>`);
+      }
+
+      // LinkedIn message with competitive context
+      let compLine = '';
+      if (avgRating !== null) {
+        const diff = (rating - avgRating).toFixed(1);
+        if (diff > 0) {
+          compLine = ` The local average nearby is ${avgRating} — you're ahead, but there's still room to pull further away.`;
+        } else if (diff < 0) {
+          compLine = ` The local average nearby is ${avgRating} — a few competitors are already ahead of you.`;
+        } else {
+          compLine = ` You're right at the local average of ${avgRating} — easy to pull ahead with a few fixes.`;
+        }
+      }
+
+      document.getElementById('li-message').textContent =
+        `Hey ${firstName} — quick one.\n\nNoticed ${bizName} is at ${rating} with ${reviews} reviews — ${obs.implication}.${compLine}\n\nWant me to send you a quick breakdown?`;
 
       statusEl.textContent = '';
       outputEl.style.display = 'block';
