@@ -713,11 +713,11 @@
   function buildMessage(angle, { firstName, bizName, rating, reviews, lastReviewDays, velocity, hasStronger }) {
     switch (angle) {
       case 1:
-        // Competition
-        return `Hey ${firstName}, quick one.\n\nNoticed ${bizName} is at ${rating} with ${reviews} reviews, that's a solid spot to be in. A few nearby spots are building up more reviews though.\n\nThat can influence how people decide which salon to go to.\n\nI made a quick breakdown on how to stay ahead, want me to send it?`;
+        // Competition — lead with local landscape
+        return `Hey ${firstName}, quick one.\n\nHad a look at what's happening locally around ${bizName}. A few nearby spots are picking up reviews faster right now.\n\nThat's usually when the gap starts to show in search results.\n\nI put together a quick breakdown on what's driving that, want me to send it?`;
       case 2:
-        // Opportunity
-        return `Hey ${firstName}, quick one.\n\n${bizName} is at ${rating} with ${reviews} reviews, that's a solid spot to be in.\n\nWith a bit more consistent review flow, you could stand out even more locally.\n\nI made a quick breakdown on how to do that, want me to send it?`;
+        // Opportunity — lead with growth potential
+        return `Hey ${firstName}, quick one.\n\n${bizName} is at ${rating} with ${reviews} reviews, which is a decent base to build from.\n\nMost salons at that stage can push their review count up pretty quickly with a simple system.\n\nI made a quick breakdown on how to do that, want me to send it?`;
       case 3:
         // Visibility
         return `Hey ${firstName}, quick one.\n\nNoticed when people search nearby, ${bizName} isn't always showing as prominently as it could.\n\nThat usually comes down to how often new reviews are coming in.\n\nI made a quick breakdown of what affects that, want me to send it?`;
