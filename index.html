@@ -486,10 +486,6 @@
         <label>First Name (prospect)</label>
         <input type="text" id="first-name" placeholder="e.g. Alex" />
       </div>
-      <div class="field">
-        <label>LinkedIn URL (optional)</label>
-        <input type="text" id="linkedin-url" placeholder="linkedin.com/in/..." />
-      </div>
       <button class="analyze-btn" id="analyze-btn" onclick="analyze()">Analyze →</button>
     </div>
   </div>
@@ -886,7 +882,7 @@
       hasStronger:    lastCtx.hasStronger,
       angle:          currentAngle,
       maps_link:      lastCtx.mapsLink || null,
-      linkedin_url:   document.getElementById('linkedin-url').value.trim() || null,
+      linkedin_url:   null,
     });
     localStorage.setItem(TRACKER_KEY, JSON.stringify(data));
     btn.textContent = 'Added';

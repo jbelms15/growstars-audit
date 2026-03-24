@@ -609,10 +609,10 @@
 
     tbody.innerHTML = filtered.map((entry, i) => {
       const loomBtn = LOOM_STATUSES.has(entry.status)
-        ? `<button class="loom-btn" onclick="openLoomModal(${i})">Loom script</button>`
+        ? `<button class="loom-btn" onclick="openLoomModal(${entry.id})">Loom script</button>`
         : '';
       return `
-        <tr class="${rowClass(entry)}" data-index="${i}">
+        <tr class="${rowClass(entry)}" data-id="${entry.id}">
           <td>
             <div class="biz-name">${entry.business}</div>
             ${entry.deal_note ? `<div style="font-size:10px;color:#1e7e34;margin-top:3px;font-weight:500;">✓ ${entry.deal_note}</div>` : ''}
@@ -629,11 +629,11 @@
           </td>
           <td>${statusSelectHTML(entry.status)}</td>
           <td>${followupBadge(entry)}</td>
-          <td><input class="notes-input" type="text" placeholder="e.g. Send Loom today" value="${(entry.next_step || '').replace(/"/g, '&quot;')}" onchange="updateNextStep(this)" data-index="${i}" style="width:140px;" /></td>
-          <td><input class="notes-input" type="text" placeholder="What happened, what was said..." value="${(entry.context || entry.last_action || entry.notes || '').replace(/"/g, '&quot;')}" onchange="updateContext(this)" data-index="${i}" style="width:180px;" /></td>
-          <td><input type="date" class="notes-input" value="${entry.reengage_date || ''}" onchange="updateReengage(this)" data-index="${i}" style="width:120px;cursor:pointer;" title="Set re-engagement date" /></td>
+          <td><input class="notes-input" type="text" placeholder="e.g. Send Loom today" value="${(entry.next_step || '').replace(/"/g, '&quot;')}" onchange="updateNextStep(this)" data-id="${entry.id}" style="width:140px;" /></td>
+          <td><input class="notes-input" type="text" placeholder="What happened, what was said..." value="${(entry.context_raw || entry.context || entry.last_action || entry.notes || '').replace(/"/g, '&quot;')}" onchange="updateContext(this)" data-id="${entry.id}" style="width:180px;" /></td>
+          <td><input type="date" class="notes-input" value="${entry.reengage_date || ''}" onchange="updateReengage(this)" data-id="${entry.id}" style="width:120px;cursor:pointer;" title="Set re-engagement date" /></td>
           <td>${loomBtn}</td>
-          <td><button class="delete-btn" onclick="deleteEntry(${i})" title="Remove">×</button></td>
+          <td><button class="delete-btn" onclick="deleteEntry(${entry.id})" title="Remove">×</button></td>
         </tr>`;
     }).join('');
   }

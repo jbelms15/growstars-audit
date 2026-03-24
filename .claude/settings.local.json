@@ -21,7 +21,8 @@
       "Bash(rm linkedin-assist.html)",
       "Bash(ls \"c:/Users/Joanna \\(Freelancing\\)/growstars-audit/\")",
       "Bash(head -5 \"c:/Users/Joanna \\(Freelancing\\)/growstars-audit/lead-runner.html\")",
-      "Bash(head -5 \"c:/Users/Joanna \\(Freelancing\\)/growstars-audit/index.html\")"
+      "Bash(head -5 \"c:/Users/Joanna \\(Freelancing\\)/growstars-audit/index.html\")",
+      "Bash(git -C \"c:/Users/Joanna \\(Freelancing\\)/growstars-audit\" log --oneline -10)"
     ]
   }
 }
