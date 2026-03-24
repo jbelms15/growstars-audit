@@ -1214,14 +1214,16 @@
         <tr><td>⚠ 3+ of 5 reviews are 1–2 ★</td><td>Serious reputational problem. Easiest pitch — the evidence is right there.</td></tr>
       </table>
       <blockquote>Use the snippet in your opening message: "I noticed you had a rough one recently — that kind of review can put people off before they even call."</blockquote>
-      <h2>Responds to Reviews</h2>
-      <p>Whether the owner has replied to any of their 5 most recent reviews via Google Maps.</p>
+      <h2>Replied to Reviews</h2>
+      <p>How many of the 5 most recent reviews the owner has replied to via Google Maps. Shown as a ratio — e.g. <strong>2 of 5</strong> — so you can judge their engagement level yourself.</p>
       <table>
         <tr><th>Signal</th><th>What it means</th><th>Outreach angle</th></tr>
-        <tr><td>✓ Yes</td><td>Owner is engaged. They care about their reputation.</td><td>Easier sell — they already see the value. Pitch a system to make it consistent.</td></tr>
-        <tr><td>✗ No</td><td>Owner is not managing their GBP at all.</td><td>Strongest signal. They are losing customers and doing nothing about it. Frame it as urgency.</td></tr>
+        <tr><td>✗ None of 5</td><td>Owner is not managing their GBP at all.</td><td>Strongest signal. Frame it as urgency — they are losing customers and doing nothing about it.</td></tr>
+        <tr><td>1–2 of 5</td><td>Occasional engagement, no consistent habit.</td><td>They care but have no system. Pitch the system.</td></tr>
+        <tr><td>3–4 of 5</td><td>Making an effort but inconsistent.</td><td>Close to good — help them close the gap.</td></tr>
+        <tr><td>✓ All 5 of 5</td><td>Owner actively manages reputation.</td><td>Easiest sell on quality — pitch volume and visibility instead.</td></tr>
       </table>
-      <blockquote>A business that doesn't respond to reviews — especially negative ones — is leaving money on the table and they probably know it.</blockquote>
+      <blockquote>A business replying to none of their reviews — especially if there are negative ones — is the clearest sign of a reputation gap you can actually fix.</blockquote>
       <hr>
       <h1>Why Your Messaging Works</h1>
       <p>You are not saying "we help you get more reviews".</p>
@@ -1564,8 +1566,13 @@
            ${lead.neg_snippet ? `<div class="neg-snippet">"${escHtml(lead.neg_snippet)}${lead.neg_snippet.length >= 160 ? '…' : ''}"</div>` : ''}`
         : `<div style="font-size:11px;color:#1e7e34">✓ No 1–2 ★ reviews in recent sample</div>`;
 
-      const respondsHtml = lead.responds !== null && lead.responds !== undefined
-        ? `<div style="margin-top:6px;font-size:11px">Responds to reviews: <span class="${lead.responds ? 'responds-yes' : 'responds-no'}">${lead.responds ? '✓ Yes' : '✗ No'}</span></div>`
+      const respondsHtml = lead.responds_total
+        ? (() => {
+            const n = lead.responds_count, t = lead.responds_total;
+            const cls = n === 0 ? 'responds-no' : n === t ? 'responds-yes' : '';
+            const label = n === 0 ? `✗ None of ${t}` : n === t ? `✓ All ${t} of ${t}` : `${n} of ${t}`;
+            return `<div style="margin-top:6px;font-size:11px">Replied to reviews: <span class="${cls}" style="font-weight:600">${label}</span></div>`;
+          })()
         : '';
 
       reviewSignalsHtml = `
@@ -1793,9 +1800,10 @@
       if (data.reviews != null) lead.reviews = data.reviews;
       lead.velocity         = data.velocity;
       lead.last_review_days = data.last_review_days;
-      lead.neg_count        = data.neg_count  ?? null;
-      lead.neg_snippet      = data.neg_snippet ?? null;
-      lead.responds         = data.responds   ?? null;
+      lead.neg_count        = data.neg_count     ?? null;
+      lead.neg_snippet      = data.neg_snippet   ?? null;
+      lead.responds_count   = data.responds_count ?? null;
+      lead.responds_total   = data.responds_total ?? null;
       lead._live            = true;
       lead._live_at         = Date.now();
 

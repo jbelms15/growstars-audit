@@ -56,10 +56,9 @@ export default async function handler(req, res) {
       ? negReviews[0].text.slice(0, 160)
       : null;
 
-    // Responds to reviews — checks author_reply field (returned by Places API when owner has replied)
-    const responds = reviews.length > 0
-      ? reviews.some(r => !!(r.author_reply?.text))
-      : null;
+    // Responds to reviews — count of reviews with an owner reply in the sample
+    const responds_count = reviews.filter(r => !!(r.author_reply?.text)).length;
+    const responds_total = reviews.length;
 
     return res.status(200).json({
       rating:           result.rating             ?? null,
@@ -68,7 +67,8 @@ export default async function handler(req, res) {
       velocity,
       neg_count,
       neg_snippet,
-      responds,
+      responds_count,
+      responds_total,
     });
   } catch (err) {
     return res.status(500).json({ error: err.message });
