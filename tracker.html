@@ -376,6 +376,7 @@
           <th>Status</th>
           <th>Follow-up</th>
           <th>Last Action</th>
+          <th>Next Step</th>
           <th>Notes</th>
           <th></th>
           <th></th>
@@ -433,6 +434,13 @@
     return Math.floor((now - sent) / 86400000);
   }
 
+  function timeAgo(dateStr) {
+    const days = daysSince(dateStr);
+    if (days === 0) return 'today';
+    if (days === 1) return 'yesterday';
+    return `${days}d ago`;
+  }
+
   function followupBadge(entry) {
     const refDate = entry.status_date || entry.sent_date;
     if (entry.status === 'Waiting') {
@@ -444,8 +452,7 @@
     if (entry.status === 'Replied') {
       const days = daysSince(refDate);
       if (days >= 5) return `<span class="followup-badge followup-overdue">Send Loom</span>`;
-      if (days >= 2) return `<span class="followup-badge followup-due">Send Loom</span>`;
-      return `<span class="followup-ok">–</span>`;
+      return `<span class="followup-badge followup-due">Send Loom</span>`;
     }
     return `<span class="followup-ok">–</span>`;
   }
@@ -461,8 +468,7 @@
     if (entry.status === 'Replied') {
       const days = daysSince(refDate);
       if (days >= 5) return 'row-overdue';
-      if (days >= 2) return 'row-followup';
-      return '';
+      return 'row-followup';
     }
     return '';
   }
@@ -522,11 +528,15 @@
             ${entry.maps_link ? `<a href="${entry.maps_link}" target="_blank" style="font-size:10px;color:#b0a492;text-decoration:none;display:block;margin-top:3px;" title="Google Business Profile">GBP ↗</a>` : ''}
           </td>
           <td><div class="contact-name">${entry.contact || '–'}</div></td>
-          <td><span class="sent-date">${formatDate(entry.sent_date)}</span></td>
+          <td>
+            <span class="sent-date">${formatDate(entry.sent_date)}</span>
+            <span style="font-size:10px;color:#b0a492;display:block;margin-top:2px;">${timeAgo(entry.sent_date)}</span>
+          </td>
           <td>${statusSelectHTML(entry.status)}</td>
           <td>${followupBadge(entry)}</td>
-          <td><input class="notes-input" type="text" placeholder="Last action..." value="${(entry.last_action || '').replace(/"/g, '&quot;')}" onchange="updateLastAction(this)" data-index="${i}" style="width:120px;" /></td>
-          <td><input class="notes-input" type="text" placeholder="Add a note..." value="${entry.notes || ''}" onchange="updateNotes(this)" data-index="${i}" /></td>
+          <td><input class="notes-input" type="text" placeholder="Log what happened..." value="${(entry.last_action || '').replace(/"/g, '&quot;')}" onchange="updateLastAction(this)" data-index="${i}" style="width:130px;" /></td>
+          <td><input class="notes-input" type="text" placeholder="e.g. Send Loom today" value="${(entry.next_step || '').replace(/"/g, '&quot;')}" onchange="updateNextStep(this)" data-index="${i}" style="width:140px;" /></td>
+          <td><input class="notes-input" type="text" placeholder="Add a note..." value="${(entry.notes || '').replace(/"/g, '&quot;')}" onchange="updateNotes(this)" data-index="${i}" /></td>
           <td>${loomBtn}</td>
           <td><button class="delete-btn" onclick="deleteEntry(${i})" title="Remove">×</button></td>
         </tr>`;
@@ -539,7 +549,7 @@
     const data  = load();
     data[index].status      = select.value;
     data[index].status_date = new Date().toISOString().slice(0, 10);
-    data[index].last_action = `Status set to ${select.value}`;
+    data[index].last_action = '';
     save(data);
     render();
   }
@@ -555,6 +565,13 @@
     const index = parseInt(input.dataset.index);
     const data  = load();
     data[index].last_action = input.value;
+    save(data);
+  }
+
+  function updateNextStep(input) {
+    const index = parseInt(input.dataset.index);
+    const data  = load();
+    data[index].next_step = input.value;
     save(data);
   }
 
