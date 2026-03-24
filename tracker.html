@@ -143,17 +143,6 @@
       color: #7a6e62;
     }
 
-    /* CHANNEL BADGE */
-    .channel-badge {
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 10px;
-      background: rgba(10,102,194,0.1);
-      color: #0a66c2;
-      letter-spacing: 0.03em;
-    }
-
     /* ANGLE BADGE */
     .angle-badge {
       display: inline-block;
@@ -370,7 +359,7 @@
 <div class="main">
   <div class="main-header">
     <span class="main-title">Outreach Tracker</span>
-    <span class="count-label" id="count-label"></span>
+    <div id="pipeline-summary" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;"></div>
   </div>
 
   <div id="empty-state" class="empty-state" style="display:none;">
@@ -383,7 +372,6 @@
         <tr>
           <th>Business</th>
           <th>Contact</th>
-          <th>Channel</th>
           <th>Sent Date</th>
           <th>Status</th>
           <th>Follow-up</th>
@@ -446,18 +434,36 @@
   }
 
   function followupBadge(entry) {
-    if (entry.status !== 'Waiting') return `<span class="followup-ok">–</span>`;
-    const days = daysSince(entry.sent_date);
-    if (days >= 7) return `<span class="followup-badge followup-overdue">Overdue</span>`;
-    if (days >= 2) return `<span class="followup-badge followup-due">Follow up</span>`;
+    const refDate = entry.status_date || entry.sent_date;
+    if (entry.status === 'Waiting') {
+      const days = daysSince(refDate);
+      if (days >= 7) return `<span class="followup-badge followup-overdue">Overdue</span>`;
+      if (days >= 2) return `<span class="followup-badge followup-due">Follow up</span>`;
+      return `<span class="followup-ok">–</span>`;
+    }
+    if (entry.status === 'Replied') {
+      const days = daysSince(refDate);
+      if (days >= 5) return `<span class="followup-badge followup-overdue">Send Loom</span>`;
+      if (days >= 2) return `<span class="followup-badge followup-due">Send Loom</span>`;
+      return `<span class="followup-ok">–</span>`;
+    }
     return `<span class="followup-ok">–</span>`;
   }
 
   function rowClass(entry) {
-    if (entry.status !== 'Waiting') return '';
-    const days = daysSince(entry.sent_date);
-    if (days >= 7) return 'row-overdue';
-    if (days >= 2) return 'row-followup';
+    const refDate = entry.status_date || entry.sent_date;
+    if (entry.status === 'Waiting') {
+      const days = daysSince(refDate);
+      if (days >= 7) return 'row-overdue';
+      if (days >= 2) return 'row-followup';
+      return '';
+    }
+    if (entry.status === 'Replied') {
+      const days = daysSince(refDate);
+      if (days >= 5) return 'row-overdue';
+      if (days >= 2) return 'row-followup';
+      return '';
+    }
     return '';
   }
 
@@ -474,23 +480,33 @@
     return `<select class="status-select ${meta.cls}" onchange="updateStatus(this)">${options}</select>`;
   }
 
+  function renderSummary(data) {
+    const summary = document.getElementById('pipeline-summary');
+    const statuses = ['Waiting','Replied','Loom Sent','Call Booked','Closed Won','Not Interested'];
+    const counts = {};
+    data.forEach(e => { counts[e.status] = (counts[e.status] || 0) + 1; });
+    const items = statuses.filter(s => counts[s] > 0).map(s =>
+      `<span style="font-size:11px;color:#7a6e62;"><span style="font-weight:600;color:#1a1208;">${counts[s]}</span> ${s}</span>`
+    );
+    summary.innerHTML = items.join(' <span style="color:#b0a492;">·</span> ');
+  }
+
   function render() {
     const data  = load();
     const tbody = document.getElementById('tracker-tbody');
     const empty = document.getElementById('empty-state');
     const wrap  = document.getElementById('tracker-wrap');
-    const count = document.getElementById('count-label');
 
     if (!data.length) {
       empty.style.display = 'block';
       wrap.style.display  = 'none';
-      count.textContent   = '';
+      renderSummary([]);
       return;
     }
 
     empty.style.display = 'none';
     wrap.style.display  = 'block';
-    count.textContent   = `${data.length} prospect${data.length !== 1 ? 's' : ''}`;
+    renderSummary(data);
 
     const LOOM_STATUSES = new Set(['Replied', 'Loom Sent']);
 
@@ -506,11 +522,10 @@
             ${entry.maps_link ? `<a href="${entry.maps_link}" target="_blank" style="font-size:10px;color:#b0a492;text-decoration:none;display:block;margin-top:3px;" title="Google Business Profile">GBP ↗</a>` : ''}
           </td>
           <td><div class="contact-name">${entry.contact || '–'}</div></td>
-          <td><span class="channel-badge">${entry.channel}</span></td>
           <td><span class="sent-date">${formatDate(entry.sent_date)}</span></td>
           <td>${statusSelectHTML(entry.status)}</td>
           <td>${followupBadge(entry)}</td>
-          <td><span class="last-action">${entry.last_action || '–'}</span></td>
+          <td><input class="notes-input" type="text" placeholder="Last action..." value="${(entry.last_action || '').replace(/"/g, '&quot;')}" onchange="updateLastAction(this)" data-index="${i}" style="width:120px;" /></td>
           <td><input class="notes-input" type="text" placeholder="Add a note..." value="${entry.notes || ''}" onchange="updateNotes(this)" data-index="${i}" /></td>
           <td>${loomBtn}</td>
           <td><button class="delete-btn" onclick="deleteEntry(${i})" title="Remove">×</button></td>
@@ -523,6 +538,7 @@
     const index = parseInt(row.dataset.index);
     const data  = load();
     data[index].status      = select.value;
+    data[index].status_date = new Date().toISOString().slice(0, 10);
     data[index].last_action = `Status set to ${select.value}`;
     save(data);
     render();
@@ -535,7 +551,15 @@
     save(data);
   }
 
+  function updateLastAction(input) {
+    const index = parseInt(input.dataset.index);
+    const data  = load();
+    data[index].last_action = input.value;
+    save(data);
+  }
+
   function deleteEntry(index) {
+    if (!confirm('Remove this prospect?')) return;
     const data = load();
     data.splice(index, 1);
     save(data);
