@@ -313,7 +313,7 @@
 
     /* ── POOL COUNT ── */
     #pool-count {
-      max-width: 720px;
+      max-width: 980px;
       margin: 20px auto 0;
       padding: 0 20px;
       font-size: 12px;
@@ -341,81 +341,108 @@
 
     #hide-toggle:hover { color: var(--text); border-color: var(--text); }
 
-    #leads.hide-contacted .lead-row.contacted { display: none; }
+    #leads.hide-contacted tr.contacted { display: none; }
 
     /* ── STATUS ── */
     #status {
-      max-width: 960px;
+      max-width: 980px;
       margin: 6px auto 0;
       padding: 0 20px;
       font-size: 12px;
       color: var(--sub);
       min-height: 20px;
       text-align: left;
-      max-width: 720px;
       transition: color 0.4s;
     }
 
-    /* ── LEADS LIST ── */
+    /* ── LEADS TABLE ── */
     #leads {
-      max-width: 720px;
+      max-width: 980px;
       margin: 12px auto 64px;
       padding: 0 20px;
     }
 
-    .lead-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 10px 0;
+    .leads-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .leads-table thead th {
+      text-align: left;
+      padding: 6px 10px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sub);
+      border-bottom: 1.5px solid var(--border2);
+      white-space: nowrap;
+      transition: color 0.15s;
+    }
+
+    .leads-table thead th.sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .leads-table thead th.sortable:hover { color: var(--text); }
+    .leads-table thead th.sort-active    { color: var(--text); }
+
+    .sort-arrow { margin-left: 3px; opacity: 0.4; font-size: 9px; }
+    th.sort-active .sort-arrow { opacity: 1; }
+
+    .leads-table tbody tr {
       border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
     }
 
-    .lead-row:last-child { border-bottom: none; }
+    .leads-table tbody tr:hover { background: var(--surface); }
+    .leads-table tbody tr:last-child { border-bottom: none; }
 
-    .lead-main {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+    .leads-table td {
+      padding: 7px 10px;
+      vertical-align: middle;
+      white-space: nowrap;
+      font-size: 12px;
     }
 
-    .lead-line1 {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+    .leads-table tbody tr.contacted td { opacity: 0.38; }
+    .leads-table tbody tr.wa-sent   { border-left: 3px solid #4caf82; }
+    .leads-table tbody tr.call-made { border-left: 3px solid #b59a6a; }
 
-    .lead-name {
-      font-size: 13px;
+    .lead-name-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
       font-weight: 600;
       color: var(--text);
+      font-family: inherit;
+      padding: 0;
+      text-align: left;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
       white-space: nowrap;
+      display: block;
     }
 
-    .lead-meta {
-      font-size: 11px;
-      color: var(--muted);
-      white-space: nowrap;
+    .lead-name-btn:hover { color: #D4A43A; }
+
+    .rating-high { color: #2a7a4a; font-weight: 700; }
+    .rating-mid  { color: #b59a6a; font-weight: 700; }
+    .rating-low  { color: #c0392b; font-weight: 700; }
+
+    .outcome-dot {
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-right: 2px;
     }
 
-    .lead-line2 {
-      font-size: 11px;
-      color: var(--muted);
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .lead-line2 a {
-      color: var(--muted);
-      text-decoration: none;
-    }
-
-    .lead-line2 a:hover { color: #D4A43A; }
+    .outcome-dot.wa-dot   { background: #4caf82; }
+    .outcome-dot.call-dot { background: #b59a6a; }
 
     .lead-obs {
       font-size: 11px;
@@ -426,19 +453,6 @@
       line-height: 1.5;
       white-space: pre-line;
       overflow: hidden;
-    }
-
-    .lead-priority {
-      font-size: 13px;
-      flex-shrink: 0;
-      line-height: 1;
-      margin-top: 1px;
-    }
-
-    .lead-actions {
-      display: flex;
-      gap: 5px;
-      flex-shrink: 0;
     }
 
     .copy-btn {
@@ -782,6 +796,8 @@
 
   let allLeads = [];
   const leadMap = new Map();
+  let sortCol = null;
+  let sortDir = -1;
 
   cityInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') generateLeads();
@@ -865,41 +881,47 @@
     return `Hey — quick one.\n\nNoticed ${name} is at ${rating} with ${reviews} reviews — ${implication}.\n\nWant me to send you a quick breakdown?`;
   }
 
-  function renderCard(lead, i) {
-    const name  = escHtml(lead.name || '');
-    const phone = lead.phone ? `<span>${escHtml(lead.phone)}</span>` : '';
-    const city  = lead._city || lead.city ? `<span>${escHtml(lead._city || lead.city)}</span>` : '';
-
+  function renderRow(lead, i) {
+    const name     = escHtml(lead.name || '');
     const clean    = (lead.phone || '').replace(/\D/g, '');
     const isMobile = clean.startsWith('447') || clean.startsWith('07');
-    const phoneIcon   = lead.phone ? (isMobile ? '📱' : '☎️') : '☎️';
-    const contactType = lead.contact_type === 'whatsapp' ? 'WhatsApp' : lead.contact_type === 'call' ? 'Call' : '';
-    const contacted   = lead.status === 'contacted';
-    const outcome     = lead.contact_outcome || 'pending';
+    const contacted  = lead.status === 'contacted';
+    const outcome    = lead.contact_outcome || 'pending';
     const outcomeClass = outcome === 'whatsapp_sent' ? ' wa-sent' : outcome === 'call' ? ' call-made' : '';
-    const outcomeBadge = outcome === 'whatsapp_sent' ? 'WA Sent' : outcome === 'call' ? 'Call' : '';
+    const outcomeDot   = outcome === 'whatsapp_sent'
+      ? `<span class="outcome-dot wa-dot" title="WA Sent"></span>`
+      : outcome === 'call'
+      ? `<span class="outcome-dot call-dot" title="Call made"></span>`
+      : '';
+
+    const ratingClass = lead.rating <= 4.3 ? 'rating-low' : lead.rating <= 4.5 ? 'rating-mid' : 'rating-high';
+    const city  = escHtml(lead._city || lead.city || '');
+    const phone = escHtml(lead.phone || '');
 
     return `
-      <div class="lead-row${contacted ? ' contacted' : ''}${outcomeClass}" id="row-${i}">
-        <div class="lead-priority">${phoneIcon}</div>
-        <div class="lead-main">
-          <div class="lead-line1">
-            <span class="lead-name">${name}</span>
-            <span class="lead-meta">${lead.rating} ⭐ · ${lead.reviews} reviews</span>
+      <tr class="${contacted ? 'contacted' : ''}${outcomeClass}" id="row-${i}">
+        <td style="width:32px;padding-left:14px">
+          <label class="done-label" title="Mark as done" style="margin:0">
+            <input type="checkbox" class="done-cb" data-index="${i}"${contacted ? ' checked' : ''}>
+            <span class="done-icon">${contacted ? '☑️' : '⬜'}</span>
+          </label>
+        </td>
+        <td style="max-width:240px">
+          <button class="lead-name-btn open-modal-btn" data-index="${i}" title="${name}">${name}</button>
+        </td>
+        <td class="${ratingClass}">${lead.rating}</td>
+        <td style="color:var(--sub)">${lead.reviews}</td>
+        <td style="color:var(--sub)">${city}</td>
+        <td style="color:var(--sub);font-size:11px">${phone}${isMobile ? ' 📱' : ''}</td>
+        <td>
+          <div style="display:flex;gap:4px;align-items:center" id="actions-${i}">
+            ${outcomeDot}
+            ${clean ? `<button class="icon-btn wa-icon-btn" data-index="${i}">WA</button>` : ''}
+            ${clean ? `<a class="icon-btn call-icon-btn" href="tel:${clean}" data-index="${i}">Call</a>` : ''}
+            ${lead.website ? `<button class="icon-btn site-btn" data-index="${i}">↗</button>` : ''}
           </div>
-          <div class="lead-line2">
-            ${phone}${city}${contactType ? `<span>${contactType}</span>` : ''}
-            <span class="outcome-badge" id="outcome-${i}">${outcomeBadge}</span>
-          </div>
-          ${lead.observation ? `<div class="lead-obs">${escHtml(lead.observation)}</div>` : ''}
-        </div>
-        <div class="lead-actions">
-          ${lead.website ? `<button class="icon-btn site-btn" data-index="${i}">↗</button>` : ''}
-          ${clean ? `<button class="icon-btn wa-icon-btn" data-index="${i}">WA</button>` : ''}
-          ${clean ? `<a class="icon-btn call-icon-btn" href="tel:${clean}" data-index="${i}">Call</a>` : ''}
-          <label class="done-label" title="Mark as done"><input type="checkbox" class="done-cb" data-index="${i}"${contacted ? ' checked' : ''}>${contacted ? '☑️' : '⬜'}</label>
-        </div>
-      </div>`;
+        </td>
+      </tr>`;
   }
 
   function openModal(i) {
@@ -953,12 +975,26 @@
     row.classList.remove('wa-sent', 'call-made');
     if (outcome === 'whatsapp_sent') row.classList.add('wa-sent');
     if (outcome === 'call')          row.classList.add('call-made');
-    const badge = document.getElementById(`outcome-${i}`);
-    if (badge) badge.textContent = outcome === 'whatsapp_sent' ? 'WA Sent' : outcome === 'call' ? 'Call' : '';
+    // Update or insert outcome dot
+    const actionsDiv = document.getElementById(`actions-${i}`);
+    if (actionsDiv) {
+      let dot = actionsDiv.querySelector('.outcome-dot');
+      if (!dot) {
+        dot = document.createElement('span');
+        dot.className = 'outcome-dot';
+        actionsDiv.insertBefore(dot, actionsDiv.firstChild);
+      }
+      dot.className = 'outcome-dot' + (outcome === 'whatsapp_sent' ? ' wa-dot' : outcome === 'call' ? ' call-dot' : '');
+      dot.title = outcome === 'whatsapp_sent' ? 'WA Sent' : outcome === 'call' ? 'Call made' : '';
+    }
     saveLeads();
   }
 
   function attachLeadListeners() {
+    leadsEl.querySelectorAll('.open-modal-btn').forEach(btn => {
+      btn.addEventListener('click', () => openModal(Number(btn.dataset.index)));
+    });
+
     leadsEl.querySelectorAll('.wa-icon-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const i    = Number(btn.dataset.index);
@@ -992,8 +1028,8 @@
         lead.status = cb.checked ? 'contacted' : 'new';
         const row   = document.getElementById(`row-${i}`);
         row.classList.toggle('contacted', cb.checked);
-        const label = cb.closest('.done-label');
-        label.childNodes[1].textContent = cb.checked ? '☑️' : '⬜';
+        const icon = cb.closest('.done-label').querySelector('.done-icon');
+        if (icon) icon.textContent = cb.checked ? '☑️' : '⬜';
         saveLeads();
       });
     });
@@ -1045,19 +1081,56 @@
       return;
     }
 
-    // Contacted leads sink to bottom, new leads sorted by score at top
+    // Contacted leads always sink to bottom; within each group sort by active col or default score
     allLeads.sort((a, b) => {
       const ac = a.status === 'contacted' ? 1 : 0;
       const bc = b.status === 'contacted' ? 1 : 0;
       if (ac !== bc) return ac - bc;
+      if (sortCol) {
+        const val = l => {
+          if (sortCol === 'name')    return (l.name || '').toLowerCase();
+          if (sortCol === 'city')    return (l._city || l.city || '').toLowerCase();
+          if (sortCol === 'rating')  return l.rating  || 0;
+          if (sortCol === 'reviews') return l.reviews || 0;
+          return 0;
+        };
+        const av = val(a), bv = val(b);
+        if (av < bv) return -sortDir;
+        if (av > bv) return sortDir;
+        return 0;
+      }
       return getScore(b) - getScore(a);
     });
 
     leadMap.clear();
     allLeads.forEach((lead, i) => leadMap.set(i, lead));
-    leadsEl.innerHTML = allLeads.map((lead, i) => renderCard(lead, i)).join('');
+    leadsEl.innerHTML = `
+      <table class="leads-table">
+        <thead>
+          <tr>
+            <th style="width:32px"></th>
+            <th class="sortable${sortCol==='name'?' sort-active':''}" data-col="name">Business <span class="sort-arrow">${sortCol==='name'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
+            <th class="sortable${sortCol==='rating'?' sort-active':''}" data-col="rating">★ Rating <span class="sort-arrow">${sortCol==='rating'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
+            <th class="sortable${sortCol==='reviews'?' sort-active':''}" data-col="reviews">Reviews <span class="sort-arrow">${sortCol==='reviews'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
+            <th class="sortable${sortCol==='city'?' sort-active':''}" data-col="city">City <span class="sort-arrow">${sortCol==='city'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
+            <th>Phone</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${allLeads.map((lead, i) => renderRow(lead, i)).join('')}
+        </tbody>
+      </table>`;
     if (hideContacted) leadsEl.classList.add('hide-contacted');
     attachLeadListeners();
+    leadsEl.querySelectorAll('th.sortable').forEach(th => {
+      th.addEventListener('click', () => {
+        const col = th.dataset.col;
+        if (sortCol === col) { sortDir *= -1; }
+        else { sortCol = col; sortDir = col === 'name' || col === 'city' ? 1 : -1; }
+        renderAllLeads();
+      });
+    });
 
     const newCount       = allLeads.filter(l => l.status !== 'contacted').length;
     const contactedCount = allLeads.filter(l => l.status === 'contacted').length;
