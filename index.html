@@ -66,6 +66,9 @@
       z-index: 20;
     }
 
+    .topbar-left  { display: flex; align-items: center; gap: 8px; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+
     .nav-link {
       font-family: 'Inter', sans-serif;
       font-size: 11px;
@@ -633,13 +636,18 @@
 <body>
 
 <div class="topbar">
-  <a class="nav-link" href="execution-panel.html" target="_blank">Execution Panel ↗</a>
-  <a class="nav-link" href="linkedin-assist.html">LinkedIn Assist</a>
-  <button class="nav-link" style="cursor:pointer;background:none;" onclick="openGuide()">Guide</button>
-  <div class="theme-toggle" onclick="toggleTheme()">
-    <span class="toggle-label">Light</span>
-    <div class="toggle-track"><div class="toggle-thumb"></div></div>
-    <span class="toggle-label">Dark</span>
+  <div class="topbar-left">
+    <a class="nav-link" href="execution-panel.html" target="_blank">Execution Panel ↗</a>
+    <a class="nav-link" href="linkedin-assist.html">LinkedIn Assist</a>
+    <button class="nav-link" style="cursor:pointer;background:none;" onclick="openGuide()">Guide</button>
+  </div>
+  <div class="topbar-right">
+    <button id="export-btn" class="nav-link" style="display:none;cursor:pointer;background:none;" onclick="exportCSV()">Export CSV</button>
+    <div class="theme-toggle" onclick="toggleTheme()">
+      <span class="toggle-label">Light</span>
+      <div class="toggle-track"><div class="toggle-thumb"></div></div>
+      <span class="toggle-label">Dark</span>
+    </div>
   </div>
 </div>
 
@@ -670,9 +678,6 @@
   <div id="pool-count"><span id="pool-text"></span><button id="hide-toggle" style="display:none" onclick="toggleHideContacted()">Hide Done</button></div>
   <div id="status"></div>
   <div id="leads"></div>
-  <div id="export-bar" style="max-width:720px;margin:12px auto 48px;padding:0 20px;display:none;">
-    <button class="copy-btn" onclick="exportCSV()">Export CSV</button>
-  </div>
 </div>
 
 <!-- Guide modal -->
@@ -1024,7 +1029,7 @@
       leadsEl.innerHTML = '<div class="empty-state">No leads yet. Enter a city and run the engine.</div>';
       document.getElementById('pool-text').textContent = '';
       document.getElementById('hide-toggle').style.display = 'none';
-      document.getElementById('export-bar').style.display = 'none';
+      document.getElementById('export-btn').style.display = 'none';
       document.querySelector('.hero').classList.remove('compact');
       return;
     }
@@ -1048,7 +1053,7 @@
     document.getElementById('pool-text').textContent =
       `New · ${newCount}  ·  Contacted · ${contactedCount}  ·  Total · ${allLeads.length}`;
     document.getElementById('hide-toggle').style.display = 'inline-block';
-    document.getElementById('export-bar').style.display = 'block';
+    document.getElementById('export-btn').style.display = 'inline-block';
     document.querySelector('.hero').classList.add('compact');
     saveLeads();
   }
