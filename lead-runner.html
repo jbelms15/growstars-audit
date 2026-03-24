@@ -494,6 +494,86 @@
     .rating-mid  { color: #b07820; }
     .rating-low  { color: #c0392b; }
 
+    /* ── STICKY COLUMNS (num + cb + name) ── */
+    :root       { --sticky-head: #eae6dd; --sticky-body: #f5f1ea; }
+    body.dark   { --sticky-head: #1c1410; --sticky-body: #120d08; }
+
+    .leads-table th:nth-child(-n+3),
+    .leads-table td:nth-child(-n+3) { position: sticky; z-index: 2; }
+
+    .leads-table th:nth-child(1), .leads-table td:nth-child(1) { left: 0; }
+    .leads-table th:nth-child(2), .leads-table td:nth-child(2) { left: 36px; }
+    .leads-table th:nth-child(3), .leads-table td:nth-child(3) { left: 72px; }
+
+    .leads-table thead th:nth-child(-n+3) { background: var(--sticky-head); z-index: 12; }
+    .leads-table tbody td:nth-child(-n+3) { background: var(--sticky-body); }
+    .leads-table tbody tr:hover td:nth-child(-n+3) { background: var(--surface); }
+
+    /* ── RESIZE HANDLES ── */
+    .leads-table thead th { position: relative; }
+    .col-resize {
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 5px;
+      cursor: col-resize;
+      z-index: 4;
+    }
+    .col-resize:hover, .col-resize.resizing { background: rgba(212,164,58,0.6); }
+
+    /* ── FILTER ROW ── */
+    tr.filter-row td {
+      padding: 3px 5px;
+      background: var(--sticky-head);
+      border-bottom: 2px solid var(--grid-line);
+    }
+    tr.filter-row td:nth-child(-n+3) { position: sticky; z-index: 2; }
+    tr.filter-row td:nth-child(1) { left: 0; }
+    tr.filter-row td:nth-child(2) { left: 36px; }
+    tr.filter-row td:nth-child(3) { left: 72px; }
+
+    .filter-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-i);
+      border-radius: 2px;
+      padding: 2px 5px;
+      font-size: 11px;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .filter-input:focus { border-color: #D4A43A; }
+    .filter-input::placeholder { color: var(--ph); }
+
+    /* ── VELOCITY BADGE ── */
+    .vel-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 3px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .vel-fast   { background: rgba(42,122,74,0.12);  color: #2a7a4a; }
+    .vel-medium { background: rgba(176,120,32,0.12); color: #b07820; }
+    .vel-slow   { background: rgba(192,57,43,0.10);  color: #c0392b; }
+
+    /* ── STALE DATA INDICATOR ── */
+    .stale { opacity: 0.45; font-style: italic; }
+    .live-tag {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: #2a7a4a;
+      text-transform: uppercase;
+      margin-left: 4px;
+    }
+
+    .icon-btn.live-fetched { color: #2a7a4a; border-color: #2a7a4a; opacity: 0.7; }
+
     .outcome-dot {
       display: inline-block;
       width: 7px; height: 7px;
@@ -974,12 +1054,15 @@
           </label>
         </td>
         <td><button class="lead-name-btn open-modal-btn" data-index="${i}" title="${name}">${name}</button></td>
-        <td><span class="signal-pill ${signal.cls}"><span class="signal-dot"></span>${signal.label}</span></td>
-        <td class="${ratingClass}" style="text-align:right">${lead.rating}</td>
-        <td style="color:var(--sub);text-align:right">${lead.reviews}</td>
+        <td id="signal-${i}"><span class="signal-pill ${signal.cls}"><span class="signal-dot"></span>${signal.label}</span></td>
+        <td class="${ratingClass}" style="text-align:right" id="rating-${i}">${lead.rating}${lead._live ? '<span class="live-tag">live</span>' : ''}</td>
+        <td style="color:var(--sub);text-align:right" id="reviews-${i}">${lead.reviews}</td>
+        <td id="velocity-${i}">${lead.velocity ? `<span class="vel-badge vel-${lead.velocity}">${lead.velocity}</span>` : '<span class="stale">–</span>'}</td>
+        <td style="color:var(--sub);font-size:11px" id="lastrev-${i}">${lead.last_review_days != null ? `${lead.last_review_days}d ago` : '<span class="stale">–</span>'}</td>
         <td style="color:var(--sub)">${city}</td>
         <td style="color:var(--sub);font-size:11px">${phone}${isMobile ? ' 📱' : ''}</td>
         <td style="font-size:11px">${lead.website ? `<a href="${escHtml(lead.website)}" target="_blank" rel="noopener" style="color:var(--sub);text-decoration:none;overflow:hidden;text-overflow:ellipsis;display:block" title="${escHtml(lead.website)}">${escHtml(lead.website.replace(/^https?:\/\/(www\.)?/, ''))}</a>` : ''}</td>
+        <td style="text-align:center">${lead.maps_link ? `<a href="${escHtml(lead.maps_link)}" target="_blank" rel="noopener" class="icon-btn" style="text-decoration:none;display:inline-block" title="Open in Google Maps">↗</a>` : ''}</td>
         <td style="font-size:11px;color:var(--text)" id="owner-${i}">${lead.owner ? escHtml(lead.owner) : ''}</td>
         <td style="font-size:11px" id="email-${i}">${lead.email ? `<a href="mailto:${escHtml(lead.email)}" style="color:var(--sub);text-decoration:none">${escHtml(lead.email)}</a>` : ''}</td>
         <td>
@@ -987,7 +1070,8 @@
             ${outcomeDot}
             ${clean ? `<button class="icon-btn wa-icon-btn" data-index="${i}">WA</button>` : ''}
             ${clean ? `<a class="icon-btn call-icon-btn" href="tel:${clean}" data-index="${i}">Call</a>` : ''}
-            ${lead.website && !lead._enriched ? `<button class="icon-btn enrich-btn" data-index="${i}" title="Enrich: find email &amp; owner">⚡</button>` : ''}
+            ${(lead.id || lead.place_id) ? `<button class="icon-btn refresh-btn${lead._live?' live-fetched':''}" data-index="${i}" title="${lead._live ? 'Re-fetch live data' : 'Fetch live data from Google'}">↻</button>` : ''}
+            ${lead.website && !lead._enriched ? `<button class="icon-btn enrich-btn" data-index="${i}" title="Find email &amp; owner from website">⚡</button>` : ''}
           </div>
         </td>
       </tr>`;
@@ -997,15 +1081,27 @@
     const lead = leadMap.get(i);
     if (!lead) return;
 
-    const obs   = lead.observation || '';
-    const waMsg = buildMessage(lead.name, lead.rating, lead.reviews);
+    const obs      = lead.observation || '';
+    const waMsg    = buildMessage(lead.name, lead.rating, lead.reviews);
     const cleanNum = (lead.phone || '').replace(/\D/g, '');
+    const signal   = getSignal(lead.rating, lead.reviews);
+
+    const liveStamp = lead._live_at
+      ? `<span style="font-size:10px;color:#2a7a4a;font-weight:600">● LIVE</span> <span style="font-size:10px;color:var(--sub)">fetched ${Math.round((Date.now()-lead._live_at)/60000)}m ago</span>`
+      : `<span style="font-size:10px;color:var(--sub);font-style:italic">Snapshot data — click ↻ to fetch live before outreach</span>`;
 
     document.getElementById('modal-title').textContent = lead.name || '';
 
     const body = document.getElementById('modal-body');
     body.innerHTML = `
-      <div class="lead-obs" style="margin-bottom:12px">${escHtml(obs)}</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;font-size:12px">
+        <span><strong>${lead.rating}</strong> ★ &nbsp;·&nbsp; <strong>${lead.reviews}</strong> reviews</span>
+        ${lead.velocity ? `<span class="vel-badge vel-${lead.velocity}">${lead.velocity}</span>` : ''}
+        ${lead.last_review_days != null ? `<span style="color:var(--sub)">last review ${lead.last_review_days}d ago</span>` : ''}
+        <span class="signal-pill ${signal.cls}" style="font-size:11px"><span class="signal-dot"></span>${signal.label}</span>
+      </div>
+      <div style="margin-bottom:10px">${liveStamp}</div>
+      ${obs ? `<div class="lead-obs" style="margin-bottom:12px">${escHtml(obs)}</div>` : ''}
       <div class="msg-block">
         <div class="msg-label">WhatsApp Message</div>
         <div class="msg-text">${escHtml(waMsg)}</div>
@@ -1057,6 +1153,122 @@
       dot.title = outcome === 'whatsapp_sent' ? 'WA Sent' : outcome === 'call' ? 'Call made' : '';
     }
     saveLeads();
+  }
+
+  // ── LIVE DATA REFRESH ──
+  async function refreshLead(i) {
+    const lead = leadMap.get(i);
+    if (!lead) return;
+    const placeId = lead.id || lead.place_id;
+    if (!placeId) return;
+
+    const btn = leadsEl.querySelector(`.refresh-btn[data-index="${i}"]`);
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+
+    try {
+      const res  = await fetch('/api/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ place_id: placeId }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      // Update lead object with fresh data
+      if (data.rating  != null) lead.rating  = data.rating;
+      if (data.reviews != null) lead.reviews = data.reviews;
+      lead.velocity         = data.velocity;
+      lead.last_review_days = data.last_review_days;
+      lead._live            = true;
+      lead._live_at         = Date.now();
+
+      // Update cells in-place
+      const signal = getSignal(lead.rating, lead.reviews);
+      const ratingClass = lead.rating <= 4.3 ? 'rating-low' : lead.rating <= 4.5 ? 'rating-mid' : 'rating-high';
+
+      const signalCell   = document.getElementById(`signal-${i}`);
+      const ratingCell   = document.getElementById(`rating-${i}`);
+      const reviewsCell  = document.getElementById(`reviews-${i}`);
+      const velocityCell = document.getElementById(`velocity-${i}`);
+      const lastrevCell  = document.getElementById(`lastrev-${i}`);
+
+      if (signalCell)   signalCell.innerHTML   = `<span class="signal-pill ${signal.cls}"><span class="signal-dot"></span>${signal.label}</span>`;
+      if (ratingCell)   { ratingCell.className = ratingCell.className.replace(/rating-\w+/, ratingClass); ratingCell.innerHTML = `${lead.rating}<span class="live-tag">live</span>`; }
+      if (reviewsCell)  reviewsCell.textContent = lead.reviews;
+      if (velocityCell) velocityCell.innerHTML  = lead.velocity ? `<span class="vel-badge vel-${lead.velocity}">${lead.velocity}</span>` : '–';
+      if (lastrevCell)  lastrevCell.innerHTML   = lead.last_review_days != null ? `${lead.last_review_days}d ago` : '–';
+
+      if (btn) { btn.disabled = false; btn.textContent = '↻'; btn.classList.add('live-fetched'); btn.title = 'Re-fetch live data'; }
+      saveLeads();
+    } catch {
+      if (btn) { btn.disabled = false; btn.textContent = '↻'; }
+    }
+  }
+
+  // ── COLUMN FILTERS ──
+  const colFilters = {};
+
+  function applyColFilters() {
+    const tbody = leadsEl.querySelector('tbody');
+    if (!tbody) return;
+    tbody.querySelectorAll('tr').forEach((row, idx) => {
+      const lead = leadMap.get(idx);
+      if (!lead) return;
+      const sig = getSignal(lead.rating, lead.reviews).label;
+      const match =
+        (!colFilters.name   || (lead.name || '').toLowerCase().includes(colFilters.name)) &&
+        (!colFilters.signal || sig.toLowerCase().includes(colFilters.signal)) &&
+        (!colFilters.city   || (lead._city || lead.city || '').toLowerCase().includes(colFilters.city)) &&
+        (!colFilters.phone  || (lead.phone || '').includes(colFilters.phone)) &&
+        (!colFilters.owner  || (lead.owner || '').toLowerCase().includes(colFilters.owner)) &&
+        (!colFilters.email  || (lead.email || '').toLowerCase().includes(colFilters.email));
+      row.style.display = match ? '' : 'none';
+    });
+  }
+
+  function attachFilterListeners() {
+    leadsEl.querySelectorAll('.filter-input').forEach(input => {
+      input.addEventListener('input', () => {
+        const col = input.dataset.col;
+        colFilters[col] = input.value.trim().toLowerCase();
+        applyColFilters();
+      });
+      // Restore previous filter value
+      if (colFilters[input.dataset.col]) input.value = colFilters[input.dataset.col];
+    });
+  }
+
+  // ── COLUMN RESIZE ──
+  let resizeState = null;
+
+  document.addEventListener('mousemove', e => {
+    if (!resizeState) return;
+    const dx  = e.clientX - resizeState.startX;
+    const newW = Math.max(40, resizeState.startW + dx);
+    resizeState.col.style.width = newW + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (resizeState) {
+      resizeState.handle.classList.remove('resizing');
+      resizeState = null;
+    }
+  });
+
+  function attachResizeHandles() {
+    leadsEl.querySelectorAll('.col-resize').forEach(handle => {
+      handle.addEventListener('mousedown', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        const ci  = Number(handle.dataset.ci);
+        const col = leadsEl.querySelectorAll('col')[ci];
+        if (!col) return;
+        const th     = handle.closest('th');
+        const startW = th ? th.offsetWidth : 100;
+        resizeState  = { col, handle, startX: e.clientX, startW };
+        handle.classList.add('resizing');
+      });
+    });
   }
 
   async function enrichLead(i) {
@@ -1129,6 +1341,10 @@
       a.addEventListener('click', () => {
         setOutcome(Number(a.dataset.index), 'call');
       });
+    });
+
+    leadsEl.querySelectorAll('.refresh-btn').forEach(btn => {
+      btn.addEventListener('click', () => refreshLead(Number(btn.dataset.index)));
     });
 
     leadsEl.querySelectorAll('.enrich-btn').forEach(btn => {
@@ -1224,34 +1440,48 @@
     allLeads.forEach((lead, i) => leadMap.set(i, lead));
     leadsEl.innerHTML = `
       <table class="leads-table">
-        <colgroup>
+        <colgroup id="tbl-cols">
           <col style="width:36px">
           <col style="width:36px">
-          <col style="width:16%">
-          <col style="width:14%">
-          <col style="width:58px">
-          <col style="width:68px">
-          <col style="width:80px">
-          <col style="width:130px">
-          <col style="width:13%">
-          <col style="width:12%">
-          <col style="width:13%">
-          <col>
+          <col style="min-width:160px;width:180px">
+          <col style="min-width:130px;width:150px">
+          <col style="min-width:58px;width:62px">
+          <col style="min-width:68px;width:74px">
+          <col style="min-width:72px;width:80px">
+          <col style="min-width:82px;width:90px">
+          <col style="min-width:70px;width:80px">
+          <col style="min-width:120px;width:135px">
+          <col style="min-width:120px;width:145px">
+          <col style="min-width:44px;width:48px">
+          <col style="min-width:110px;width:125px">
+          <col style="min-width:140px;width:160px">
+          <col style="min-width:100px;width:110px">
         </colgroup>
         <thead>
           <tr>
             <th class="cell-num"></th>
             <th class="cell-cb"></th>
-            <th class="sortable${sortCol==='name'?' sort-active':''}" data-col="name">Name <span class="sort-arrow">${sortCol==='name'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
-            <th class="sortable${sortCol==='signal'?' sort-active':''}" data-col="signal">Signal <span class="sort-arrow">${sortCol==='signal'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
-            <th class="sortable${sortCol==='rating'?' sort-active':''}" data-col="rating" style="text-align:right">Rating <span class="sort-arrow">${sortCol==='rating'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
-            <th class="sortable${sortCol==='reviews'?' sort-active':''}" data-col="reviews" style="text-align:right">Reviews <span class="sort-arrow">${sortCol==='reviews'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
-            <th class="sortable${sortCol==='city'?' sort-active':''}" data-col="city">City <span class="sort-arrow">${sortCol==='city'?(sortDir===1?'↑':'↓'):'↕'}</span></th>
-            <th>Phone</th>
-            <th>Website</th>
-            <th>Owner</th>
-            <th>Email</th>
-            <th>Actions</th>
+            ${['name','signal','rating','reviews','velocity','lastrev','city','phone','website','maps','owner','email','actions'].map((col,ci) => {
+              const labels = {name:'Name',signal:'Signal',rating:'Rating',reviews:'Reviews',velocity:'Velocity',lastrev:'Last Review',city:'City',phone:'Phone',website:'Website',maps:'',owner:'Owner',email:'Email',actions:''};
+              const sortable = ['name','signal','rating','reviews','city'].includes(col);
+              const ra = ['rating','reviews'].includes(col) ? ' style="text-align:right"' : '';
+              const active = sortCol===col ? ' sort-active' : '';
+              const arrow = sortable ? ` <span class="sort-arrow">${sortCol===col?(sortDir===1?'↑':'↓'):'↕'}</span>` : '';
+              const resize = col!=='actions' ? `<div class="col-resize" data-ci="${ci+2}"></div>` : '';
+              return `<th class="${sortable?'sortable':''}${active}"${sortable?' data-col="'+col+'"':''} ${ra}>${labels[col]}${arrow}${resize}</th>`;
+            }).join('')}
+          </tr>
+          <tr class="filter-row">
+            <td></td><td></td>
+            <td><input class="filter-input" data-col="name" placeholder="filter…"></td>
+            <td><input class="filter-input" data-col="signal" placeholder="filter…"></td>
+            <td></td><td></td><td></td><td></td>
+            <td><input class="filter-input" data-col="city" placeholder="filter…"></td>
+            <td><input class="filter-input" data-col="phone" placeholder="filter…"></td>
+            <td></td><td></td>
+            <td><input class="filter-input" data-col="owner" placeholder="filter…"></td>
+            <td><input class="filter-input" data-col="email" placeholder="filter…"></td>
+            <td></td>
           </tr>
         </thead>
         <tbody>
@@ -1260,6 +1490,9 @@
       </table>`;
     if (hideContacted) leadsEl.classList.add('hide-contacted');
     attachLeadListeners();
+    attachFilterListeners();
+    attachResizeHandles();
+    applyColFilters();
     leadsEl.querySelectorAll('th.sortable').forEach(th => {
       th.addEventListener('click', () => {
         const col = th.dataset.col;
