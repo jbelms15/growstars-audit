@@ -366,6 +366,31 @@
     .maturity-building  { background: rgba(40,167,69,0.1);   color: #1e7e34; }
     .maturity-plateaued { background: rgba(212,164,58,0.12); color: #b59a3a; }
     .maturity-quiet     { background: rgba(220,53,69,0.1);   color: #c82333; }
+
+    /* ── HISTORY ── */
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      gap: 12px;
+    }
+
+    .history-item:last-child { border-bottom: none; }
+
+    .history-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a1208;
+      flex: 1;
+    }
+
+    .history-meta {
+      font-size: 11px;
+      color: #b0a492;
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
@@ -401,6 +426,14 @@
   </div>
 
   <div id="status"></div>
+
+  <div id="history-section" style="display:none" class="section">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="section-title" style="margin-bottom:0">Recent</div>
+      <button onclick="clearHistory()" style="font-size:10px;color:#b0a492;background:none;border:none;cursor:pointer;padding:0">Clear</button>
+    </div>
+    <div id="history-list"></div>
+  </div>
 
   <div id="output">
 
@@ -492,6 +525,8 @@
   [nameInput, cityInput, firstInput].forEach(el => {
     el.addEventListener('keydown', e => { if (e.key === 'Enter') analyze(); });
   });
+
+  renderHistory();
 
   function getObservationLabel(rating, reviews) {
     if (reviews >= 200 && rating <= 4.4) return 'high volume, not optimized';
@@ -611,21 +646,71 @@
     return 3;                                                               // Visibility
   }
 
+  const SIGNATURE = '\n\nJoanna @ GrowStars';
+
   function buildMessage(angle, { firstName, bizName, rating, reviews, lastReviewDays, velocity }) {
     switch (angle) {
       case 1:
         // Competition
-        return `Hey ${firstName} — quick one.\n\nNoticed ${bizName} is at ${rating} with ${reviews} reviews — which is solid. A few nearby spots are building up more reviews though.\n\nThat can influence how people decide which salon to go to when they're comparing.\n\nI made a quick breakdown on how to stay ahead — want me to send it?`;
+        return `Hey ${firstName}, quick one.\n\nNoticed ${bizName} is at ${rating} with ${reviews} reviews, which is solid. A few nearby spots are building up more reviews though.\n\nThat can influence how people decide which salon to go to when they're comparing.\n\nI made a quick breakdown on how to stay ahead, want me to send it?${SIGNATURE}`;
       case 2:
         // Opportunity
-        return `Hey ${firstName} — quick one.\n\n${bizName} is sitting at ${rating} with ${reviews} reviews — which is strong.\n\nWith a bit more consistent review flow, you could stand out even more locally.\n\nI made a quick breakdown on how to do that — want me to send it?`;
+        return `Hey ${firstName}, quick one.\n\n${bizName} is sitting at ${rating} with ${reviews} reviews, which is strong.\n\nWith a bit more consistent review flow, you could stand out even more locally.\n\nI made a quick breakdown on how to do that, want me to send it?${SIGNATURE}`;
       case 3:
         // Visibility
-        return `Hey ${firstName} — quick one.\n\nNoticed when people search nearby, ${bizName} isn't always showing as prominently as it could.\n\nThat usually comes down to how often new reviews are coming in.\n\nI made a quick breakdown of what affects that — want me to send it?`;
+        return `Hey ${firstName}, quick one.\n\nNoticed when people search nearby, ${bizName} isn't always showing as prominently as it could.\n\nThat usually comes down to how often new reviews are coming in.\n\nI made a quick breakdown of what affects that, want me to send it?${SIGNATURE}`;
       default:
         // Velocity (angle 0 — default/priority)
-        return `Hey ${firstName} — quick one.\n\nNoticed review activity has slowed down a bit for ${bizName} recently.\n\nA few nearby spots are getting reviews more consistently, which can affect how people decide which salon to go to.\n\nI made a quick breakdown on how to get reviews coming in more consistently — want me to send it?`;
+        return `Hey ${firstName}, quick one.\n\nNoticed review activity has slowed down a bit for ${bizName} recently.\n\nA few nearby spots are getting reviews more consistently, which can affect how people decide which salon to go to.\n\nI made a quick breakdown on how to get reviews coming in more consistently, want me to send it?${SIGNATURE}`;
     }
+  }
+
+  const HISTORY_KEY  = 'li_assist_history';
+  const MAX_HISTORY  = 20;
+  const ANGLE_LABELS = ['Velocity', 'Competition', 'Opportunity', 'Visibility'];
+
+  function loadHistory() {
+    try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
+    catch { return []; }
+  }
+
+  function saveToHistory(entry) {
+    const history  = loadHistory().filter(h => h.bizName !== entry.bizName || h.city !== entry.city);
+    history.unshift(entry);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, MAX_HISTORY)));
+    renderHistory();
+  }
+
+  function clearHistory() {
+    localStorage.removeItem(HISTORY_KEY);
+    renderHistory();
+  }
+
+  function timeAgo(iso) {
+    const diff = Math.floor((Date.now() - new Date(iso)) / 60000);
+    if (diff < 1)    return 'just now';
+    if (diff < 60)   return `${diff}m ago`;
+    if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+    return `${Math.floor(diff / 1440)}d ago`;
+  }
+
+  function renderHistory() {
+    const history = loadHistory();
+    const section = document.getElementById('history-section');
+    const list    = document.getElementById('history-list');
+    if (!history.length) { section.style.display = 'none'; return; }
+    section.style.display = '';
+    list.innerHTML = history.map(h => `
+      <div class="history-item">
+        <div>
+          <div class="history-name">${h.bizName}${h.city ? ` <span style="font-weight:400;color:#b0a492">· ${h.city}</span>` : ''}</div>
+          <div class="history-meta">${h.rating} ⭐ · ${h.reviews} reviews · ${ANGLE_LABELS[h.angle] || ''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="maturity-badge ${h.maturityCls}">${h.maturityLabel}</span>
+          <span class="history-meta">${timeAgo(h.date)}</span>
+        </div>
+      </div>`).join('');
   }
 
   function regenerate() {
@@ -742,6 +827,19 @@
 
       statusEl.textContent = '';
       outputEl.style.display = 'block';
+
+      // Save to history
+      const maturity = getProfileMaturity(reviews, last_review_days, review_velocity);
+      saveToHistory({
+        bizName:      shortBizName,
+        city:         cityInput.value.trim(),
+        rating,
+        reviews,
+        angle:        currentAngle,
+        maturityLabel: maturity.label,
+        maturityCls:   maturity.cls,
+        date:         new Date().toISOString(),
+      });
 
       // Email scrape — runs in background, doesn't block results
       const emailRow = document.getElementById('snap-email-row');
