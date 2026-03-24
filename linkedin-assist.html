@@ -495,6 +495,38 @@
     return hasStrongerCompetitors ? bucket.stronger : bucket.clear;
   }
 
+  function shortenBizName(name) {
+    let s = name.trim();
+
+    // Remove location additions (text after " - ")
+    s = s.split(/\s*-\s*/)[0].trim();
+
+    // Remove prefixes at start
+    s = s.replace(/^(The|Salon|Barbershop|Hair\s+Salon)\s+/i, '').trim();
+
+    // Remove suffixes iteratively (handles stacked combos like "& Spa Waxing")
+    const suffixes = [
+      '& Waxing', '& Spa', 'Hair Salon', 'Barbers',
+      'Experience', 'Lounge', 'Waxing', 'Spa', 'Studio',
+    ];
+    let prev;
+    do {
+      prev = s;
+      for (const suffix of suffixes) {
+        const escaped = suffix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const candidate = s.replace(new RegExp(`\\s+${escaped}$`, 'i'), '').trim();
+        if (candidate.length > 0) s = candidate;
+      }
+    } while (s !== prev);
+
+    // Prefer 2 words, allow 3 if needed
+    const words = s.split(/\s+/);
+    s = words.slice(0, 2).join(' ');
+
+    // Fallback: never return empty
+    return s || name.trim();
+  }
+
   function selectDefaultAngle({ lastReviewDays, hasStronger, rating }) {
     if (lastReviewDays !== null && lastReviewDays > 60) return 0; // Velocity
     if (hasStronger)                                              return 1; // Competition
@@ -551,7 +583,8 @@
 
       const { business, competitors } = data;
       const { name: bizName, rating, reviews, maps_link, last_review_days, review_velocity } = business;
-      const firstName = firstInput.value.trim() || '{{first_name}}';
+      const firstName    = firstInput.value.trim() || '{{first_name}}';
+      const shortBizName = shortenBizName(bizName);
       const obsLabel  = getObservationLabel(rating, reviews);
 
       // Snapshot
@@ -608,7 +641,7 @@
       }
 
       // Save context for regenerate
-      lastCtx = { firstName, bizName, rating, reviews, implicationLine, trustLine, lastReviewDays: last_review_days, velocity: review_velocity, hasStronger };
+      lastCtx = { firstName, bizName: shortBizName, rating, reviews, implicationLine, trustLine, lastReviewDays: last_review_days, velocity: review_velocity, hasStronger };
       currentAngle = selectDefaultAngle({ lastReviewDays: last_review_days, hasStronger, rating });
       document.getElementById('angle-indicator').textContent = `1 / ${TOTAL_ANGLES}`;
       document.getElementById('li-message').textContent = buildMessage(0, lastCtx);
