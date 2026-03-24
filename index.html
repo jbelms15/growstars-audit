@@ -561,6 +561,16 @@
       </div>
     </div>
 
+    <div class="section">
+      <div class="section-title">Loom Script</div>
+      <div class="text-block">
+        <div class="text-content" id="loom-script"></div>
+        <div class="block-actions">
+          <button class="copy-btn" onclick="copyBlock(this, 'loom-script')">Copy</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -750,6 +760,45 @@
     }
   }
 
+  function buildLoomScript(angle, { bizName, rating, reviews, lastReviewDays, hasStronger }) {
+    const hook = `Hey, I had a quick look at your Google reviews and wanted to show you something.`;
+    const cause = `No system to get reviews consistently is usually why this happens.`;
+    const fix   = `There's a simple way to ask every happy client at the right moment, so reviews come in more regularly without it feeling pushy.`;
+    const cta   = `If you want, I can show you how to set this up.`;
+
+    // Determine scenario (mirrors angle 0 logic)
+    let scenario;
+    if (angle === 1)      scenario = 'competition';
+    else if (angle === 2) scenario = 'opportunity';
+    else if (angle === 3) scenario = 'velocity';
+    else if (lastReviewDays !== null && lastReviewDays > 60) scenario = 'velocity';
+    else if (hasStronger) scenario = 'competition';
+    else if (rating <= 4.3) scenario = 'low_rating';
+    else                  scenario = 'opportunity';
+
+    let obs, what, why;
+
+    if (scenario === 'velocity') {
+      obs  = `It looks like your reviews have slowed down recently.`;
+      what = `You've got ${reviews} reviews at ${rating} stars, which is a decent base. But when reviews stop coming in, Google starts showing your profile less. The most recent reviews on your page are getting older, and that matters more than people realise.`;
+      why  = `People check how recent your reviews are before deciding where to book. Old reviews, even good ones, make the profile look quiet. That can push bookings to someone who's been getting reviews more consistently.`;
+    } else if (scenario === 'competition') {
+      obs  = `Nearby spots are getting more reviews than you right now.`;
+      what = `You're at ${reviews} reviews and ${rating} stars. A few places nearby have more volume coming in, which pushes them higher when someone searches for a salon in the area.`;
+      why  = `Google tends to show profiles with the most consistent review activity first. The more regularly reviews come in, the more visible you are, and the more bookings follow from people who didn't already know you.`;
+    } else if (scenario === 'low_rating') {
+      obs  = `Your rating suggests something might be holding it back.`;
+      what = `You've got ${reviews} reviews, but a ${rating} average means a few lower scores are pulling it down. The problem is usually that only unhappy customers leave reviews without being asked. Happy ones need a nudge.`;
+      why  = `When people compare salons nearby, rating is the first thing they check. A lower score makes them click somewhere else, even if the actual service is great.`;
+    } else {
+      obs  = `You're already in a solid position, ${rating} stars with ${reviews} reviews.`;
+      what = `That's a strong base. But there's still a gap between where you are and the top spots locally. The businesses pulling ahead aren't necessarily better, they just have a steadier flow of new reviews coming in.`;
+      why  = `More recent reviews means better visibility in search, which means more people finding you before they find someone else. It compounds over time.`;
+    }
+
+    return [hook, obs, what, why, cause, fix, cta].join('\n\n');
+  }
+
   const HISTORY_KEY  = 'li_assist_history';
   const MAX_HISTORY  = 20;
   const ANGLE_LABELS = ['Velocity', 'Competition', 'Opportunity', 'Visibility'];
@@ -801,7 +850,8 @@
   function regenerate() {
     if (!lastCtx) return;
     currentAngle = (currentAngle + 1) % TOTAL_ANGLES;
-    document.getElementById('li-message').textContent = buildMessage(currentAngle, lastCtx);
+    document.getElementById('li-message').textContent    = buildMessage(currentAngle, lastCtx);
+    document.getElementById('loom-script').textContent   = buildLoomScript(currentAngle, lastCtx);
     document.getElementById('angle-indicator').textContent = `${currentAngle + 1} / ${TOTAL_ANGLES}`;
   }
 
@@ -944,7 +994,8 @@
       lastCtx = { firstName, bizName: shortBizName, rating, reviews, implicationLine, trustLine, lastReviewDays: last_review_days, velocity: review_velocity, hasStronger };
       currentAngle = selectDefaultAngle({ lastReviewDays: last_review_days, hasStronger, rating });
       document.getElementById('angle-indicator').textContent = `${currentAngle + 1} / ${TOTAL_ANGLES}`;
-      document.getElementById('li-message').textContent = buildMessage(currentAngle, lastCtx);
+      document.getElementById('li-message').textContent    = buildMessage(currentAngle, lastCtx);
+      document.getElementById('loom-script').textContent   = buildLoomScript(currentAngle, lastCtx);
 
       statusEl.textContent = '';
       outputEl.style.display = 'block';
