@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LinkedIn Assist — GrowStars</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f1ea;
+      color: #1a1208;
+      min-height: 100vh;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      background: #f5f1ea;
+    }
+
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+
+    .brand {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1208;
+      text-decoration: none;
+    }
+
+    .brand span { color: #D4A43A; }
+
+    .page-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: #7a6e62;
+      letter-spacing: 0.04em;
+    }
+
+    .nav-link {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #7a6e62;
+      text-decoration: none;
+      padding: 4px 10px;
+      border: 0.5px solid #d4c9b0;
+      border-radius: 3px;
+    }
+
+    .nav-link:hover { color: #1a1208; }
+
+    /* ── MAIN ── */
+    .main {
+      max-width: 640px;
+      margin: 40px auto;
+      padding: 0 24px 80px;
+    }
+
+    /* ── INPUTS ── */
+    .input-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .field label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #7a6e62;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .field input {
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      border: 1px solid #d4c9b0;
+      border-radius: 6px;
+      background: #fff;
+      color: #1a1208;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .field input:focus { border-color: #D4A43A; }
+    .field input::placeholder { color: #b0a492; }
+
+    .analyze-btn {
+      padding: 11px 24px;
+      font-size: 12px;
+      font-family: inherit;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: #1a1208;
+      color: #D4A43A;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      align-self: flex-end;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+
+    .analyze-btn:hover { opacity: 0.82; }
+    .analyze-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── STATUS ── */
+    #status {
+      font-size: 12px;
+      color: #7a6e62;
+      min-height: 18px;
+      margin-bottom: 8px;
+    }
+
+    /* ── OUTPUT ── */
+    #output { display: none; }
+
+    .section { margin-bottom: 24px; }
+
+    .section-title {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #b0a492;
+      margin-bottom: 10px;
+    }
+
+    /* Snapshot */
+    .snapshot {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .snapshot-name {
+      font-size: 15px;
+      font-weight: 600;
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .snapshot-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: #7a6e62;
+    }
+
+    .snapshot-meta strong { color: #1a1208; }
+
+    .obs-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: rgba(212,164,58,0.12);
+      color: #b59a3a;
+      white-space: nowrap;
+    }
+
+    /* Message + Script blocks */
+    .text-block {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .text-content {
+      font-size: 13px;
+      color: #1a1208;
+      line-height: 1.65;
+      white-space: pre-wrap;
+    }
+
+    .block-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .copy-btn {
+      font-size: 11px;
+      font-family: inherit;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 4px;
+      border: 1px solid rgba(0,0,0,0.15);
+      background: #fff;
+      color: #1a1208;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .copy-btn:hover { background: #f0ede8; }
+    .copy-btn.copied { background: #f0faf4; border-color: #a8d8b8; color: #2a7a4a; }
+
+    .maps-link {
+      font-size: 11px;
+      color: #b0a492;
+      text-decoration: none;
+    }
+
+    .maps-link:hover { color: #7a6e62; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="brand" href="index.html">Grow<span>Stars</span></a>
+    <span class="page-title">LinkedIn Assist</span>
+  </div>
+  <a class="nav-link" href="index.html">← Lead Runner</a>
+</div>
+
+<div class="main">
+
+  <div class="input-section">
+    <div class="input-row">
+      <div class="field">
+        <label>Business Name</label>
+        <input type="text" id="biz-name" placeholder="e.g. Istanbul Barber" />
+      </div>
+      <div class="field" style="max-width:180px">
+        <label>City</label>
+        <input type="text" id="biz-city" placeholder="e.g. Leeds" />
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="field" style="max-width:200px">
+        <label>First Name (prospect)</label>
+        <input type="text" id="first-name" placeholder="e.g. Alex" />
+      </div>
+      <button class="analyze-btn" id="analyze-btn" onclick="analyze()">Analyze →</button>
+    </div>
+  </div>
+
+  <div id="status"></div>
+
+  <div id="output">
+
+    <div class="section">
+      <div class="section-title">Business Snapshot</div>
+      <div class="snapshot">
+        <div class="snapshot-name" id="snap-name"></div>
+        <div class="snapshot-meta">
+          <span><strong id="snap-rating"></strong> ⭐</span>
+          <span><strong id="snap-reviews"></strong> reviews</span>
+        </div>
+        <div class="obs-badge" id="snap-obs"></div>
+        <a id="snap-link" class="maps-link" href="#" target="_blank">View on Maps ↗</a>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">LinkedIn Message</div>
+      <div class="text-block">
+        <div class="text-content" id="li-message"></div>
+        <div class="block-actions">
+          <button class="copy-btn" onclick="copyBlock(this, 'li-message')">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Loom Script</div>
+      <div class="text-block">
+        <div class="text-content" id="loom-script"></div>
+        <div class="block-actions">
+          <button class="copy-btn" onclick="copyBlock(this, 'loom-script')">Copy</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const nameInput    = document.getElementById('biz-name');
+  const cityInput    = document.getElementById('biz-city');
+  const firstInput   = document.getElementById('first-name');
+  const analyzeBtn   = document.getElementById('analyze-btn');
+  const statusEl     = document.getElementById('status');
+  const outputEl     = document.getElementById('output');
+
+  [nameInput, cityInput, firstInput].forEach(el => {
+    el.addEventListener('keydown', e => { if (e.key === 'Enter') analyze(); });
+  });
+
+  function getObservationData(rating, reviews) {
+    if (reviews >= 200 && rating <= 4.4) return {
+      label:      'high volume, not optimized',
+      implication:'that\'s likely costing you bookings right now',
+      why:        'High traffic but inconsistent experience — a few bad reviews are dragging the average.',
+      cause:      'Scaling without quality control. No reputation management system in place.',
+      impact:     'Massive lost potential — customers are visiting but not converting to loyal regulars.',
+    };
+    if (reviews >= 120 && rating < 4.7) return {
+      label:      'room to improve rating',
+      implication:'there\'s clear room to push this higher',
+      why:        'Strong review base but not fully optimised — the rating could easily be higher.',
+      cause:      'Happy customers aren\'t being asked for reviews. Negative reviews not managed.',
+      impact:     'Losing easy ranking gains to competitors with fewer but better-managed reviews.',
+    };
+    if (rating <= 4.3) return {
+      label:      'costing bookings',
+      implication:'that\'s likely costing you bookings right now',
+      why:        'Customers see better-rated competitors nearby and skip this business.',
+      cause:      'A few bad reviews dragging the average with no system to recover unhappy clients.',
+      impact:     'Fewer clicks, lower conversion — visible cost in new customer flow.',
+    };
+    if (reviews <= 80 && rating >= 4.4) return {
+      label:      'low visibility',
+      implication:'you\'re probably not getting as much visibility as you could',
+      why:        'Good quality but low review volume — not appearing in top results.',
+      cause:      'No review generation system. Happy customers leaving without leaving a review.',
+      impact:     'Lower trust vs competitors. Invisible to most searchers.',
+    };
+    return {
+      label:      'room to improve',
+      implication:'there\'s clear room to push this higher',
+      why:        'Solid presence but not standing out in local search results.',
+      cause:      'Review growth has plateaued. No active reputation strategy.',
+      impact:     'Being outranked by competitors with more consistent review velocity.',
+    };
+  }
+
+  async function analyze() {
+    const name = nameInput.value.trim();
+    if (!name) { nameInput.focus(); return; }
+
+    analyzeBtn.disabled = true;
+    analyzeBtn.textContent = 'Analyzing…';
+    statusEl.textContent = 'Looking up business…';
+    outputEl.style.display = 'none';
+
+    try {
+      const res  = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, city: cityInput.value.trim() }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        statusEl.textContent = 'Not found — try adding the city or check the spelling.';
+        return;
+      }
+
+      const { rating, reviews, maps_link } = data;
+      const bizName   = data.name;
+      const firstName = firstInput.value.trim() || '{{first_name}}';
+      const obs       = getObservationData(rating, reviews);
+
+      // Snapshot
+      document.getElementById('snap-name').textContent    = bizName;
+      document.getElementById('snap-rating').textContent  = rating;
+      document.getElementById('snap-reviews').textContent = reviews;
+      document.getElementById('snap-obs').textContent     = obs.label;
+      document.getElementById('snap-link').href           = maps_link;
+
+      // LinkedIn message
+      document.getElementById('li-message').textContent =
+        `Hey ${firstName} — quick one.\n\nNoticed ${bizName} is at ${rating} with ${reviews} reviews — ${obs.implication}.\n\nWant me to send you a quick breakdown?`;
+
+      // Loom script
+      document.getElementById('loom-script').textContent =
+        `LOOM SCRIPT — ${bizName}\n\n` +
+        `1. What I noticed\n   → ${bizName} is at ${rating} stars with ${reviews} reviews\n   → Label: ${obs.label}\n\n` +
+        `2. Why it matters\n   → ${obs.why}\n\n` +
+        `3. What's causing it\n   → ${obs.cause}\n\n` +
+        `4. What can be improved\n   → Rating can be pushed higher with a simple review follow-up system\n   → Review velocity needs to be consistent, not spiked\n\n` +
+        `5. Offer\n   → "I put together a quick breakdown of what I'd fix first — happy to walk you through it if useful."`;
+
+      statusEl.textContent = '';
+      outputEl.style.display = 'block';
+
+    } catch (err) {
+      statusEl.textContent = 'Request failed: ' + err.message;
+    } finally {
+      analyzeBtn.disabled = false;
+      analyzeBtn.textContent = 'Analyze →';
+    }
+  }
+
+  function copyBlock(btn, id) {
+    const text = document.getElementById(id).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied ✔';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+
+</body>
+</html>
