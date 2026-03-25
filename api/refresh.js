@@ -50,11 +50,10 @@ export default async function handler(req, res) {
     }
 
     // Negative sentiment — 1–2 star reviews in the sample (up to 5 from Places API)
-    const negReviews = reviews.filter(r => r.rating <= 2);
-    const neg_count  = negReviews.length;
-    const neg_snippet = neg_count && negReviews[0].text
-      ? negReviews[0].text.slice(0, 160)
-      : null;
+    const negReviews   = reviews.filter(r => r.rating <= 2);
+    const neg_count    = negReviews.length;
+    const neg_snippet  = neg_count && negReviews[0].text ? negReviews[0].text : null;
+    const neg_review_url = neg_count ? (negReviews[0].author_url || null) : null;
 
     // Responds to reviews — count of reviews with an owner reply in the sample
     const responds_count = reviews.filter(r => !!(r.author_reply?.text)).length;
@@ -77,6 +76,7 @@ export default async function handler(req, res) {
       velocity,
       neg_count,
       neg_snippet,
+      neg_review_url,
       responds_count,
       responds_total,
       gbp,

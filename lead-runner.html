@@ -758,9 +758,11 @@
       color: var(--sub);
       font-style: italic;
       border-left: 2px solid #c82333;
-      padding-left: 8px;
+      padding: 4px 8px;
       margin: 6px 0 0;
-      line-height: 1.5;
+      line-height: 1.55;
+      max-height: 120px;
+      overflow-y: auto;
     }
 
     /* ── RESPONDS BADGE ── */
@@ -1918,7 +1920,11 @@
     if (lead._live) {
       const negLine = lead.neg_count > 0
         ? `<div class="snap-sig-row"><span>Negative reviews</span><span style="color:#c82333;font-weight:600">⚠ ${lead.neg_count} of ${lead.responds_total || 5} are 1–2 ★</span></div>
-           ${lead.neg_snippet ? `<div class="neg-snippet" style="margin-top:6px">"${escHtml(lead.neg_snippet)}${lead.neg_snippet.length >= 160 ? '…' : ''}"</div>` : ''}`
+           ${lead.neg_snippet ? `
+             <div class="neg-snippet" style="margin-top:6px">
+               "${escHtml(lead.neg_snippet)}"
+               ${lead.neg_review_url ? `<a href="${escHtml(lead.neg_review_url)}" target="_blank" rel="noopener" style="display:block;margin-top:4px;font-size:10px;color:var(--sub);text-decoration:none">View on Google ↗</a>` : ''}
+             </div>` : ''}`
         : `<div class="snap-sig-row"><span>Negative reviews</span><span style="color:#2a7a4a;font-weight:600">✓ None in recent sample</span></div>`;
 
       const repliedLine = lead.responds_total
@@ -2225,8 +2231,9 @@
       if (data.reviews != null) lead.reviews = data.reviews;
       lead.velocity         = data.velocity;
       lead.last_review_days = data.last_review_days;
-      lead.neg_count        = data.neg_count      ?? null;
-      lead.neg_snippet      = data.neg_snippet    ?? null;
+      lead.neg_count        = data.neg_count       ?? null;
+      lead.neg_snippet      = data.neg_snippet     ?? null;
+      lead.neg_review_url   = data.neg_review_url  ?? null;
       lead.responds_count   = data.responds_count ?? null;
       lead.responds_total   = data.responds_total ?? null;
       lead._gbp             = data.gbp            ?? null;
