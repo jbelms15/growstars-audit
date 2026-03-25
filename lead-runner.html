@@ -922,7 +922,6 @@
       flex-direction: column;
       transform: translateX(100%);
       transition: transform 0.22s ease;
-      overflow: hidden;
     }
 
     .snap-drawer.open { transform: translateX(0); }
@@ -943,15 +942,16 @@
       padding: 13px 18px;
       border-bottom: 1px solid var(--border);
       flex-shrink: 0;
-      gap: 8px;
+      gap: 12px;
     }
 
     .snap-header-info {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
       overflow: hidden;
       min-width: 0;
+      flex: 1;
     }
 
     .snap-header-title {
@@ -965,7 +965,7 @@
 
     .snap-header-sub {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
       align-items: center;
       font-size: 11px;
@@ -973,21 +973,14 @@
     }
     .snap-header-sub a { color: var(--sub); text-decoration: none; }
     .snap-header-sub a:hover { color: var(--gold); }
-
-    .snap-header-right {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-    .snap-live-badge {
+    .snap-header-sub .sub-sep { color: var(--border2); user-select: none; }
+    .snap-live-inline {
       font-size: 10px;
       font-weight: 600;
       color: #2a7a4a;
       white-space: nowrap;
     }
-    .snap-live-badge.stale {
+    .snap-live-inline.stale {
       color: var(--sub);
       font-weight: 400;
       font-style: italic;
@@ -1449,10 +1442,7 @@
       <div class="snap-header-title" id="snap-title"></div>
       <div class="snap-header-sub" id="snap-sub"></div>
     </div>
-    <div class="snap-header-right">
-      <button class="snap-close" onclick="closeSnapshot()">✕</button>
-      <div id="snap-live-stamp"></div>
-    </div>
+    <button class="snap-close" onclick="closeSnapshot()" style="flex-shrink:0;margin-top:1px">✕</button>
   </div>
   <div class="snap-body" id="snap-body"></div>
 </div>
@@ -1905,23 +1895,19 @@
       titleEl.textContent = lead.name || '';
     }
 
-    // Header subtitle: phone · Website
+    // Header subtitle: phone · Website · ● LIVE / snapshot
     const subEl = document.getElementById('snap-sub');
     if (subEl) {
       const subParts = [];
       if (lead.phone) subParts.push(`<span>${escHtml(lead.phone)}</span>`);
       if (lead.website) subParts.push(`<a href="${escHtml(lead.website)}" target="_blank" rel="noopener">Website ↗</a>`);
-      subEl.innerHTML = subParts.join('<span style="color:var(--border2)"> · </span>');
-    }
-
-    const liveStampEl = document.getElementById('snap-live-stamp');
-    if (liveStampEl) {
       if (lead._live_at) {
         const mins = Math.round((Date.now() - lead._live_at) / 60000);
-        liveStampEl.innerHTML = `<span class="snap-live-badge">● LIVE</span><span style="font-size:10px;color:var(--sub);display:block;text-align:right">${mins}m ago</span>`;
+        subParts.push(`<span class="snap-live-inline">● LIVE ${mins}m ago</span>`);
       } else {
-        liveStampEl.innerHTML = `<span class="snap-live-badge stale">snapshot</span>`;
+        subParts.push(`<span class="snap-live-inline stale">snapshot</span>`);
       }
+      subEl.innerHTML = subParts.join('<span class="sub-sep"> · </span>');
     }
 
     // Review Signals section
@@ -2079,8 +2065,6 @@
   function closeSnapshot() {
     document.getElementById('snap-drawer').classList.remove('open');
     document.getElementById('snap-overlay').classList.remove('active');
-    const liveEl = document.getElementById('snap-live-stamp');
-    if (liveEl) liveEl.innerHTML = '';
     _snapIndex = null;
   }
 
