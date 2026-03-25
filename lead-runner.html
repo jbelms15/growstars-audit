@@ -974,6 +974,25 @@
     .snap-header-sub a { color: var(--sub); text-decoration: none; }
     .snap-header-sub a:hover { color: var(--gold); }
 
+    .snap-header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .snap-live-badge {
+      font-size: 10px;
+      font-weight: 600;
+      color: #2a7a4a;
+      white-space: nowrap;
+    }
+    .snap-live-badge.stale {
+      color: var(--sub);
+      font-weight: 400;
+      font-style: italic;
+    }
+
     .snap-close {
       background: none;
       border: none;
@@ -990,7 +1009,8 @@
     .snap-body {
       overflow-y: auto;
       flex: 1;
-      padding: 18px 20px;
+      min-height: 0;
+      padding: 16px 20px 32px;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -1429,7 +1449,10 @@
       <div class="snap-header-title" id="snap-title"></div>
       <div class="snap-header-sub" id="snap-sub"></div>
     </div>
-    <button class="snap-close" onclick="closeSnapshot()">✕</button>
+    <div class="snap-header-right">
+      <button class="snap-close" onclick="closeSnapshot()">✕</button>
+      <div id="snap-live-stamp"></div>
+    </div>
   </div>
   <div class="snap-body" id="snap-body"></div>
 </div>
@@ -1891,9 +1914,15 @@
       subEl.innerHTML = subParts.join('<span style="color:var(--border2)"> · </span>');
     }
 
-    const liveStamp = lead._live_at
-      ? `<span style="font-size:10px;color:#2a7a4a;font-weight:600">● LIVE</span> <span style="font-size:10px;color:var(--sub)">fetched ${Math.round((Date.now()-lead._live_at)/60000)}m ago</span>`
-      : `<span style="font-size:10px;color:var(--sub);font-style:italic">Snapshot data — fetch live ↻ for full signals</span>`;
+    const liveStampEl = document.getElementById('snap-live-stamp');
+    if (liveStampEl) {
+      if (lead._live_at) {
+        const mins = Math.round((Date.now() - lead._live_at) / 60000);
+        liveStampEl.innerHTML = `<span class="snap-live-badge">● LIVE</span><span style="font-size:10px;color:var(--sub);display:block;text-align:right">${mins}m ago</span>`;
+      } else {
+        liveStampEl.innerHTML = `<span class="snap-live-badge stale">snapshot</span>`;
+      }
+    }
 
     // Review Signals section
     let reviewSignalsHtml = '';
@@ -1940,8 +1969,6 @@
 
     const body = document.getElementById('snap-body');
     body.innerHTML = `
-      <div class="snap-live-row">${liveStamp}</div>
-
       <div class="snap-rating-hero">
         <span class="snap-rating-num">${lead.rating} ★</span>
         <span class="snap-rating-sub">${lead.reviews} reviews</span>
@@ -2052,6 +2079,8 @@
   function closeSnapshot() {
     document.getElementById('snap-drawer').classList.remove('open');
     document.getElementById('snap-overlay').classList.remove('active');
+    const liveEl = document.getElementById('snap-live-stamp');
+    if (liveEl) liveEl.innerHTML = '';
     _snapIndex = null;
   }
 
